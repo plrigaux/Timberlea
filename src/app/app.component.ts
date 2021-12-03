@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'file-server';
+
+
+  messages = this.http.get<any[]>('http://localhost:8000/api/list')
+
+  constructor(private http: HttpClient) {
+
+  }
 }
