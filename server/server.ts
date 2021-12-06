@@ -1,12 +1,10 @@
 import express, { NextFunction, Request, Response } from 'express';
-import path from 'path'
+
 import fs, { Dirent } from 'fs';
 import multer from 'multer';
-import { FileInfo, FileType } from './structures';
-import { currentDirectory } from './directory';
+import { fileServer } from './fileServer';
 
 const app = express();
-
 const PORT = 8000;
 
 app.use(express.static('public'))
@@ -24,54 +22,7 @@ app.get('/', (req : Request, res : Response) => {
   res.redirect('/hello.html');
 });
 
-app.get('/api/pwd', (req, res) => {
-
-
-  const notes = '.'
-
-  let dirName = path.dirname(notes) // /users/joe
-  let basename = path.basename(notes) // notes.txt
-  let extname = path.extname(notes)
-  let p = process.cwd()
-  res.send(`PWD ${dirName} ${basename} ${extname} ${__dirname} ${__filename} ${p}`)
-})
-
-
-
-app.get('/api/list', (req, res) => {
-
-  let folder = currentDirectory
-
-  console.log(`folder ${folder}`)
-  let fileInfos: FileInfo[] = []
-  fs.readdir(folder, { withFileTypes: true }, (err, files: Dirent[]) => {
-    files.forEach(file => {
-
-      
-      let fi: FileInfo = {
-        name: file.name,
-        type : file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
-      }
-
-      if (file.isFile()) {
-        const stats = fs.statSync(file.name);
-        fi.size = stats.size
-      }
-
-      console.log(`file ${file}`)
-      fileInfos.push(fi)
-    });
-    res.send(fileInfos)
-  });
-})
-
-app.put('api/cd', (req : express.Request, res : express.Response) => {
-
-  //set up a new directory
-})
-
-
-
+app.use('/fs', fileServer)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, default_folder);
