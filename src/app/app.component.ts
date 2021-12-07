@@ -11,6 +11,8 @@ export class AppComponent {
 
   private urls = 'http://localhost:8000'
 
+  cdPath: string = "some path"
+
   constructor(private http: HttpClient) {
 
   }
@@ -29,9 +31,22 @@ export class AppComponent {
 
 
   cd() {
-    let msg = this.http.get<any[]>(this.urls + '/fs/cd')
-    console.log(msg)
+
+    let p = this.cdPath
+    console.log("path: " + p)
+    const headers = { 'Accept': 'text/plain' };
+    this.http.put(this.urls + '/fs/cd', p, {headers, responseType: 'text'}).subscribe({
+      next: data => {
+        console.log(data)
+      },
+      error: error => {
+        //this.errorMessage = error.message;
+        console.error('There was an error!', error);
+      }
+    });
+
   }
+
   list() {
     const headers = new HttpHeaders().set('Content-Type', 'text/plain; charset=utf-8');
 

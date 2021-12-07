@@ -1,7 +1,12 @@
 <p>This is a test </p>
-<button mat-raised-button color="primary" (click)="pwd()">pwd</button><br/>
-<button mat-raised-button color="primary" (click)="cd()">cd</button><br/>
-<button mat-raised-button color="primary" (click)="list()">list</button><br/>
+<button mat-raised-button color="primary" (click)="pwd()">pwd</button><br />
+<button mat-raised-button color="primary" (click)="cd()">cd</button>
+<mat-form-field  appearance="fill">
+  <mat-label>Path</mat-label>
+  <input matInput placeholder="Ex. ./asdf/bbb" [(ngModel)]="cdPath">
+</mat-form-field>
+<br />
+<button mat-raised-button color="primary" (click)="list()">list</button><br />
 
 
 <!-- div *ngFor="let message of messages | async">

@@ -49,6 +49,10 @@ fileServer.get('/list', (req: Request, res: Response) => {
 })
 
 fileServer.put('/cd', (req: Request, res: Response) => {
-
-    //set up a new directory
+    
+    console.log(req.body )
+    console.log("cdpath: " + req.body )
+    
+    res.setHeader('Content-Type', 'text/plain')
+    res.send("OK45")
 })
