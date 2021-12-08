@@ -8,6 +8,31 @@
 <br />
 <button mat-raised-button color="primary" (click)="list()">list</button><br />
 
+<div>
+  Remote path: {{remotePath}}
+</div>
+
+<table mat-table [dataSource]="remoteFiles" class="mat-elevation-z8">
+  <!-- Name Column -->
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="size">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Size </th>
+    <td mat-cell *matCellDef="let element"> {{element.size}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="type">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+    <td mat-cell *matCellDef="let element"> {{displayType(element.type)}} </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="['name', 'type', 'size']"></tr>
+  <tr mat-row *matRowDef="let row; columns: ['name', 'type', 'size']"></tr>
+
+</table>
 
 <!-- div *ngFor="let message of messages | async">
   {{message.message}}

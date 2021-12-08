@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import path from 'path'
-import { FileInfo, FileType } from './structures';
+import { FileDetails,  FileListCls,  FileType } from './common/interfaces';
 import { currentDirectory } from './directory';
 import fs, { Dirent } from 'fs';
 
@@ -26,12 +26,14 @@ fileServer.get('/list', (req: Request, res: Response) => {
     let folder = currentDirectory
 
     console.log(`folder ${folder}`)
-    let fileInfos: FileInfo[] = []
+
+    const fileList = new FileListCls(folder)
+
     fs.readdir(folder, { withFileTypes: true }, (err, files: Dirent[]) => {
         files.forEach(file => {
 
 
-            let fi: FileInfo = {
+            let fi: FileDetails = {
                 name: file.name,
                 type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
             }
@@ -42,9 +44,9 @@ fileServer.get('/list', (req: Request, res: Response) => {
             }
 
             console.log(`file ${file}`)
-            fileInfos.push(fi)
+            fileList.files.push(fi)
         });
-        res.send(fileInfos)
+        res.send(fileList)
     });
 })
 

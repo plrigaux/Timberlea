@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
+import { FileDetails, FileList, FileType } from 'server/common/interfaces';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,9 @@ export class AppComponent {
   private urls = 'http://localhost:8000'
 
   cdPath: string = "some path"
+
+  remotePath = ""
+  remoteFiles : FileDetails[] = []
 
   constructor(private http: HttpClient) {
 
@@ -38,6 +42,7 @@ export class AppComponent {
     this.http.put(this.urls + '/fs/cd', p, {headers, responseType: 'text'}).subscribe({
       next: data => {
         console.log(data)
+
       },
       error: error => {
         //this.errorMessage = error.message;
@@ -50,8 +55,16 @@ export class AppComponent {
   list() {
     const headers = new HttpHeaders().set('Content-Type', 'text/plain; charset=utf-8');
 
-    this.http.get<any[]>(this.urls + '/fs/list').subscribe((data: any) => {
-      console.log(data)
+    this.http.get<FileList>(this.urls + '/fs/list').subscribe({
+      next: (data : FileList) => {
+        console.log(data)
+        this.remotePath = data.path
+        this.remoteFiles = data.files
+      },
+      error: error => {
+        //this.errorMessage = error.message;
+        console.error('There was an error!', error);
+      }
     })
   }
 
@@ -68,5 +81,9 @@ export class AppComponent {
     // Return an observable with a user-facing error message.
     return throwError(
       'Something bad happened; please try again later.');
+  }
+
+  displayType(type:FileType) : string {
+    return FileType[type]
   }
 }
