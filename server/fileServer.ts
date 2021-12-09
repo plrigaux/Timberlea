@@ -1,8 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express';
 import path from 'path'
-import { FileDetails,  FileListCls,  FileType } from './common/interfaces';
+import { FileDetails, FileListCls, FileType, RemoteDirectory } from './common/interfaces';
 import { currentDirectory } from './directory';
-import fs, { Dirent } from 'fs';
+import fs, { Dirent, Stats } from 'fs';
 
 export const fileServer = express.Router()
 
@@ -15,10 +15,13 @@ fileServer.get('/pwd', (req: Request, res: Response) => {
     let basename = path.basename(notes) // notes.txt
     let extname = path.extname(notes)
     let p = process.cwd()
-    console.log(`PWD ${__dirname}`)
-    res.set('Content-Type', 'text/plain')
+    console.log(`PWD __dirname ${__dirname} basename ${basename} extname ${extname} dirName ${dirName} process.cwd ${p}`)
 
-    res.send(`PWD ${dirName} ${basename} ${extname} ${__dirname} ${__filename} ${p}`)
+    let newRemoteDirectory: RemoteDirectory = {
+        remoteDirectory: __dirname,
+        newPath: ""
+    }
+    res.send(newRemoteDirectory)
 })
 
 fileServer.get('/list', (req: Request, res: Response) => {
@@ -51,10 +54,37 @@ fileServer.get('/list', (req: Request, res: Response) => {
 })
 
 fileServer.put('/cd', (req: Request, res: Response) => {
-    
-    console.log(req.body )
-    console.log("cdpath: " + req.body )
-    
-    res.setHeader('Content-Type', 'text/plain')
-    res.send("OK45")
+
+    console.log(req.body)
+    console.log("cdpath: " + req.body)
+    console.log("remoteDirectory: " + req.body.remoteDirectory)
+    console.log("newPath: " + req.body.newPath)
+
+    let newRemoteDirectory: RemoteDirectory = req.body
+
+    const statsRoot: Stats = fs.lstatSync(newRemoteDirectory.remoteDirectory)
+
+    console.log(statsRoot.isDirectory())
+
+    const newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
+    try {
+        const statsNew: Stats = fs.lstatSync(newPath)
+        console.log(statsNew.isDirectory())
+    } catch (error) {
+        console.error(error)
+        console.log("-------------------------------------")
+        console.log(typeof error)
+        //console.log(error['message'])
+        //console.log(error['code'])
+        if (error instanceof Error) {
+            let message = error.message
+            console.log(`Name: ${error.name} Msg ${message}`);
+            console.log(`Name: ${error.name} Msg ${message}`);
+        }
+    }
+
+
+    newRemoteDirectory.remoteDirectory = newPath;
+
+    res.send(newRemoteDirectory)
 })

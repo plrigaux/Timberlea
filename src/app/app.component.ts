@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
-import { FileDetails, FileList, FileType } from 'server/common/interfaces';
+import { FileDetails, FileList, FileType, RemoteDirectory } from 'server/common/interfaces';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +14,7 @@ export class AppComponent {
 
   cdPath: string = "some path"
 
-  remotePath = ""
+  remoteDirectory = ""
   remoteFiles : FileDetails[] = []
 
   constructor(private http: HttpClient) {
@@ -23,33 +23,39 @@ export class AppComponent {
 
   pwd() {
     console.log("click PWD")
-    const options = {
-      responseType: 'text' as const,
-    };
-    this.http.get(this.urls + '/fs/pwd', options).pipe(
-      catchError(this.handleError)
-    ).subscribe((data: any) => {
-      console.log(data)
+
+    this.http.get<RemoteDirectory>(this.urls + '/fs/pwd').subscribe({
+      next: (data : RemoteDirectory)=> {
+        console.log(data)
+        this.remoteDirectory = data.remoteDirectory
+      },
+      error: error => {
+        //this.errorMessage = error.message;
+        console.error('There was an error!', error);
+      }
     })
   }
 
 
   cd() {
 
-    let p = this.cdPath
-    console.log("path: " + p)
-    const headers = { 'Accept': 'text/plain' };
-    this.http.put(this.urls + '/fs/cd', p, {headers, responseType: 'text'}).subscribe({
-      next: data => {
-        console.log(data)
+    let newRemoteDirectory : RemoteDirectory = {
+      remoteDirectory: this.remoteDirectory,
+      newPath: this.cdPath
+    }
 
+    console.log("path: " + newRemoteDirectory)
+   
+    this.http.put<RemoteDirectory>(this.urls + '/fs/cd', newRemoteDirectory).subscribe({
+      next: (data : RemoteDirectory)=> {
+        console.log(data)
+        this.remoteDirectory = data.remoteDirectory
       },
       error: error => {
         //this.errorMessage = error.message;
         console.error('There was an error!', error);
       }
     });
-
   }
 
   list() {
@@ -58,7 +64,7 @@ export class AppComponent {
     this.http.get<FileList>(this.urls + '/fs/list').subscribe({
       next: (data : FileList) => {
         console.log(data)
-        this.remotePath = data.path
+        this.remoteDirectory = data.path
         this.remoteFiles = data.files
       },
       error: error => {
