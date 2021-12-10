@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 
 import fs, { Dirent } from 'fs';
 import multer from 'multer';
+import { endpoints } from './common/constants';
 import { fileServer } from './fileServer';
 
 const app = express();
@@ -37,7 +38,7 @@ app.put('/projects/:id', (req, res) => {
   return res.json({"ok": 123, "id" : id});
  });
 
-app.use('/fs', fileServer)
+app.use(endpoints.FS, fileServer)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, default_folder);

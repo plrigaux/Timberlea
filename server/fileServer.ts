@@ -3,10 +3,11 @@ import path from 'path'
 import { FileDetails, FileListCls, FileType, RemoteDirectory } from './common/interfaces';
 import { currentDirectory } from './directory';
 import fs, { Dirent, Stats } from 'fs';
+import { endpoints } from './common/constants';
 
 export const fileServer = express.Router()
 
-fileServer.get('/pwd', (req: Request, res: Response) => {
+fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
 
 
     const notes = '.'
@@ -24,36 +25,50 @@ fileServer.get('/pwd', (req: Request, res: Response) => {
     res.send(newRemoteDirectory)
 })
 
-fileServer.get('/list', (req: Request, res: Response) => {
+fileServer.get(endpoints.LIST, (req: Request, res: Response) => {
 
-    let folder = currentDirectory
+
+    let folder: string = req.query.dir?.toString() || ""
+    if (!folder) {
+        folder = __dirname
+    }
+    const fileList = new FileListCls(folder)
 
     console.log(`folder ${folder}`)
 
-    const fileList = new FileListCls(folder)
-
     fs.readdir(folder, { withFileTypes: true }, (err, files: Dirent[]) => {
-        files.forEach(file => {
-
-
+        files.forEach((file: Dirent) => {
             let fi: FileDetails = {
                 name: file.name,
                 type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
             }
 
+            let toAdd = true
             if (file.isFile()) {
-                const stats = fs.statSync(file.name);
-                fi.size = stats.size
+                try {
+                    const stats = fs.statSync(path.join(folder, file.name));
+                    fi.size = stats.size
+                } catch (e) {
+                    //EPERM: operation not permitted, stat 'C:\DumpStack.log'
+                    if (e instanceof Error) {
+                        //let nodeError = e as NodeJS.ErrnoException
+                        console.log(e.message)
+                    } else {
+                        console.log(":(")
+                    }
+                    toAdd = false
+                }
             }
-
-            console.log(`file ${file}`)
-            fileList.files.push(fi)
+            //console.log(`file ${file}`, file)
+            if (toAdd) {
+                fileList.files.push(fi)
+            }
         });
         res.send(fileList)
     });
 })
 
-fileServer.put('/cd', (req: Request, res: Response) => {
+fileServer.put(endpoints.CD, (req: Request, res: Response) => {
 
     console.log(req.body)
     console.log("cdpath: " + req.body)
@@ -62,29 +77,29 @@ fileServer.put('/cd', (req: Request, res: Response) => {
 
     let newRemoteDirectory: RemoteDirectory = req.body
 
-    const statsRoot: Stats = fs.lstatSync(newRemoteDirectory.remoteDirectory)
+    //const statsRoot: Stats = fs.lstatSync(newRemoteDirectory.remoteDirectory)
 
-    console.log(statsRoot.isDirectory())
+    //console.log(statsRoot.isDirectory())
 
-    const newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
-    try {
-        const statsNew: Stats = fs.lstatSync(newPath)
-        console.log(statsNew.isDirectory())
-    } catch (error) {
-        console.error(error)
-        console.log("-------------------------------------")
-        console.log(typeof error)
-        //console.log(error['message'])
-        //console.log(error['code'])
-        if (error instanceof Error) {
-            let message = error.message
-            console.log(`Name: ${error.name} Msg ${message}`);
-            console.log(`Name: ${error.name} Msg ${message}`);
+    let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
+    newPath = path.resolve(newPath);
+
+    if (!fs.existsSync(newPath)) {
+        //file does't exist
+        res.status(404).send(`Directory \"${newPath}\" doesn't exist`);
+    } else {
+        if (!fs.lstatSync(newPath).isDirectory()) {
+            //file not directory
+            res.status(404).send(`File \"${newPath}\" is not a directory`);
+        } else {
+            try {
+                fs.accessSync(newPath, fs.constants.R_OK);
+                newRemoteDirectory.remoteDirectory = newPath
+                res.send(newRemoteDirectory)
+            }
+            catch (err) {
+                res.status(403).send(`Dirrectory \"${newPath}\" is not accessible`);
+            }
         }
     }
-
-
-    newRemoteDirectory.remoteDirectory = newPath;
-
-    res.send(newRemoteDirectory)
 })

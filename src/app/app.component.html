@@ -30,7 +30,8 @@
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="['name', 'type', 'size']"></tr>
-  <tr mat-row *matRowDef="let row; columns: ['name', 'type', 'size']"></tr>
+  <tr mat-row *matRowDef="let row; columns: ['name', 'type', 'size']"
+  (click)="setCdPath(row)"></tr>
 
 </table>
 

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { FileDetails, FileList, FileType, RemoteDirectory } from 'server/common/interfaces';
+import { endpoints } from 'server/common/constants';
 
 @Component({
   selector: 'app-root',
@@ -12,10 +13,10 @@ export class AppComponent {
 
   private urls = 'http://localhost:8000'
 
-  cdPath: string = "some path"
+  cdPath: string = "common"
 
   remoteDirectory = ""
-  remoteFiles : FileDetails[] = []
+  remoteFiles: FileDetails[] = []
 
   constructor(private http: HttpClient) {
 
@@ -24,8 +25,8 @@ export class AppComponent {
   pwd() {
     console.log("click PWD")
 
-    this.http.get<RemoteDirectory>(this.urls + '/fs/pwd').subscribe({
-      next: (data : RemoteDirectory)=> {
+    this.http.get<RemoteDirectory>(this.urls + endpoints.FS_PWD).subscribe({
+      next: (data: RemoteDirectory) => {
         console.log(data)
         this.remoteDirectory = data.remoteDirectory
       },
@@ -39,33 +40,40 @@ export class AppComponent {
 
   cd() {
 
-    let newRemoteDirectory : RemoteDirectory = {
+    let newRemoteDirectory: RemoteDirectory = {
       remoteDirectory: this.remoteDirectory,
       newPath: this.cdPath
     }
 
     console.log("path: " + newRemoteDirectory)
-   
-    this.http.put<RemoteDirectory>(this.urls + '/fs/cd', newRemoteDirectory).subscribe({
-      next: (data : RemoteDirectory)=> {
+
+    this.http.put<RemoteDirectory>(this.urls + endpoints.FS_CD, newRemoteDirectory).subscribe({
+      next: (data: RemoteDirectory) => {
         console.log(data)
         this.remoteDirectory = data.remoteDirectory
+        this.remoteFiles = []
       },
       error: error => {
         //this.errorMessage = error.message;
-        console.error('There was an error!', error);
+        console.error(error.message, error.error, error);
       }
     });
   }
 
   list() {
-    const headers = new HttpHeaders().set('Content-Type', 'text/plain; charset=utf-8');
+    //const headers = new HttpHeaders().set('Content-Type', 'text/plain; charset=utf-8');
 
-    this.http.get<FileList>(this.urls + '/fs/list').subscribe({
-      next: (data : FileList) => {
+    const options =
+      { params: new HttpParams().set('dir', this.remoteDirectory) };
+
+
+
+    this.http.get<FileList>(this.urls + endpoints.FS_LIST, options).subscribe({
+      next: (data: FileList) => {
         console.log(data)
         this.remoteDirectory = data.path
-        this.remoteFiles = data.files
+
+        this.remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
       },
       error: error => {
         //this.errorMessage = error.message;
@@ -85,11 +93,17 @@ export class AppComponent {
         `Backend returned code ${error.status}, body was: `, error.error);
     }
     // Return an observable with a user-facing error message.
-    return throwError(
+    return new Error(
       'Something bad happened; please try again later.');
   }
 
-  displayType(type:FileType) : string {
+  displayType(type: FileType): string {
     return FileType[type]
+  }
+
+  setCdPath(param: FileDetails) {
+    if (param.type == FileType.Directory) {
+      this.cdPath = param.name
+    }
   }
 }
