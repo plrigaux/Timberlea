@@ -23,15 +23,15 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
         newPath: ""
     }
     res.send(newRemoteDirectory)
-})
+});
 
-fileServer.get(endpoints.LIST, (req: Request, res: Response) => {
+function getList(req: Request, res: Response) {
 
-
-    let folder: string = req.query.dir?.toString() || ""
+    let folder: string = req.params.path || ""
     if (!folder) {
         folder = __dirname
     }
+
     const fileList = new FileListCls(folder)
 
     console.log(`folder ${folder}`)
@@ -66,6 +66,16 @@ fileServer.get(endpoints.LIST, (req: Request, res: Response) => {
         });
         res.send(fileList)
     });
+}
+
+//List without path
+fileServer.get(endpoints.LIST, (req: Request, res: Response) => {
+    getList(req, res)
+})
+
+//List without path
+fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response) => {
+    getList(req, res)
 })
 
 fileServer.put(endpoints.CD, (req: Request, res: Response) => {
@@ -102,4 +112,25 @@ fileServer.put(endpoints.CD, (req: Request, res: Response) => {
             }
         }
     }
+})
+
+fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response) => {
+    /*
+        let folder: string = req.query.dir?.toString() || ""
+        if (!folder) {
+            folder = __dirname
+        }
+        const fileList = new FileListCls(folder)
+    
+        console.log(`folder ${folder}`)
+    */
+    let fileDir = req.params.path
+    let fileName = req.params.file
+
+    let filePath = path.join(fileDir, fileName)
+
+    console.log(`fp: ${fileDir} ${fileName}`)
+
+    res.download(filePath);
+    //res.send("OK: " + fileDir + " " + fileName)
 })

@@ -6,6 +6,12 @@
   <input matInput placeholder="Ex. ./asdf/bbb" [(ngModel)]="cdPath">
 </mat-form-field>
 <br />
+<button mat-raised-button color="primary" (click)="downloadFile()">Download</button>
+<mat-form-field  appearance="fill">
+  <mat-label>File</mat-label>
+  <input matInput placeholder="Ex. text.txt" [(ngModel)]="fileName">
+</mat-form-field>
+<br/>
 <button mat-raised-button color="primary" (click)="list()">list</button><br />
 
 <div>

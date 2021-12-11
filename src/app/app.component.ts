@@ -14,7 +14,7 @@ export class AppComponent {
   private urls = 'http://localhost:8000'
 
   cdPath: string = "common"
-
+  fileName: string = ""
   remoteDirectory = ""
   remoteFiles: FileDetails[] = []
 
@@ -63,12 +63,12 @@ export class AppComponent {
   list() {
     //const headers = new HttpHeaders().set('Content-Type', 'text/plain; charset=utf-8');
 
-    const options =
-      { params: new HttpParams().set('dir', this.remoteDirectory) };
+    //const options =
+    //  { params: new HttpParams().set('dir', this.remoteDirectory) };
 
+    let remoteDirectory = encodeURIComponent(this.remoteDirectory);
 
-
-    this.http.get<FileList>(this.urls + endpoints.FS_LIST, options).subscribe({
+    this.http.get<FileList>(this.urls + endpoints.FS_LIST + "/" + remoteDirectory).subscribe({
       next: (data: FileList) => {
         console.log(data)
         this.remoteDirectory = data.path
@@ -104,6 +104,20 @@ export class AppComponent {
   setCdPath(param: FileDetails) {
     if (param.type == FileType.Directory) {
       this.cdPath = param.name
+    } else if (param.type == FileType.File) {
+      this.fileName = param.name
     }
+  }
+
+  downloadFile() {
+
+    const href = this.urls + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory) + "/" + encodeURIComponent(this.fileName);
+    const link = document.createElement('a');
+    link.setAttribute('target', '_blank');
+    link.setAttribute('href', href);
+    link.setAttribute('download', this.fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 }
