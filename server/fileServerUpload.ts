@@ -31,7 +31,7 @@ const storage = multer.diskStorage({
         let exists = fs.existsSync(filePath)
 
         let uploadedFileName;
-        let error : Error | null = null
+        let error: Error | null = null
         if (exists) {
             uploadedFileName = Date.now() + '.' + file.originalname;
             error = new Error(`File "${newFileName}" in directory '${req.body.destinationFolder}' exist!`)
@@ -41,21 +41,31 @@ const storage = multer.diskStorage({
         callback(error, newFileName)
     }
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }).any();
 
-
+/*
 fileServerUpload.post("/", upload.any(), (req, res) => {
     console.log(req.params)
     console.log(req.body)
     console.log('[' + new Date().toISOString() + '] - File uploaded:', req.files);
-    res.redirect('/' + default_folder);
-    res.end();
+    res.send("OK");
 });
-fileServerUpload.post("/:robert", upload.any(), (req, res) => {
+*/
+fileServerUpload.post("/", (req, res) => {
+    upload(req, res, (err) => {
+        //console.log(err)
+        if (err) {
+            res.status(409).send(err.message);
+        } else {
+            res.send('file uploaded');
+        }
+    });
+});
+
+fileServerUpload.post("/:robert", upload, (req, res) => {
     console.log(req.params)
     console.log(req.body)
     console.log('[' + new Date().toISOString() + '] - File uploaded:', req.files);
-    res.redirect('/' + default_folder);
     res.end();
 });
 
