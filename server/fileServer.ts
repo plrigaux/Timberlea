@@ -4,8 +4,11 @@ import { FileDetails, FileListCls, FileType, RemoteDirectory } from './common/in
 import { currentDirectory } from './directory';
 import fs, { Dirent, Stats } from 'fs';
 import { endpoints } from './common/constants';
+import multer from 'multer';
 
 export const fileServer = express.Router()
+const default_folder = 'files';
+
 
 fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
 
@@ -134,3 +137,9 @@ fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response
     res.download(filePath);
     //res.send("OK: " + fileDir + " " + fileName)
 })
+
+
+  
+  if (!fs.existsSync(default_folder)) {
+    fs.mkdirSync(default_folder);
+  }

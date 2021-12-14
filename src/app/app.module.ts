@@ -11,10 +11,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { CdkTableModule } from '@angular/cdk/table';
-
+import { FileUploadComponent } from './file-upload/file-upload.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FileUploadComponent
   ],
   imports: [
     BrowserModule,
@@ -25,8 +29,11 @@ import { CdkTableModule } from '@angular/cdk/table';
     MatInputModule,
     MatFormFieldModule,
     FormsModule,
-    MatTableModule, 
-    CdkTableModule
+    MatTableModule,
+    CdkTableModule,
+    MatIconModule,
+    MatProgressBarModule,
+    MatToolbarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

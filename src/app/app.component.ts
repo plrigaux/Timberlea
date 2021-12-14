@@ -3,7 +3,8 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { catchError, throwError } from 'rxjs';
 import { FileDetails, FileList, FileType, RemoteDirectory } from 'server/common/interfaces';
 import { endpoints } from 'server/common/constants';
-
+import { environment } from './../environments/environment';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -11,21 +12,21 @@ import { endpoints } from 'server/common/constants';
 })
 export class AppComponent {
 
-  private urls = 'http://localhost:8000'
+
 
   cdPath: string = "common"
   fileName: string = ""
   remoteDirectory = ""
   remoteFiles: FileDetails[] = []
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
 
   }
 
   pwd() {
     console.log("click PWD")
 
-    this.http.get<RemoteDirectory>(this.urls + endpoints.FS_PWD).subscribe({
+    this.http.get<RemoteDirectory>(environment.serverUrl + endpoints.FS_PWD).subscribe({
       next: (data: RemoteDirectory) => {
         console.log(data)
         this.remoteDirectory = data.remoteDirectory
@@ -47,7 +48,7 @@ export class AppComponent {
 
     console.log("path: " + newRemoteDirectory)
 
-    this.http.put<RemoteDirectory>(this.urls + endpoints.FS_CD, newRemoteDirectory).subscribe({
+    this.http.put<RemoteDirectory>(environment.serverUrl + endpoints.FS_CD, newRemoteDirectory).subscribe({
       next: (data: RemoteDirectory) => {
         console.log(data)
         this.remoteDirectory = data.remoteDirectory
@@ -62,13 +63,13 @@ export class AppComponent {
 
   list() {
     //const headers = new HttpHeaders().set('Content-Type', 'text/plain; charset=utf-8');
-
+    console.log(this.router.url);
     //const options =
     //  { params: new HttpParams().set('dir', this.remoteDirectory) };
 
     let remoteDirectory = encodeURIComponent(this.remoteDirectory);
 
-    this.http.get<FileList>(this.urls + endpoints.FS_LIST + "/" + remoteDirectory).subscribe({
+    this.http.get<FileList>(environment.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory).subscribe({
       next: (data: FileList) => {
         console.log(data)
         this.remoteDirectory = data.path
@@ -111,7 +112,7 @@ export class AppComponent {
 
   downloadFile() {
 
-    const href = this.urls + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory) + "/" + encodeURIComponent(this.fileName);
+    const href = environment.serverUrl + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory) + "/" + encodeURIComponent(this.fileName);
     const link = document.createElement('a');
     link.setAttribute('target', '_blank');
     link.setAttribute('href', href);
