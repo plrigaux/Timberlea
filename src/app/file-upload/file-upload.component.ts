@@ -32,13 +32,15 @@ export class FileUploadComponent implements OnInit {
     if (file) {
       this.fileName = file.name;
       const formData = new FormData();
-      formData.append("thumbnail", file);
+      formData.append("pizza", "true");
+      formData.append("thumbnail", file); //File needs to be last
+
 
       const upload$ = this.http.post(environment.serverUrl + endpoints.FS_UPLOAD, formData, {
         reportProgress: true,
-        observe: 'events'
-      })
-        .pipe(
+        observe: 'events',
+        responseType: 'text'
+      }).pipe(
           finalize(() => this.reset())
         );
 

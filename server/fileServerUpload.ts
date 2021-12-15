@@ -5,7 +5,7 @@ import { currentDirectory } from './directory';
 import fs, { Dirent, Stats } from 'fs';
 import { endpoints } from './common/constants';
 import multer, { FileFilterCallback } from 'multer';
-import { nextTick } from 'process';
+
 
 
 export const fileServerUpload = express.Router()
@@ -24,7 +24,8 @@ const storage = multer.diskStorage({
         let fieldName = 'fileName';
         let field = req.body[fieldName]
         let newFileName = field ? field : file.originalname
-        console.log("filename:", field, newFileName, req.body, req.params, file)
+        console.log("filename: info ", newFileName, req.body, req.params)
+        console.log("file", file)
         callback(null, newFileName);
 
         let filePath = path.join(req.body.destinationFolder, newFileName)
