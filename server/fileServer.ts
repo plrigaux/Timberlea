@@ -4,7 +4,7 @@ import { FileDetails, FileListCls, FileType, RemoteDirectory } from './common/in
 import { currentDirectory } from './directory';
 import fs, { Dirent, Stats } from 'fs';
 import { endpoints } from './common/constants';
-import multer from 'multer';
+
 
 export const fileServer = express.Router()
 const default_folder = 'files';
@@ -138,8 +138,22 @@ fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response
     //res.send("OK: " + fileDir + " " + fileName)
 })
 
+fileServer.post(endpoints.MKDIR, (req: Request, res: Response) => {
+    let parentDir = req.body.parentDir
+    let dirName = req.body.dirName
 
-  
-  if (!fs.existsSync(default_folder)) {
+    let dirPath = path.join(parentDir, dirName)
+
+    if (fs.existsSync(dirPath)) {
+        res.status(409).send({ message: `Directory exits : ${dirPath}` });
+        return;
+    }
+
+    fs.mkdirSync(dirPath);
+
+    res.send({ message: `Directory Created : ${dirPath}` });
+})
+
+if (!fs.existsSync(default_folder)) {
     fs.mkdirSync(default_folder);
-  }
+}

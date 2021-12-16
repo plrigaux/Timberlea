@@ -1,19 +1,26 @@
-<p>This is a test </p>
-<button mat-raised-button color="primary" (click)="pwd()">pwd</button><br />
-<button mat-raised-button color="primary" (click)="cd()">cd</button>
-<mat-form-field  appearance="fill">
-  <mat-label>Path</mat-label>
-  <input matInput placeholder="Ex. ./asdf/bbb" [(ngModel)]="cdPath">
-</mat-form-field>
-<br />
-<button mat-raised-button color="primary" (click)="downloadFile()">Download</button>
-<mat-form-field  appearance="fill">
-  <mat-label>File</mat-label>
-  <input matInput placeholder="Ex. text.txt" [(ngModel)]="fileName">
-</mat-form-field>
-<br/>
-<app-file-upload></app-file-upload>
-<br/>
+<div class="container">
+  <div>
+    <button mat-raised-button color="primary" (click)="pwd()">pwd</button><br />
+    <button mat-raised-button color="primary" (click)="cd()">cd</button>
+    <mat-form-field appearance="fill">
+      <mat-label>Path</mat-label>
+      <input matInput placeholder="Ex. ./asdf/bbb" [(ngModel)]="cdPath">
+    </mat-form-field>
+    <br />
+    <button mat-raised-button color="primary" (click)="downloadFile()">Download</button>
+    <mat-form-field appearance="fill">
+      <mat-label>File</mat-label>
+      <input matInput placeholder="Ex. text.txt" [(ngModel)]="fileName">
+    </mat-form-field>
+    <br />
+    <app-file-upload></app-file-upload>
+    <br />
+  </div>
+  <div>
+    <button mat-raised-button color="primary" (click)="pwd()">Delete</button><br /><br />
+    <button mat-raised-button color="primary" (click)="pwd()">Mkdir</button><br />
+  </div>
+</div>
 <button mat-raised-button color="primary" (click)="list()">list</button><br />
 
 <div>
@@ -39,7 +46,7 @@
 
   <tr mat-header-row *matHeaderRowDef="['name', 'type', 'size']"></tr>
   <tr mat-row *matRowDef="let row; columns: ['name', 'type', 'size']"
-  (click)="setCdPath(row)"></tr>
+    (click)="setCdPath(row)"></tr>
 
 </table>
 

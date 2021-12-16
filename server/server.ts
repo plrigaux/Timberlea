@@ -6,7 +6,7 @@ import { endpoints } from './common/constants';
 import { fileServer } from './fileServer';
 import { fileServerUpload } from './fileServerUpload';
 
-const app = express();
+export const app = express();
 const PORT = 8000;
 
 app.use(express.static('public'))
