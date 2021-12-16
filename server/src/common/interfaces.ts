@@ -24,19 +24,35 @@ export class FileListCls implements FileList {
     }
 }
 
+
+interface FS_Response {
+    error: boolean,
+    message: string,
+}
+
 export interface RemoteDirectory {
     remoteDirectory: string
     newPath: string
 }
 
-export interface MakeDir {
-    parentDir: string
+export interface MakeDirRequest {
+    parent: string
     dirName: string
     recursive: boolean
 }
 
-export interface MakeDirResponse {
-    error: boolean,
-    message: string,
+export interface MakeDirResponse extends FS_Response {
     directory: string
+}
+
+export interface RemFile_Request {
+    parent: string
+    fileName: string
+    recursive?: boolean,
+    force?: boolean
+}
+
+export interface RemFile_Response extends FS_Response {
+    file: string,
+    parent: string
 }

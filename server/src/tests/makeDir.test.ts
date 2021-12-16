@@ -4,24 +4,19 @@ import path from 'path'
 import { endpoints } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { MakeDir } from '../common/interfaces'
+import { MakeDirRequest } from '../common/interfaces'
 
 const testDirMain = "fileServer"
 const testDir = "make dir"
-let dir = ""
+const dir = path.join(os.tmpdir(), testDirMain, testDir)
 
 beforeAll(() => {
-    console.log(os.tmpdir());
-
-    dir = path.join(os.tmpdir(), testDirMain, testDir)
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
 });
 
 afterAll(() => {
-    let dir = path.join(os.tmpdir(), testDirMain, testDir)
-
     try {
         const options: RmOptions = { recursive: true, force: true }
         fs.rmSync(dir, options)
@@ -34,8 +29,8 @@ afterAll(() => {
 describe('Create directory', () => {
 
     test('Create a single directory', async () => {
-        const data: MakeDir = {
-            parentDir: dir,
+        const data: MakeDirRequest = {
+            parent: dir,
             dirName: 'pout pout',
             recursive: false
         }
@@ -50,8 +45,8 @@ describe('Create directory', () => {
     });
 
     test('Create a single directory - Directory already exist', async () => {
-        const data: MakeDir = {
-            parentDir: dir,
+        const data: MakeDirRequest = {
+            parent: dir,
             dirName: 'pout pout',
             recursive: false
         }
@@ -69,8 +64,8 @@ describe('Create directory', () => {
 
         fs.writeFileSync(path.join(dir, file), 'Learn Node FS module')
 
-        const data: MakeDir = {
-            parentDir: dir,
+        const data: MakeDirRequest = {
+            parent: dir,
             dirName: file,
             recursive: false
         }

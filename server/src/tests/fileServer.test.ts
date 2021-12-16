@@ -5,7 +5,6 @@ import { Express } from 'express-serve-static-core'
 
 import { app } from '../app'
 import { endpoints } from '../common/constants'
-import { MakeDir } from '../common/interfaces'
 
 
 describe('GET test', () => {

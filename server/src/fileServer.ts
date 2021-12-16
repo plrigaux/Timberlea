@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import path from 'path'
-import { FileDetails, FileListCls, FileType, MakeDir, MakeDirResponse, RemoteDirectory } from './common/interfaces';
+import { FileDetails, FileListCls, FileType, MakeDirRequest, MakeDirResponse, RemoteDirectory, RemFile_Request, RemFile_Response } from './common/interfaces';
 import fs, { Dirent } from 'fs';
 import { endpoints } from './common/constants';
 
@@ -139,9 +139,9 @@ fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response
 
 fileServer.post(endpoints.MKDIR, (req: Request, res: Response) => {
 
-    const data: MakeDir = req.body
+    const data: MakeDirRequest = req.body
     console.log("Mkdir", data)
-    let dirPath = path.join(data.parentDir, data.dirName)
+    let dirPath = path.join(data.parent, data.dirName)
 
     if (fs.existsSync(dirPath)) {
         let code = -1
@@ -172,7 +172,7 @@ fileServer.post(endpoints.MKDIR, (req: Request, res: Response) => {
     try {
         fs.mkdirSync(dirPath, options);
 
-        let responseData : MakeDirResponse= {
+        let responseData: MakeDirResponse = {
             error: false,
             message: `Directory Created : ${dirPath}`,
             directory: dirPath
@@ -181,10 +181,60 @@ fileServer.post(endpoints.MKDIR, (req: Request, res: Response) => {
     } catch (e) {
         console.error(e)
 
-        let responseData : MakeDirResponse= {
+        let responseData: MakeDirResponse = {
             error: true,
             message: JSON.stringify(e),
             directory: dirPath
+        }
+        res.status(500).send(responseData);
+    }
+})
+
+fileServer.delete(endpoints.REM, (req: Request, res: Response) => {
+
+    const data: RemFile_Request = req.body
+    console.log("Delete", data)
+
+
+    let filePath = path.join(data.parent, data.fileName)
+
+    
+
+    let options : fs.RmOptions = {
+        force : data.force === true ? true : false,
+        recursive : data.recursive === true ? true : false
+    }
+
+    if (!options.force && !fs.existsSync(filePath)) {
+        let responseData: RemFile_Response = {
+            error: false,
+            message: `File doesn't exists`,
+            parent: path.dirname(filePath),
+            file: path.basename(filePath)
+        }
+
+        res.status(404).send(responseData);
+        return;
+    }
+
+    try {
+        let isDir = fs.lstatSync(filePath).isDirectory()
+        fs.rmSync(filePath, options)
+        let responseData: RemFile_Response = {
+            error: false,
+            message: isDir ? "Directory deleted" : "File deleted",
+            parent: path.dirname(filePath),
+            file: path.basename(filePath)
+        }
+        res.status(200).send(responseData);
+    } catch (e) {
+        console.error(e)
+
+        let responseData: RemFile_Response = {
+            error: true,
+            message: JSON.stringify(e),
+            parent: path.basename(filePath),
+            file: path.basename(filePath)
         }
         res.status(500).send(responseData);
     }
