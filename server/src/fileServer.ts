@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import path from 'path'
-import { FileDetails, FileListCls, FileType, RemoteDirectory } from './common/interfaces';
+import { FileDetails, FileListCls, FileType, MakeDir, MakeDirResponse, RemoteDirectory } from './common/interfaces';
 import fs, { Dirent } from 'fs';
 import { endpoints } from './common/constants';
 
@@ -138,19 +138,56 @@ fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response
 })
 
 fileServer.post(endpoints.MKDIR, (req: Request, res: Response) => {
-    let parentDir = req.body.parentDir
-    let dirName = req.body.dirName
 
-    let dirPath = path.join(parentDir, dirName)
+    const data: MakeDir = req.body
+    console.log("Mkdir", data)
+    let dirPath = path.join(data.parentDir, data.dirName)
 
     if (fs.existsSync(dirPath)) {
-        res.status(409).send({ message: `Directory exits : ${dirPath}` });
+        let code = -1
+        let responseData!: MakeDirResponse
+        code = 200
+        if (fs.lstatSync(dirPath).isDirectory()) {
+            responseData = {
+                error: false,
+                message: `Directory already exist`,
+                directory: dirPath
+            }
+        } else {
+            code = 409
+            responseData = {
+                error: true,
+                message: `File already exist`,
+                directory: dirPath
+            }
+        }
+
+        res.status(code).send(responseData);
         return;
     }
 
-    fs.mkdirSync(dirPath);
+    let options = { recursive: data.recursive ? true : false }
 
-    res.send({ message: `Directory Created : ${dirPath}` });
+    console.log("Mkdir options", options)
+    try {
+        fs.mkdirSync(dirPath, options);
+
+        let responseData : MakeDirResponse= {
+            error: false,
+            message: `Directory Created : ${dirPath}`,
+            directory: dirPath
+        }
+        res.status(201).send(responseData);
+    } catch (e) {
+        console.error(e)
+
+        let responseData : MakeDirResponse= {
+            error: true,
+            message: JSON.stringify(e),
+            directory: dirPath
+        }
+        res.status(500).send(responseData);
+    }
 })
 
 if (!fs.existsSync(default_folder)) {

@@ -5,6 +5,7 @@ import { Express } from 'express-serve-static-core'
 
 import { app } from '../app'
 import { endpoints } from '../common/constants'
+import { MakeDir } from '../common/interfaces'
 
 
 describe('GET test', () => {
@@ -18,6 +19,9 @@ describe('GET test', () => {
     })
 
     it("test PWD", async () => {
+
+   
+
          const resp = await request(app)
             .get(endpoints.FS_PWD)
             .expect(200)  

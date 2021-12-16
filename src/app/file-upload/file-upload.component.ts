@@ -1,7 +1,6 @@
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { finalize, Subscription } from 'rxjs';
-import { FileUploadService } from './file-upload.service';
 import { endpoints } from 'server/src/common/constants';
 import { environment } from 'src/environments/environment';
 
