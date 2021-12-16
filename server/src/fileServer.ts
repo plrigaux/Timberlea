@@ -1,8 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import path from 'path'
 import { FileDetails, FileListCls, FileType, RemoteDirectory } from './common/interfaces';
-import { currentDirectory } from './directory';
-import fs, { Dirent, Stats } from 'fs';
+import fs, { Dirent } from 'fs';
 import { endpoints } from './common/constants';
 
 

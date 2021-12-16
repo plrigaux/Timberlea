@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
-import { FileDetails, FileList, FileType, RemoteDirectory } from 'server/common/interfaces';
-import { endpoints } from 'server/common/constants';
+import { FileDetails, FileList, FileType, RemoteDirectory } from 'server/src/common/interfaces';
+import { endpoints } from 'server/src/common/constants';
 import { environment } from './../environments/environment';
 import { Router } from '@angular/router';
 @Component({

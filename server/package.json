@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --detectOpenHandles",
-    "serve": "ts-node-dev server.ts"
+    "serve": "ts-node-dev src/server.ts"
   },
   "author": "PLR",
   "license": "ISC",

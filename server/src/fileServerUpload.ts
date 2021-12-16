@@ -1,9 +1,6 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request } from 'express';
 import path from 'path'
-import { FileDetails, FileListCls, FileType, RemoteDirectory } from './common/interfaces';
-import { currentDirectory } from './directory';
-import fs, { Dirent, Stats } from 'fs';
-import { endpoints } from './common/constants';
+import fs from 'fs';
 import multer, { FileFilterCallback } from 'multer';
 
 
