@@ -8,6 +8,7 @@ export namespace endpoints {
     export const UPLOAD = "/upload"
     export const MKDIR = "/mkdir"
     export const REM = "/rem"
+    export const MV = "/mv"
 
     export const FS_LIST = FS + LIST
     export const FS_CD = FS + CD
@@ -16,4 +17,5 @@ export namespace endpoints {
     export const FS_UPLOAD = FS + UPLOAD
     export const FS_MKDIR = FS + MKDIR
     export const FS_REM = FS + REM
+    export const FS_MV = FS + MV
 }

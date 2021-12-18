@@ -56,3 +56,15 @@ export interface RemFile_Response extends FS_Response {
     file: string,
     parent: string
 }
+
+export interface MvFile_Request {
+    parent: string
+    oldFileName: string
+    newFileName: string
+}
+
+export interface MvFile_Response extends FS_Response {
+    parent: string
+    oldFileName: string
+    newFileName: string
+}

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "testOH": "jest --detectOpenHandles",
     "serve": "ts-node-dev src/server.ts"
   },
   "author": "PLR",

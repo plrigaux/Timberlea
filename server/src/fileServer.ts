@@ -1,8 +1,9 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import path from 'path'
-import { FileDetails, FileListCls, FileType, MakeDirRequest, MakeDirResponse, RemoteDirectory, RemFile_Request, RemFile_Response } from './common/interfaces';
-import fs, { Dirent } from 'fs';
+import { FileDetails, FileListCls, FileType, MakeDirRequest, MakeDirResponse, RemoteDirectory, RemFile_Request, RemFile_Response, MvFile_Request, MvFile_Response } from './common/interfaces';
+import fs, { Dirent, Stats } from 'fs';
 import { endpoints } from './common/constants';
+
 
 
 export const fileServer = express.Router()
@@ -195,14 +196,11 @@ fileServer.delete(endpoints.REM, (req: Request, res: Response) => {
     const data: RemFile_Request = req.body
     console.log("Delete", data)
 
-
     let filePath = path.join(data.parent, data.fileName)
 
-    
-
-    let options : fs.RmOptions = {
-        force : data.force === true ? true : false,
-        recursive : data.recursive === true ? true : false
+    let options: fs.RmOptions = {
+        force: data.force === true ? true : false,
+        recursive: data.recursive === true ? true : false
     }
 
     if (!options.force && !fs.existsSync(filePath)) {
@@ -233,11 +231,60 @@ fileServer.delete(endpoints.REM, (req: Request, res: Response) => {
         let responseData: RemFile_Response = {
             error: true,
             message: JSON.stringify(e),
-            parent: path.basename(filePath),
+            parent: path.dirname(filePath),
             file: path.basename(filePath)
         }
         res.status(500).send(responseData);
     }
+})
+
+fileServer.put(endpoints.MV, (req: Request, res: Response) => {
+
+    const data: MvFile_Request = req.body
+    console.log("MV", data)
+
+    const oldPath = path.join(data.parent, data.oldFileName)
+    const newPath = path.join(data.parent, data.newFileName)
+
+    let responseData: MvFile_Response = {
+        error: true,
+        message: `Unkown error`,
+        parent: path.dirname(newPath),
+        oldFileName: data.oldFileName,
+        newFileName: path.basename(newPath)
+    }
+    let statuCode: number = 500
+
+    const send = () => {
+        res.status(statuCode).send(responseData);
+    }
+
+    fs.access(newPath, function (error) {
+        if (!error) {
+            statuCode = 409
+            responseData.message = "New file exists"
+            send()
+        } else {
+            fs.rename(oldPath, newPath, (error) => {
+                if (error) {
+                    // Show the error 
+                    console.error(error);
+                    if (error.code == "ENOENT") {
+                        statuCode = 404
+                        responseData.message = `File not found`
+                    }
+                }
+                else {
+                    responseData.error = false
+                    // List all the filenames after renaming
+                    console.log("\nFile Renamed\n");
+                    statuCode = 200
+                    responseData.message = `File moved succesfully`
+                }
+                send()
+            });
+        }
+    });
 })
 
 if (!fs.existsSync(default_folder)) {
