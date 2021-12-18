@@ -35,40 +35,41 @@ function getList(req: Request, res: Response) {
         folder = __dirname
     }
 
-    const fileList = new FileListCls(folder)
-
     console.log(`folder ${folder}`)
 
-    fs.readdir(folder, { withFileTypes: true }, (err, files: Dirent[]) => {
-        files.forEach((file: Dirent) => {
-            let fi: FileDetails = {
-                name: file.name,
-                type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
-            }
-
-            let toAdd = true
-            if (file.isFile()) {
-                try {
-                    const stats = fs.statSync(path.join(folder, file.name));
-                    fi.size = stats.size
-                } catch (e) {
-                    //EPERM: operation not permitted, stat 'C:\DumpStack.log'
-                    if (e instanceof Error) {
-                        //let nodeError = e as NodeJS.ErrnoException
-                        console.log(e.message)
-                    } else {
-                        console.log(":(")
-                    }
-                    toAdd = false
+    fs.promises.readdir(folder, { withFileTypes: true })
+        .then((files: Dirent[]) => {
+            const fileList = new FileListCls(folder)
+            files.forEach((file: Dirent) => {
+                let fi: FileDetails = {
+                    name: file.name,
+                    type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
                 }
-            }
-            //console.log(`file ${file}`, file)
-            if (toAdd) {
-                fileList.files.push(fi)
-            }
-        });
-        res.send(fileList)
-    });
+
+                let toAdd = true
+                if (file.isFile()) {
+                    try {
+                        const stats = fs.statSync(path.join(folder, file.name));
+                        fi.size = stats.size
+                    } catch (e) {
+                        //EPERM: operation not permitted, stat 'C:\DumpStack.log'
+                        if (e instanceof Error) {
+                            //let nodeError = e as NodeJS.ErrnoException
+                            console.log(e.message)
+                        } else {
+                            console.log(":(")
+                        }
+                        toAdd = false
+                    }
+                }
+                //console.log(`file ${file}`, file)
+                if (toAdd) {
+                    fileList.files.push(fi)
+                }
+            })
+            return fileList
+        }).then(fileList => res.send(fileList))
+
 }
 
 //List without path
