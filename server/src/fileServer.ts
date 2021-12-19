@@ -136,7 +136,7 @@ fileServer.put(endpoints.CD, (req: Request, res: Response) => {
                     resp.message = `Directory doesn't exist`
                     send(404);
                     break;
-                case "EACCES ":
+                case "EACCES":
                     resp.message = `Directory is not accessible`
                     send(403);
                     break;
