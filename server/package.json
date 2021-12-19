@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "testOH": "jest --detectOpenHandles",
-    "serve": "ts-node-dev src/server.ts"
+    "serve": "ts-node-dev src/server.ts",
+    "promise": "ts-node-dev src/tests/promiseTest.ts"
   },
   "author": "PLR",
   "license": "ISC",

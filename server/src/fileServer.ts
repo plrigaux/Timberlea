@@ -39,37 +39,49 @@ function getList(req: Request, res: Response) {
 
     fs.promises.readdir(folder, { withFileTypes: true })
         .then((files: Dirent[]) => {
-            const fileList = new FileListCls(folder)
-            files.forEach((file: Dirent) => {
-                let fi: FileDetails = {
+            return files.map((file: Dirent) => {
+                let fd: FileDetails = {
                     name: file.name,
                     type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
                 }
-
-                let toAdd = true
-                if (file.isFile()) {
-                    try {
-                        const stats = fs.statSync(path.join(folder, file.name));
-                        fi.size = stats.size
-                    } catch (e) {
-                        //EPERM: operation not permitted, stat 'C:\DumpStack.log'
-                        if (e instanceof Error) {
-                            //let nodeError = e as NodeJS.ErrnoException
-                            console.log(e.message)
-                        } else {
-                            console.log(":(")
-                        }
-                        toAdd = false
-                    }
-                }
-                //console.log(`file ${file}`, file)
-                if (toAdd) {
-                    fileList.files.push(fi)
+                return fd
+            })
+        })
+        .then(fileDetails => {
+            let promiseList: (Promise<void | FileDetails> | FileDetails)[] = []
+            fileDetails.forEach((file: FileDetails) => {
+                if (file.type === FileType.File) {
+                    let prom = fs.promises.stat(path.join(folder, file.name))
+                        .then(stats => {
+                            file.size = stats.size
+                            return file
+                        }).catch(e => {
+                            //EPERM: operation not permitted, stat 'C:\DumpStack.log'
+                            if (e instanceof Error) {
+                                //let nodeError = e as NodeJS.ErrnoException
+                                console.log(e.message)
+                            } else {
+                                console.log(":(")
+                            }
+                        });
+                    promiseList.push(prom)
+                } else {
+                    promiseList.push(file)
                 }
             })
-            return fileList
-        }).then(fileList => res.send(fileList))
 
+            Promise.all(promiseList).then(_files => {
+                const fileList = new FileListCls(folder)
+                _files.forEach((f : void | FileDetails)=> {
+                    if (f) {
+                        fileList.files.push(f)
+                    }
+                })
+                return fileList
+            }).then(
+                fileList => res.send(fileList)
+            )
+        })
 }
 
 //List without path
