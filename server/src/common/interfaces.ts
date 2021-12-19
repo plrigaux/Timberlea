@@ -30,9 +30,13 @@ interface FS_Response {
     message: string,
 }
 
-export interface RemoteDirectory {
+export interface ChangeDir_Request {
     remoteDirectory: string
     newPath: string
+}
+
+export interface ChangeDir_Response extends FS_Response {
+    directory: string
 }
 
 export interface MakeDirRequest {

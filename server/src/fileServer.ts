@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path'
-import { FileDetails, FileListCls, FileType, MakeDirRequest, MakeDirResponse, RemoteDirectory, RemFile_Request, RemFile_Response, MvFile_Request, MvFile_Response } from './common/interfaces';
+import { FileDetails, FileListCls, FileType, MakeDirRequest, MakeDirResponse, ChangeDir_Request, RemFile_Request, RemFile_Response, MvFile_Request, MvFile_Response, ChangeDir_Response } from './common/interfaces';
 import fs, { Dirent, Stats } from 'fs';
 import { endpoints } from './common/constants';
 
@@ -21,7 +21,7 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
     let p = process.cwd()
     console.log(`PWD __dirname ${__dirname} basename ${basename} extname ${extname} dirName ${dirName} process.cwd ${p}`)
 
-    let newRemoteDirectory: RemoteDirectory = {
+    let newRemoteDirectory: ChangeDir_Request = {
         remoteDirectory: __dirname,
         newPath: ""
     }
@@ -72,7 +72,7 @@ function getList(req: Request, res: Response) {
 
             Promise.all(promiseList).then(_files => {
                 const fileList = new FileListCls(folder)
-                _files.forEach((f : void | FileDetails)=> {
+                _files.forEach((f: void | FileDetails) => {
                     if (f) {
                         fileList.files.push(f)
                     }
@@ -95,39 +95,58 @@ fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response) => {
 })
 
 fileServer.put(endpoints.CD, (req: Request, res: Response) => {
-
-    console.log(req.body)
     console.log("cdpath: " + req.body)
     console.log("remoteDirectory: " + req.body.remoteDirectory)
     console.log("newPath: " + req.body.newPath)
 
-    let newRemoteDirectory: RemoteDirectory = req.body
-
-    //const statsRoot: Stats = fs.lstatSync(newRemoteDirectory.remoteDirectory)
-
-    //console.log(statsRoot.isDirectory())
+    let newRemoteDirectory: ChangeDir_Request = req.body
 
     let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
     newPath = path.resolve(newPath);
 
-    if (!fs.existsSync(newPath)) {
-        //file does't exist
-        res.status(404).send(`Directory \"${newPath}\" doesn't exist`);
-    } else {
-        if (!fs.lstatSync(newPath).isDirectory()) {
-            //file not directory
-            res.status(404).send(`File \"${newPath}\" is not a directory`);
-        } else {
-            try {
-                fs.accessSync(newPath, fs.constants.R_OK);
-                newRemoteDirectory.remoteDirectory = newPath
-                res.send(newRemoteDirectory)
-            }
-            catch (err) {
-                res.status(403).send(`Dirrectory \"${newPath}\" is not accessible`);
-            }
+    let resp: ChangeDir_Response = {
+        directory: newPath,
+        error: true,
+        message: ''
+    }
+
+    let notSent = true
+    const send = (code: number) => {
+        if (notSent) {
+            res.status(code).send(resp);
+            notSent = false
         }
     }
+
+    fs.promises.stat(newPath)
+        .then(stat => {
+            if (!stat.isDirectory()) {
+                resp.message = `File is not a directory`
+                send(409)
+            } else {
+                return fs.promises.access(newPath, fs.constants.R_OK)
+            }
+        }).then(() => {
+            resp.error = false
+            resp.directory = newPath
+            send(200)
+        }).catch((error) => {
+            switch (error.code) {
+                case "ENOENT":
+                    resp.message = `Directory doesn't exist`
+                    send(404);
+                    break;
+                case "EACCES ":
+                    resp.message = `Directory is not accessible`
+                    send(403);
+                    break;
+                default:
+                    console.error(error);
+                    resp.message = `Unknown error`
+                    send(500);
+            }
+
+        });
 })
 
 fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response) => {
