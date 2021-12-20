@@ -63,17 +63,6 @@ export interface MvFile_Response extends FS_Response {
     newFileName: string
 }
 
-export enum HttpStatusCode {
-    OK = 200,
-    CREATED = 201,
-    BAD_REQUEST = 400,
-    FORBIDDEN = 403,
-    NOT_FOUND = 404,
-    CONFLICT = 409,
-    INTERNAL_SERVER = 500,
+export interface FileUpload_Response extends FS_Response {
+    parent: string
 }
-
-export enum FSErrorCode {
-    EACCES  = "EACCES",
-    ENOENT  = "ENOENT",
- }

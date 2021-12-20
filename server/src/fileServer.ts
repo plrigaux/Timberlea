@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
-import path from 'path'
-import { FileDetails, FileType, MakeDirRequest, MakeDirResponse, ChangeDir_Request, RemFile_Request, RemFile_Response, MvFile_Request, MvFile_Response, ChangeDir_Response, FileList_Response, FSErrorCode, HttpStatusCode } from './common/interfaces';
-import fs, { Dirent, Stats } from 'fs';
-import { endpoints } from './common/constants';
+import fs, { Dirent } from 'fs';
+import path from 'path';
+import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
+import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
 
 
 

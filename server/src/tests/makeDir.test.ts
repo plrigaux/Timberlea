@@ -1,10 +1,10 @@
+import fs, { RmOptions } from 'fs'
 import os from 'os'
-import fs, { RmDirOptions, RmOptions } from 'fs'
 import path from 'path'
-import { endpoints } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { HttpStatusCode, MakeDirRequest } from '../common/interfaces'
+import { endpoints, HttpStatusCode } from '../common/constants'
+import { MakeDirRequest } from '../common/interfaces'
 
 const testDirMain = "fileServer"
 const testDir = "make dir"
