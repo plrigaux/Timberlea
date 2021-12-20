@@ -21,12 +21,11 @@ afterAll(() => {
 
 describe('Upload file', () => {
 
-
-
-
     test('Upload single file', async () => {
         
         const file = `${__dirname}/datafiles/agile.png`
+
+        const fileName = path.parse(file).name
         console.log(file)
         expect(fs.existsSync(file)).toBeTruthy()
 
@@ -34,7 +33,7 @@ describe('Upload file', () => {
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
             .field(uploadFile.DESTINATION_FOLDER, dir)
-            .attach('mouf', file)
+            .attach(fileName, file)
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
@@ -51,13 +50,15 @@ describe('Upload file', () => {
         console.log(file)
         expect(fs.existsSync(file)).toBeTruthy()
 
-        tu.createFile("agile.png", dir, "File data, file data file data")
+        const fileName = "bob"
+
+        tu.createFile(`${fileName}${path.parse(file).ext}`, dir, "File data, file data file data")
 
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
             .field(uploadFile.DESTINATION_FOLDER, dir)
-            .attach('mouf', file)
+            .attach(fileName, file)
             .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
 
@@ -66,6 +67,57 @@ describe('Upload file', () => {
 
         expect(responseBody.error).toBeTruthy()
         expect(responseBody.message).toEqual(fileServerErrors.FILE_ALREADY_EXIST)
+        //console.log('body', resp.body)
+    });
+
+    test('Upload single file - Destination folder doesn\'t exist', async () => {
+        
+        const file = `${__dirname}/datafiles/agile.png`
+        console.log(file)
+        expect(fs.existsSync(file)).toBeTruthy()
+
+        const fileName = path.parse(file).name
+
+        const resp = await request(app)
+            .post(endpoints.FS_UPLOAD)
+            .field("companyName", "supertest")
+            .field(uploadFile.DESTINATION_FOLDER, dir + "/noexitsFolder")
+            .attach(fileName, file)
+            .expect(HttpStatusCode.NOT_FOUND)
+            .expect("Content-Type", /json/);
+
+
+        const responseBody: FileUpload_Response = resp.body
+
+        expect(responseBody.error).toBeTruthy()
+        expect(responseBody.message).toEqual(fileServerErrors.DESTINATION_FOLDER_DOESNT_EXIST)
+        //console.log('body', resp.body)
+    });
+
+    test('Upload single file - Destination folder not a directory', async () => {
+        
+        const file = `${__dirname}/datafiles/agile.png`
+        console.log(file)
+        expect(fs.existsSync(file)).toBeTruthy()
+
+        tu.createFile(`baba`, dir, "File data, file data file data")
+        
+        
+        const fileName = path.parse(file).name
+
+        const resp = await request(app)
+            .post(endpoints.FS_UPLOAD)
+            .field("companyName", "supertest")
+            .field(uploadFile.DESTINATION_FOLDER, dir + "/baba")
+            .attach(fileName, file)
+            .expect(HttpStatusCode.CONFLICT)
+            .expect("Content-Type", /json/);
+
+
+        const responseBody: FileUpload_Response = resp.body
+
+        expect(responseBody.error).toBeTruthy()
+        expect(responseBody.message).toEqual(fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY)
         //console.log('body', resp.body)
     });
 })

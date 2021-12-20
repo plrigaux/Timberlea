@@ -25,8 +25,10 @@ export namespace uploadFile {
 }
 
 export namespace fileServerErrors {
-    export const NO_DESTINATION_FOLDER = "NO DESTINATION FOLDER"
+    export const NO_DESTINATION_FOLDER_SUPPLIED = "NO DESTINATION FOLDER SUPPLIED"
     export const FILE_ALREADY_EXIST = "FILE ALREADY EXIST"
+    export const DESTINATION_FOLDER_NOT_DIRECTORY =  "DESTINATION FOLDER NOT DIRECTORY"
+    export const DESTINATION_FOLDER_DOESNT_EXIST = "DESTINATION FOLDER DOESN'T EXIST"
 }
 
 export enum HttpStatusCode {
