@@ -5,6 +5,7 @@ import { Express } from 'express-serve-static-core'
 
 import { app } from '../app'
 import { endpoints } from '../common/constants'
+import { ChangeDir_Response, HttpStatusCode } from '../common/interfaces'
 
 
 describe('GET test', () => {
@@ -19,16 +20,17 @@ describe('GET test', () => {
 
     it("test PWD", async () => {
 
-   
 
-         const resp = await request(app)
+
+        const resp = await request(app)
             .get(endpoints.FS_PWD)
-            .expect(200)  
-            .expect("Content-Type", /json/)  
-        
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/)
 
+
+        let respData: ChangeDir_Response = resp.body
         expect(resp.statusCode).toEqual(200)
-        expect(resp.body.remoteDirectory).toContain("server")
-       
+        expect(respData.directory).toContain("server")
+
     })
 })

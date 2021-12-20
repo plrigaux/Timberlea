@@ -38,4 +38,28 @@ describe('File list', () => {
 
             console.log(resp.body)
     });
+
+    test('Get file list - Not exist', async () => {
+
+        let remoteDirectory = encodeURIComponent("this dir should not exist");
+        const url = path.join(endpoints.FS_LIST, remoteDirectory)
+        const resp = await request(app)
+            .get(url)
+            .expect(404)
+            .expect("Content-Type", /json/);
+
+            console.log(resp.body)
+    });
+
+    test('Get file list - Root', async () => {
+
+        let remoteDirectory = encodeURIComponent("c:/");
+        const url = path.join(endpoints.FS_LIST, remoteDirectory)
+        const resp = await request(app)
+            .get(url)
+            .expect(200)
+            .expect("Content-Type", /json/);
+
+            console.log(resp.body)
+    });
 })

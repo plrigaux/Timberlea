@@ -4,7 +4,7 @@ import path from 'path'
 import { endpoints } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from '../common/interfaces'
+import { HttpStatusCode, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from '../common/interfaces'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
@@ -47,7 +47,7 @@ describe('Rename or move file', () => {
         const resp = await request(app)
             .put(endpoints.FS_MV)
             .send(data)
-            .expect(200)
+            .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
         let dataresp: MvFile_Response = resp.body
@@ -74,7 +74,7 @@ describe('Rename or move file', () => {
         const resp = await request(app)
             .put(endpoints.FS_MV)
             .send(data)
-            .expect(404)
+            .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /json/);
 
         let dataresp: MvFile_Response = resp.body
@@ -103,7 +103,7 @@ describe('Rename or move file', () => {
         const resp = await request(app)
             .put(endpoints.FS_MV)
             .send(data)
-            .expect(409)
+            .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
 
         let dataresp: MvFile_Response = resp.body
@@ -132,7 +132,7 @@ describe('Rename or move file', () => {
         const resp = await request(app)
             .put(endpoints.FS_MV)
             .send(data)
-            .expect(200)
+            .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
         let dataresp: MvFile_Response = resp.body

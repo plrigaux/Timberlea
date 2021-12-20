@@ -4,7 +4,7 @@ import path from 'path'
 import { endpoints } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { MakeDirRequest } from '../common/interfaces'
+import { HttpStatusCode, MakeDirRequest } from '../common/interfaces'
 
 const testDirMain = "fileServer"
 const testDir = "make dir"
@@ -39,7 +39,7 @@ describe('Create directory', () => {
         const resp = await request(app)
             .post(endpoints.FS_MKDIR)
             .send(data)
-            .expect(201)
+            .expect(HttpStatusCode.CREATED)
             .expect("Content-Type", /json/)
 
     });
@@ -54,7 +54,7 @@ describe('Create directory', () => {
         const resp = await request(app)
             .post(endpoints.FS_MKDIR)
             .send(data)
-            .expect(200)
+            .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/)
 
     });
@@ -73,7 +73,7 @@ describe('Create directory', () => {
         const resp = await request(app)
             .post(endpoints.FS_MKDIR)
             .send(data)
-            .expect(409)
+            .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/)
 
     });

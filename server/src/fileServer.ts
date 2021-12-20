@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path'
-import { FileDetails, FileListCls, FileType, MakeDirRequest, MakeDirResponse, ChangeDir_Request, RemFile_Request, RemFile_Response, MvFile_Request, MvFile_Response, ChangeDir_Response } from './common/interfaces';
+import { FileDetails, FileType, MakeDirRequest, MakeDirResponse, ChangeDir_Request, RemFile_Request, RemFile_Response, MvFile_Request, MvFile_Response, ChangeDir_Response, FileList_Response, FSErrorCode, HttpStatusCode } from './common/interfaces';
 import fs, { Dirent, Stats } from 'fs';
 import { endpoints } from './common/constants';
 
@@ -21,19 +21,17 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
     let p = process.cwd()
     console.log(`PWD __dirname ${__dirname} basename ${basename} extname ${extname} dirName ${dirName} process.cwd ${p}`)
 
-    let newRemoteDirectory: ChangeDir_Request = {
-        remoteDirectory: __dirname,
-        newPath: ""
+    let newRemoteDirectory: ChangeDir_Response = {
+        directory: __dirname,
+        error: false,
+        message: 'OK'
     }
     res.send(newRemoteDirectory)
 });
 
 function getList(req: Request, res: Response) {
 
-    let folder: string = req.params.path || ""
-    if (!folder) {
-        folder = __dirname
-    }
+    const folder: string = req.params.path || __dirname
 
     console.log(`folder ${folder}`)
 
@@ -55,14 +53,8 @@ function getList(req: Request, res: Response) {
                         .then(stats => {
                             file.size = stats.size
                             return file
-                        }).catch(e => {
-                            //EPERM: operation not permitted, stat 'C:\DumpStack.log'
-                            if (e instanceof Error) {
-                                //let nodeError = e as NodeJS.ErrnoException
-                                console.log(e.message)
-                            } else {
-                                console.log(":(")
-                            }
+                        }).catch((error) => {
+                            console.log(error.code, error.message, file.name)
                         });
                     promiseList.push(prom)
                 } else {
@@ -71,17 +63,48 @@ function getList(req: Request, res: Response) {
             })
 
             Promise.all(promiseList).then(_files => {
-                const fileList = new FileListCls(folder)
+
+                let resp: FileList_Response = {
+                    parent: folder,
+                    files: [],
+                    error: false,
+                    message: 'Ok'
+                }
                 _files.forEach((f: void | FileDetails) => {
                     if (f) {
-                        fileList.files.push(f)
+                        resp.files.push(f)
                     }
                 })
-                return fileList
+                return resp
             }).then(
-                fileList => res.send(fileList)
+                resp => res.send(resp)
             )
-        })
+        }).catch((error) => {
+            console.log(error)
+            let resp: FileList_Response = {
+                parent: folder,
+                files: [],
+                error: true,
+                message: ''
+            }
+            let code = HttpStatusCode.INTERNAL_SERVER
+            switch (error.code) {
+                case "ENOENT":
+                    resp.message = `Directory doesn't exist`
+                    code = HttpStatusCode.NOT_FOUND;
+                    break;
+                case "EACCES":
+                    resp.message = `Directory is not accessible`
+                    code =  HttpStatusCode.FORBIDDEN
+                    break;
+                default:
+                    console.error(error);
+                    resp.message = `Unknown error`
+                    code = HttpStatusCode.INTERNAL_SERVER
+            }
+            res.status(code).send(resp)
+
+        });
 }
 
 //List without path
@@ -122,7 +145,7 @@ fileServer.put(endpoints.CD, (req: Request, res: Response) => {
         .then(stat => {
             if (!stat.isDirectory()) {
                 resp.message = `File is not a directory`
-                send(409)
+                send(HttpStatusCode.CONFLICT)
             } else {
                 return fs.promises.access(newPath, fs.constants.R_OK)
             }
@@ -134,7 +157,7 @@ fileServer.put(endpoints.CD, (req: Request, res: Response) => {
             switch (error.code) {
                 case "ENOENT":
                     resp.message = `Directory doesn't exist`
-                    send(404);
+                    send(HttpStatusCode.NOT_FOUND);
                     break;
                 case "EACCES":
                     resp.message = `Directory is not accessible`
@@ -143,7 +166,7 @@ fileServer.put(endpoints.CD, (req: Request, res: Response) => {
                 default:
                     console.error(error);
                     resp.message = `Unknown error`
-                    send(500);
+                    send(HttpStatusCode.INTERNAL_SERVER);
             }
 
         });
@@ -176,51 +199,53 @@ fileServer.post(endpoints.MKDIR, (req: Request, res: Response) => {
     console.log("Mkdir", data)
     let dirPath = path.join(data.parent, data.dirName)
 
-    if (fs.existsSync(dirPath)) {
-        let code = -1
-        let responseData!: MakeDirResponse
-        code = 200
-        if (fs.lstatSync(dirPath).isDirectory()) {
-            responseData = {
-                error: false,
-                message: `Directory already exist`,
-                directory: dirPath
-            }
-        } else {
-            code = 409
-            responseData = {
-                error: true,
-                message: `File already exist`,
-                directory: dirPath
-            }
-        }
-
-        res.status(code).send(responseData);
-        return;
+    let responseData: MakeDirResponse = {
+        error: false,
+        message: '',
+        directory: dirPath
     }
 
-    let options = { recursive: data.recursive ? true : false }
-
-    console.log("Mkdir options", options)
-    try {
-        fs.mkdirSync(dirPath, options);
-
-        let responseData: MakeDirResponse = {
-            error: false,
-            message: `Directory Created : ${dirPath}`,
-            directory: dirPath
+    let code = -1
+    let notSent = true
+    const send = () => {
+        if (notSent) {
+            res.status(code).send(responseData);
+            notSent = false
         }
-        res.status(201).send(responseData);
-    } catch (e) {
-        console.error(e)
-
-        let responseData: MakeDirResponse = {
-            error: true,
-            message: JSON.stringify(e),
-            directory: dirPath
-        }
-        res.status(500).send(responseData);
     }
+
+    fs.promises.stat(dirPath)
+        .then(stat => {
+            if (stat.isDirectory()) {
+                code = HttpStatusCode.OK
+                responseData.message = `Directory already exist`;
+                send()
+            } else {
+                code = HttpStatusCode.CONFLICT
+                responseData.error = true
+                responseData.message = `File already exist`
+                send()
+            }
+        }).catch(error => {
+            if (error.code == FSErrorCode.ENOENT) {
+                let options = { recursive: data.recursive ? true : false }
+
+                console.log("Mkdir options", options)
+                return fs.promises.mkdir(dirPath, options)
+                    .then(() => {
+                        code = HttpStatusCode.CREATED
+                        responseData.error = false
+                        responseData.message = `Directory Created : ${dirPath}`
+                        send()
+                    })
+                    .catch(error => {
+                        code = HttpStatusCode.INTERNAL_SERVER
+                        responseData.error = true
+                        responseData.message = JSON.stringify(error)
+                        send()
+                    })
+            }
+        })
 })
 
 fileServer.delete(endpoints.REM, (req: Request, res: Response) => {
@@ -243,7 +268,7 @@ fileServer.delete(endpoints.REM, (req: Request, res: Response) => {
             file: path.basename(filePath)
         }
 
-        res.status(404).send(responseData);
+        res.status(HttpStatusCode.NOT_FOUND).send(responseData);
         return;
     }
 
@@ -266,7 +291,7 @@ fileServer.delete(endpoints.REM, (req: Request, res: Response) => {
             parent: path.dirname(filePath),
             file: path.basename(filePath)
         }
-        res.status(500).send(responseData);
+        res.status(HttpStatusCode.INTERNAL_SERVER).send(responseData);
     }
 })
 
@@ -285,7 +310,7 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
         oldFileName: data.oldFileName,
         newFileName: path.basename(newPath)
     }
-    let statuCode: number = 500
+    let statuCode: number = HttpStatusCode.INTERNAL_SERVER
 
     const send = () => {
         res.status(statuCode).send(responseData);
@@ -293,7 +318,7 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
 
     fs.access(newPath, function (error) {
         if (!error) {
-            statuCode = 409
+            statuCode = HttpStatusCode.CONFLICT
             responseData.message = "New file exists"
             send()
         } else {
@@ -301,8 +326,8 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
                 if (error) {
                     // Show the error 
                     console.error(error);
-                    if (error.code == "ENOENT") {
-                        statuCode = 404
+                    if (error.code == FSErrorCode.ENOENT) {
+                        statuCode = HttpStatusCode.NOT_FOUND
                         responseData.message = `File not found`
                     }
                 }

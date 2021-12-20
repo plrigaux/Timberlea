@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
-import { FileDetails, FileList, FileType, RemoteDirectory } from 'server/src/common/interfaces';
+import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType } from 'server/src/common/interfaces';
 import { endpoints } from 'server/src/common/constants';
 import { environment } from './../environments/environment';
 import { Router } from '@angular/router';
@@ -26,10 +25,10 @@ export class AppComponent {
   pwd() {
     console.log("click PWD")
 
-    this.http.get<RemoteDirectory>(environment.serverUrl + endpoints.FS_PWD).subscribe({
-      next: (data: RemoteDirectory) => {
+    this.http.get<ChangeDir_Response>(environment.serverUrl + endpoints.FS_PWD).subscribe({
+      next: (data: ChangeDir_Response) => {
         console.log(data)
-        this.remoteDirectory = data.remoteDirectory
+        this.remoteDirectory = data.directory
       },
       error: error => {
         //this.errorMessage = error.message;
@@ -41,17 +40,17 @@ export class AppComponent {
 
   cd() {
 
-    let newRemoteDirectory: RemoteDirectory = {
+    let newRemoteDirectory: ChangeDir_Request = {
       remoteDirectory: this.remoteDirectory,
       newPath: this.cdPath
     }
 
     console.log("path: " + newRemoteDirectory)
 
-    this.http.put<RemoteDirectory>(environment.serverUrl + endpoints.FS_CD, newRemoteDirectory).subscribe({
-      next: (data: RemoteDirectory) => {
+    this.http.put<ChangeDir_Response>(environment.serverUrl + endpoints.FS_CD, newRemoteDirectory).subscribe({
+      next: (data: ChangeDir_Response) => {
         console.log(data)
-        this.remoteDirectory = data.remoteDirectory
+        this.remoteDirectory = data.directory
         this.remoteFiles = []
       },
       error: error => {
@@ -69,10 +68,10 @@ export class AppComponent {
 
     let remoteDirectory = encodeURIComponent(this.remoteDirectory);
 
-    this.http.get<FileList>(environment.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory).subscribe({
-      next: (data: FileList) => {
+    this.http.get<FileList_Response>(environment.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory).subscribe({
+      next: (data: FileList_Response) => {
         console.log(data)
-        this.remoteDirectory = data.path
+        this.remoteDirectory = data.parent
 
         this.remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
       },

@@ -4,7 +4,7 @@ import path from 'path'
 import { endpoints } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { ChangeDir_Request, ChangeDir_Response } from '../common/interfaces'
+import { ChangeDir_Request, ChangeDir_Response, HttpStatusCode } from '../common/interfaces'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
@@ -44,7 +44,7 @@ describe('Change Directory', () => {
         const resp = await request(app)
             .put(endpoints.FS_CD)
             .send(changeDir)
-            .expect(200)
+            .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
             console.log(resp.body)
@@ -62,7 +62,7 @@ describe('Change Directory', () => {
         const resp = await request(app)
             .put(endpoints.FS_CD)
             .send(changeDir)
-            .expect(404)
+            .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /json/);
 
             let dataresp: ChangeDir_Response = resp.body
@@ -87,7 +87,7 @@ describe('Change Directory', () => {
         const resp = await request(app)
             .put(endpoints.FS_CD)
             .send(changeDir)
-            .expect(409)
+            .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
 
             let dataresp: ChangeDir_Response = resp.body

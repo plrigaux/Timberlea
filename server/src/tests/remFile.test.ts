@@ -4,7 +4,7 @@ import path from 'path'
 import { endpoints } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { RemFile_Request, RemFile_Response } from '../common/interfaces'
+import { HttpStatusCode, RemFile_Request, RemFile_Response } from '../common/interfaces'
 
 
 const testDirMain = "fileServer"
@@ -45,7 +45,7 @@ describe('Delete file or directory', () => {
         const resp = await request(app)
             .delete(endpoints.FS_REM)
             .send(data)
-            .expect(200)
+            .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
             let dataresp : RemFile_Response = resp.body
@@ -71,7 +71,7 @@ describe('Delete file or directory', () => {
         const resp = await request(app)
             .delete(endpoints.FS_REM)
             .send(data)
-            .expect(200)
+            .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
             let dataresp : RemFile_Response = resp.body
@@ -95,7 +95,7 @@ describe('Delete file or directory', () => {
         const resp = await request(app)
             .delete(endpoints.FS_REM)
             .send(data)
-            .expect(404)
+            .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /json/);
 
             let dataresp : RemFile_Response = resp.body
@@ -120,7 +120,7 @@ describe('Delete file or directory', () => {
         const resp = await request(app)
             .delete(endpoints.FS_REM)
             .send(data)
-            .expect(200)
+            .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
             let dataresp : RemFile_Response = resp.body

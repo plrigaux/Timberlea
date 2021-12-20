@@ -10,20 +10,10 @@ export interface FileDetails {
     type: FileType;
 }
 
-export interface FileList {
-    path: string
+export interface FileList_Response extends FS_Response {
+    parent: string
     files: FileDetails[]
 }
-
-export class FileListCls implements FileList {
-    path: string
-    files: FileDetails[]
-    constructor(path: string) {
-        this.path = path
-        this.files = []
-    }
-}
-
 
 interface FS_Response {
     error: boolean,
@@ -72,3 +62,18 @@ export interface MvFile_Response extends FS_Response {
     oldFileName: string
     newFileName: string
 }
+
+export enum HttpStatusCode {
+    OK = 200,
+    CREATED = 201,
+    BAD_REQUEST = 400,
+    FORBIDDEN = 403,
+    NOT_FOUND = 404,
+    CONFLICT = 409,
+    INTERNAL_SERVER = 500,
+}
+
+export enum FSErrorCode {
+    EACCES  = "EACCES",
+    ENOENT  = "ENOENT",
+ }
