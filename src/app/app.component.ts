@@ -29,6 +29,7 @@ export class AppComponent {
       next: (data: ChangeDir_Response) => {
         console.log(data)
         this.remoteDirectory = data.directory
+        this.list()
       },
       error: error => {
         //this.errorMessage = error.message;
@@ -51,7 +52,8 @@ export class AppComponent {
       next: (data: ChangeDir_Response) => {
         console.log(data)
         this.remoteDirectory = data.directory
-        this.remoteFiles = []
+        //this.remoteFiles = []
+        this.list()
       },
       error: error => {
         //this.errorMessage = error.message;
@@ -99,6 +101,14 @@ export class AppComponent {
 
   displayType(type: FileType): string {
     return FileType[type]
+  }
+
+  displayTypeIcon(type: FileType): string {
+    switch (type) {
+      case FileType.Directory:
+        return "folder"
+    }
+    return "text_snippet"
   }
 
   setCdPath(param: FileDetails) {

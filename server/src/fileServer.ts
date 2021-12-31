@@ -95,7 +95,7 @@ function getList(req: Request, res: Response) {
                     break;
                 case "EACCES":
                     resp.message = `Directory is not accessible`
-                    code =  HttpStatusCode.FORBIDDEN
+                    code = HttpStatusCode.FORBIDDEN
                     break;
                 default:
                     console.error(error);
@@ -155,11 +155,11 @@ fileServer.put(endpoints.CD, (req: Request, res: Response) => {
             send(200)
         }).catch((error) => {
             switch (error.code) {
-                case "ENOENT":
+                case FSErrorCode.ENOENT:
                     resp.message = `Directory doesn't exist`
                     send(HttpStatusCode.NOT_FOUND);
                     break;
-                case "EACCES":
+                case FSErrorCode.EACCES:
                     resp.message = `Directory is not accessible`
                     send(403);
                     break;
