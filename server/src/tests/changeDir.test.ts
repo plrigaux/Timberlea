@@ -1,10 +1,10 @@
 import os from 'os'
 import fs, { RmDirOptions, RmOptions } from 'fs'
 import path from 'path'
-import { endpoints } from '../common/constants'
+import { endpoints, HttpStatusCode } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { ChangeDir_Request, ChangeDir_Response, HttpStatusCode } from '../common/interfaces'
+import { ChangeDir_Request, ChangeDir_Response } from '../common/interfaces'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
