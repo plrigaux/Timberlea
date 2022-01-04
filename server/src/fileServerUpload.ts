@@ -1,28 +1,25 @@
 import express, { Request } from 'express';
 import path from 'path'
 import fs from 'fs';
-import multer, { FileFilterCallback } from 'multer';
+import multer from 'multer';
 import { FileUpload_Response } from './common/interfaces';
 import { fileServerErrors, FSErrorCode, HttpStatusCode, uploadFile } from './common/constants';
-import { rejects } from 'assert';
 
 export const fileServerUpload = express.Router()
-const default_folder = 'files';
 
 const storage = multer.diskStorage({
     destination: function (req, file, callback) {
 
 
-
+        let dsError: Error | null = null
         let cbDestinationFolder = ""
-        let callbackError: Error | null = null
 
         new Promise<string>((resolve, reject) => {
             let destinationFolder = req.body[uploadFile.DESTINATION_FOLDER]
             if (!destinationFolder) {
                 let newError = new Error(`No destination Folder`)
                 newError.name = fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED
-                throw newError
+                reject(newError)
             } else {
                 resolve(destinationFolder)
             }
@@ -33,27 +30,31 @@ const storage = multer.diskStorage({
             if (!stat.isDirectory()) {
                 let newError = new Error(`Not a directory`)
                 newError.name = fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY
-                throw (newError)
+                dsError = newError
+            } else {
+                return fs.promises.access(cbDestinationFolder, fs.constants.R_OK | fs.constants.W_OK);
             }
-            
         }).catch(error => {
+            dsError = error
             if (error) {
                 if (error.code == FSErrorCode.ENOENT) {
                     let newError = new Error(`Directory doesn't exist`)
                     newError.name = fileServerErrors.DESTINATION_FOLDER_DOESNT_EXIST
-                    error = newError
+                    dsError = newError
+                } else if (error.code == FSErrorCode.EACCES) {
+                    let newError = new Error(`Directory is not accessible`)
+                    newError.name = fileServerErrors.DESTINATION_FOLDER_NOT_ACCESSIBLE
+                    dsError = newError
                 }
-                throw error
             }
-        }).then(() => {
-            callback(null, cbDestinationFolder);
-        }).catch(error => {
-            callback(error, cbDestinationFolder);
+        }).finally(() => {
+            callback(dsError, cbDestinationFolder);
         })
     },
 
     filename: function (req: Request, file: Express.Multer.File, callback) {
 
+        let fnError: Error | null = null
         let newFileName: string
         if (file.fieldname) {
             newFileName = file.fieldname + path.extname(file.originalname)
@@ -69,19 +70,17 @@ const storage = multer.diskStorage({
             .then(stat => {
                 let errorFileName = new Error(`File "${newFileName}" in directory '${req.body.destinationFolder}' exist!`)
                 errorFileName.name = fileServerErrors.FILE_ALREADY_EXIST
-                throw errorFileName
+                fnError = errorFileName
             }).catch(error => {
                 if (error) {
                     if (error.code == FSErrorCode.ENOENT) {
                         //File doesn't exist and it's OK because we are going to create it
                     } else {
-                        throw error
+                        fnError = error
                     }
                 }
-            }).then(() => {
-                callback(null, newFileName)
-            }).catch(error => {
-                callback(error, newFileName)
+            }).finally(() => {
+                callback(fnError, newFileName);
             })
     }
 });
@@ -100,6 +99,7 @@ fileServerUpload.post("/", (req, res) => {
         let code = -1
         if (err) {
             response.error = true
+            //TODO test if can write a file
             switch (err.name) {
 
                 case fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED:
@@ -121,16 +121,18 @@ fileServerUpload.post("/", (req, res) => {
                     response.message = err.name
                     code = HttpStatusCode.CONFLICT
                     break;
+                case fileServerErrors.DESTINATION_FOLDER_NOT_ACCESSIBLE:
+                    response.message = err.name
+                    code = HttpStatusCode.FORBIDDEN
+                    break;
                 default:
                     code = HttpStatusCode.INTERNAL_SERVER
             }
-
-            res.status(code).send(response);
         } else {
             code = HttpStatusCode.OK
             response.message = "OK"
-            res.status(code).send(response);
         }
+        res.status(code).send(response);
     });
 });
 

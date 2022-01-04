@@ -117,6 +117,54 @@ fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response) => {
     getList(req, res)
 })
 
+
+function directoryValid(dirpath: string, res: Response) {
+
+    let resp: ChangeDir_Response = {
+        directory: dirpath,
+        error: true,
+        message: ''
+    }
+    let statusCode = 0
+    let isDirectory = true
+
+    fs.promises.stat(dirpath)
+        .then(stat => {
+            isDirectory = stat.isDirectory()
+            if (isDirectory) {
+                return fs.promises.access(dirpath, fs.constants.R_OK)
+            }
+        }).then(() => {
+            if (isDirectory) {
+                resp.error = false
+                resp.directory = dirpath
+                statusCode = HttpStatusCode.OK
+            } else {
+                resp.error = true
+                resp.directory = dirpath
+                resp.message = `File is not a directory`
+                statusCode = HttpStatusCode.CONFLICT
+            }
+        }).catch((error) => {
+            switch (error.code) {
+                case FSErrorCode.ENOENT:
+                    resp.message = `Directory doesn't exist`
+                    statusCode = HttpStatusCode.NOT_FOUND
+                    break;
+                case FSErrorCode.EACCES:
+                    resp.message = `Directory is not accessible`
+                    statusCode = HttpStatusCode.FORBIDDEN
+                    break;
+                default:
+                    console.error(error);
+                    resp.message = `Unknown error`
+                    statusCode = HttpStatusCode.INTERNAL_SERVER
+            }
+        }).finally(() =>{
+            res.status(statusCode).send(resp);
+        });
+}
+
 fileServer.put(endpoints.CD, (req: Request, res: Response) => {
     console.log("cdpath: " + req.body)
     console.log("remoteDirectory: " + req.body.remoteDirectory)
@@ -127,49 +175,8 @@ fileServer.put(endpoints.CD, (req: Request, res: Response) => {
     let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
     newPath = path.resolve(newPath);
 
-    let resp: ChangeDir_Response = {
-        directory: newPath,
-        error: true,
-        message: ''
-    }
+    directoryValid(newPath, res)
 
-    let notSent = true
-    const send = (code: number) => {
-        if (notSent) {
-            res.status(code).send(resp);
-            notSent = false
-        }
-    }
-
-    fs.promises.stat(newPath)
-        .then(stat => {
-            if (!stat.isDirectory()) {
-                resp.message = `File is not a directory`
-                send(HttpStatusCode.CONFLICT)
-            } else {
-                return fs.promises.access(newPath, fs.constants.R_OK)
-            }
-        }).then(() => {
-            resp.error = false
-            resp.directory = newPath
-            send(200)
-        }).catch((error) => {
-            switch (error.code) {
-                case FSErrorCode.ENOENT:
-                    resp.message = `Directory doesn't exist`
-                    send(HttpStatusCode.NOT_FOUND);
-                    break;
-                case FSErrorCode.EACCES:
-                    resp.message = `Directory is not accessible`
-                    send(403);
-                    break;
-                default:
-                    console.error(error);
-                    resp.message = `Unknown error`
-                    send(HttpStatusCode.INTERNAL_SERVER);
-            }
-
-        });
 })
 
 fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response) => {

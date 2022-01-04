@@ -8,5 +8,6 @@ dotenv.config({
 export const config = {
     NODE_ENV : process.env.NODE_ENV || 'development',
     HOST : process.env.HOST || 'localhost',
-    PORT : (process.env.PORT || 3000) as number
+    PORT : (process.env.PORT || 3000) as number,
+    currentDirectory : __dirname
 }
