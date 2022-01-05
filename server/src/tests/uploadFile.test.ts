@@ -9,14 +9,14 @@ import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "upload file dir"
-const dir = path.join(os.tmpdir(), testDirMain, testDir)
+const uploadDirectory = path.join(os.tmpdir(), testDirMain, testDir)
 
 beforeAll(() => {
-    tu.createDir(dir)
+    tu.createDir(uploadDirectory)
 });
 
 afterAll(() => {
-    //tu.removeDir(dir)
+    tu.removeDir(uploadDirectory)
 });
 
 describe('Upload file', () => {
@@ -32,7 +32,7 @@ describe('Upload file', () => {
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, dir)
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectory)
             .attach(fileName, file)
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
@@ -52,12 +52,12 @@ describe('Upload file', () => {
 
         const fileName = "bob"
 
-        tu.createFile(`${fileName}${path.parse(file).ext}`, dir, "File data, file data file data")
+        tu.createFile(`${fileName}${path.parse(file).ext}`, uploadDirectory, "File data, file data file data")
 
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, dir)
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectory)
             .attach(fileName, file)
             .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
@@ -81,7 +81,7 @@ describe('Upload file', () => {
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, dir + "/noexitsFolder")
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectory + "/noexitsFolder")
             .attach(fileName, file)
             .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /json/);
@@ -100,7 +100,7 @@ describe('Upload file', () => {
         console.log(file)
         expect(fs.existsSync(file)).toBeTruthy()
 
-        tu.createFile(`baba`, dir, "File data, file data file data")
+        tu.createFile(`baba`, uploadDirectory, "File data, file data file data")
         
         
         const fileName = path.parse(file).name
@@ -108,7 +108,7 @@ describe('Upload file', () => {
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, dir + "/baba")
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectory + "/baba")
             .attach(fileName, file)
             .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
@@ -119,5 +119,43 @@ describe('Upload file', () => {
         expect(responseBody.error).toBeTruthy()
         expect(responseBody.message).toEqual(fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY)
         //console.log('body', resp.body)
+    });
+
+    test.only('Upload multiple files', async () => {
+        
+        const file1 = `${__dirname}/datafiles/agile.png`
+        const file2 = `${__dirname}/datafiles/waterfall.png`
+
+        const fileName1 = path.parse(file1).name
+        const fileName2 = path.parse(file2).name
+        console.log(file1, file2)
+
+        expect(fs.existsSync(file1)).toBeTruthy()
+        expect(fs.existsSync(file2)).toBeTruthy()
+
+        const resp = await request(app)
+            .post(endpoints.FS_UPLOAD)
+            .field("companyName", "supertest")
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectory)
+            .attach(fileName1, file1)
+            .attach(fileName2, file2)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+
+        const responseBody: FileUpload_Response = resp.body
+
+        expect(responseBody.error).toBeFalsy()
+
+        let path1 = path.join(uploadDirectory, path.parse(file1).base)
+        let path2 = path.join(uploadDirectory, path.parse(file2).base)
+
+        //console.log(path1, path2)
+
+        expect(fs.existsSync(path1)).toBeTruthy()
+        expect(fs.existsSync(path2)).toBeTruthy()
+
+        
+        console.log('body', resp.body)
     });
 })

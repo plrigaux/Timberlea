@@ -65,4 +65,5 @@ export interface MvFile_Response extends FS_Response {
 
 export interface FileUpload_Response extends FS_Response {
     parent: string
+    files: string[]
 }

@@ -93,7 +93,8 @@ fileServerUpload.post("/", (req, res) => {
         let response: FileUpload_Response = {
             parent: req.body[uploadFile.DESTINATION_FOLDER],
             error: false,
-            message: ''
+            message: '',
+            files: []
         }
 
         let code = -1
@@ -131,6 +132,16 @@ fileServerUpload.post("/", (req, res) => {
         } else {
             code = HttpStatusCode.OK
             response.message = "OK"
+
+            if (req.file) {
+                let f = req.file
+                response.files.push(f.filename)
+            } else if (req.files) {
+  
+                for (const [od, file] of Object.entries(req.files)) {
+                    response.files.push(file.filename)
+                }
+            }
         }
         res.status(code).send(response);
     });
