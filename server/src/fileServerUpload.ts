@@ -104,7 +104,7 @@ fileServerUpload.post("/", (req, res) => {
             switch (err.name) {
 
                 case fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED:
-                    response.message = fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED
+                    response.message = err.name
                     code = HttpStatusCode.NOT_FOUND
                     break;
 
@@ -122,10 +122,12 @@ fileServerUpload.post("/", (req, res) => {
                     response.message = err.name
                     code = HttpStatusCode.CONFLICT
                     break;
+
                 case fileServerErrors.DESTINATION_FOLDER_NOT_ACCESSIBLE:
                     response.message = err.name
                     code = HttpStatusCode.FORBIDDEN
                     break;
+
                 default:
                     code = HttpStatusCode.INTERNAL_SERVER
             }
@@ -135,21 +137,19 @@ fileServerUpload.post("/", (req, res) => {
 
             if (req.file) {
                 let f = req.file
-                response.files.push(f.filename)
+                response.files.push({
+                    fileName: f.filename,
+                    size: f.size
+                })
             } else if (req.files) {
-  
-                for (const [od, file] of Object.entries(req.files)) {
-                    response.files.push(file.filename)
+                for (const [id, file] of Object.entries(req.files)) {
+                    response.files.push({
+                        fileName: file.filename,
+                        size: file.size
+                    })
                 }
             }
         }
         res.status(code).send(response);
     });
-});
-
-fileServerUpload.post("/:robert", upload, (req, res) => {
-    console.log(req.params)
-    console.log(req.body)
-    console.log('[' + new Date().toISOString() + '] - File uploaded:', req.files);
-    res.end();
 });

@@ -1,5 +1,5 @@
 import { app } from './app'
-import { config } from '../config';
+import { config } from './common/config';
 
 console.log(`NODE_ENV=${config.NODE_ENV}`);
 

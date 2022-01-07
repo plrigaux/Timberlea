@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType } from 'server/src/common/interfaces';
 import { endpoints } from 'server/src/common/constants';
-import { environment } from './../environments/environment';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',

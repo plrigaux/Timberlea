@@ -63,7 +63,13 @@ export interface MvFile_Response extends FS_Response {
     newFileName: string
 }
 
+export interface FileUpload_Info {
+    fileName: string
+    size: number
+}
+
+
 export interface FileUpload_Response extends FS_Response {
     parent: string
-    files: string[]
+    files: FileUpload_Info[]
 }
