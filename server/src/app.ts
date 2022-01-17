@@ -8,6 +8,7 @@ export const app = express();
 
 
 app.use(express.static('public'))
+app.use(express.static('client'))
 app.use(express.json()) 
 app.use(express.text()); 
 
@@ -23,7 +24,7 @@ app.use(function (req : Request, res : Response, next : NextFunction) {
 });
 
 app.get('/', (req : Request, res : Response) => {
-  res.redirect('/hello.html');
+  res.redirect('/client/index.html');
 });
 
 
