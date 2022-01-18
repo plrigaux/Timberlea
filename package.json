@@ -5,20 +5,15 @@
     "client": "npm --prefix ./client/ start",
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
     "build_client": "npm --prefix ./client/ run build",
-    "tscript": "node scripts/testscript.js",
     "copyClientFiles": "node scripts/copyClientFilesToServer.js",
     "server": "npm --prefix ./server/ run serve",
     "serve": "concurrently \"npm:client\" \"npm:server\""
   },
   "private": true,
   "dependencies": {
-    "clean-dir": "^1.0.3",
-    "copyfiles": "^2.4.1"
   },
   "devDependencies": {
     "concurrently": "^6.4.0",
-    "fs-extra": "^10.0.0",
-    "mkdirp": "^1.0.4",
-    "rimraf": "^3.0.2"
+    "fs-extra": "^10.0.0"
   }
 }
