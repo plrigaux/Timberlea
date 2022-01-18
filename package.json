@@ -2,14 +2,12 @@
   "name": "file-server",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
+    "client": "npm --prefix ./client/ start",
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "plouf": "npm --prefix ./server/ run serve",
-    "serve": "concurrently \"npm:start\" \"npm:plouf\""
+    "build": "npm --prefix ./client/ build",
+    "tscript" : "node scripts/testscript.js", 
+    "server": "npm --prefix ./server/ run serve",
+    "serve": "concurrently \"npm:client\" \"npm:server\""
   },
   "private": true,
   "dependencies": {
