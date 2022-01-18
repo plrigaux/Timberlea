@@ -9,6 +9,7 @@
 
 # dependencies
 /node_modules
+client/node_modules
 server/node_modules
 server/files
 server/client/*
@@ -34,8 +35,8 @@ chrome-profiler-events*.json
 .history/*
 
 # misc
-/.angular/cache
-/.sass-cache
+client/.angular/cache
+client/.sass-cache
 /connect.lock
 /coverage
 /libpeerconnection.log
