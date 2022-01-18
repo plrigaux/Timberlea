@@ -6,6 +6,7 @@
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
     "build_client": "npm --prefix ./client/ run build",
     "copyClientFiles": "node scripts/copyClientFilesToServer.js",
+    "build" : "npm run build_client && npm run copyClientFiles",
     "server": "npm --prefix ./server/ run serve",
     "serve": "concurrently \"npm:client\" \"npm:server\""
   },

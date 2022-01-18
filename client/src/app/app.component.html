@@ -1,5 +1,6 @@
 <div class="container">
   <div>
+    <div>Server URL: {{serverUrl}}</div>
     <button mat-raised-button color="primary" (click)="pwd()">pwd</button><br />
     <button mat-raised-button color="primary" (click)="cd()">cd</button>
     <mat-form-field appearance="fill">
@@ -31,12 +32,13 @@
   <!-- Name Column -->
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
-    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+    <td mat-cell *matCellDef="let element"
+      [ngClass]="fileNameCSS(element)" (click)="elementClick(element)"> {{element.name}} </td>
   </ng-container>
 
   <ng-container matColumnDef="size">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Size </th>
-    <td mat-cell *matCellDef="let element"> {{element.size}} </td>
+    <td mat-cell *matCellDef="let element"> {{displaySize(element)}} </td>
   </ng-container>
 
   <ng-container matColumnDef="type">

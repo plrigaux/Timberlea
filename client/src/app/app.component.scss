@@ -11,3 +11,13 @@ table {
 .container * {
   margin: 1em;
 }
+
+.directory {
+  color : green;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.file {
+  color: white;
+}

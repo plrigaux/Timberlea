@@ -18,15 +18,16 @@ export class AppComponent {
   fileName: string = ""
   remoteDirectory = ""
   remoteFiles: FileDetails[] = []
+  serverUrl: string
 
   constructor(private http: HttpClient, private router: Router) {
-
+    this.serverUrl = environment.serverUrl
   }
 
   pwd() {
     console.log("click PWD")
 
-    this.http.get<ChangeDir_Response>(environment.serverUrl + endpoints.FS_PWD).subscribe({
+    this.http.get<ChangeDir_Response>(this.serverUrl + endpoints.FS_PWD).subscribe({
       next: (data: ChangeDir_Response) => {
         console.log(data)
         this.remoteDirectory = data.directory
@@ -49,7 +50,7 @@ export class AppComponent {
 
     console.log("path: " + newRemoteDirectory)
 
-    this.http.put<ChangeDir_Response>(environment.serverUrl + endpoints.FS_CD, newRemoteDirectory).subscribe({
+    this.http.put<ChangeDir_Response>(this.serverUrl + endpoints.FS_CD, newRemoteDirectory).subscribe({
       next: (data: ChangeDir_Response) => {
         console.log(data)
         this.remoteDirectory = data.directory
@@ -71,7 +72,7 @@ export class AppComponent {
 
     let remoteDirectory = encodeURIComponent(this.remoteDirectory);
 
-    this.http.get<FileList_Response>(environment.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory).subscribe({
+    this.http.get<FileList_Response>(this.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory).subscribe({
       next: (data: FileList_Response) => {
         console.log(data)
         this.remoteDirectory = data.parent
@@ -112,6 +113,19 @@ export class AppComponent {
     return "text_snippet"
   }
 
+  fileNameCSS(e: FileDetails): string {
+    let cssClass = "file"
+    if (e.type == FileType.Directory) {
+      cssClass = "directory"
+    }
+    return cssClass;
+  }
+
+
+  elementClick(e: FileDetails) {
+    console.log(e)
+  }
+
   setCdPath(param: FileDetails) {
     if (param.type == FileType.Directory) {
       this.cdPath = param.name
@@ -130,5 +144,37 @@ export class AppComponent {
     document.body.appendChild(link);
     link.click();
     link.remove();
+  }
+
+  displaySize(param: FileDetails): string {
+
+    let size = ""
+    if (param.type == FileType.File && param.size) {
+      size = this.humanFileSize(param.size)
+    }
+    return size;
+  }
+
+  private humanFileSize(bytes: number, si = false, dp = 1) {
+
+    const thresh = si ? 1000 : 1024;
+
+    if (Math.abs(bytes) < thresh) {
+      return bytes + ' B';
+    }
+
+    const units = si
+      ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+      : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    let u = -1;
+    const r = 10 ** dp;
+
+    do {
+      bytes /= thresh;
+      ++u;
+    } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+    return bytes.toFixed(dp) + ' ' + units[u];
   }
 }
