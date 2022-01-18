@@ -4,8 +4,9 @@
   "scripts": {
     "client": "npm --prefix ./client/ start",
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
-    "build": "npm --prefix ./client/ build",
-    "tscript" : "node scripts/testscript.js", 
+    "build_client": "npm --prefix ./client/ run build",
+    "tscript": "node scripts/testscript.js",
+    "copyClientFiles": "node scripts/copyClientFilesToServer.js",
     "server": "npm --prefix ./server/ run serve",
     "serve": "concurrently \"npm:client\" \"npm:server\""
   },
@@ -15,8 +16,9 @@
     "copyfiles": "^2.4.1"
   },
   "devDependencies": {
-     "@types/node": "^12.11.1",
     "concurrently": "^6.4.0",
-    "typescript": "~4.4.3"
+    "fs-extra": "^10.0.0",
+    "mkdirp": "^1.0.4",
+    "rimraf": "^3.0.2"
   }
 }
