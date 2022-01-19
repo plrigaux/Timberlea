@@ -15,6 +15,8 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSortModule } from "@angular/material/sort"
+import { A11yModule } from '@angular/cdk/a11y';
 
 @NgModule({
   declarations: [
@@ -34,7 +36,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     CdkTableModule,
     MatIconModule,
     MatProgressBarModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatSortModule,
+    A11yModule
   ],
   providers: [],
   bootstrap: [AppComponent]

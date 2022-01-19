@@ -28,7 +28,7 @@
   Remote directory: {{remoteDirectory}}
 </div>
 
-<table mat-table [dataSource]="remoteFiles" class="mat-elevation-z8">
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort (matSortChange)="announceSortChange($event)">
   <!-- Name Column -->
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
@@ -48,8 +48,8 @@
     </td>
   </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="['name', 'type', 'size']"></tr>
-  <tr mat-row *matRowDef="let row; columns: ['name', 'type', 'size']"
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"
     (click)="setCdPath(row)"></tr>
 
 </table>

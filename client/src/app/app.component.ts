@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType } from '../../../server/src/common/interfaces';
 import { endpoints } from '../../../server/src/common/constants';
 import { Router } from '@angular/router';
 import { environment } from '../../../client/src/environments/environment';
+import { MatSort, Sort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-root',
@@ -12,17 +15,28 @@ import { environment } from '../../../client/src/environments/environment';
 })
 export class AppComponent {
 
+  displayedColumns: string[] = ['type', 'name', 'size'];
+  dataSource: MatTableDataSource<FileDetails>;
 
 
   cdPath: string = "common"
   fileName: string = ""
   remoteDirectory = ""
-  remoteFiles: FileDetails[] = []
+  //remoteFiles: FileDetails[] = []
   serverUrl: string
 
-  constructor(private http: HttpClient, private router: Router) {
+  @ViewChild(MatSort) sort!: MatSort;
+
+  constructor(private http: HttpClient, private router: Router, private _liveAnnouncer: LiveAnnouncer) {
     this.serverUrl = environment.serverUrl
+
+    this.dataSource = new MatTableDataSource([] as FileDetails[]);
   }
+
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
+  }
+
 
   pwd() {
     console.log("click PWD")
@@ -62,7 +76,7 @@ export class AppComponent {
 
 
         if (data.files) {
-          this.remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
+          this.updateDataSource(data);
         } else {
           this.list()
         }
@@ -86,15 +100,22 @@ export class AppComponent {
       next: (data: FileList_Response) => {
         console.log(data)
         this.remoteDirectory = data.parent
-        if (data.files) {
-          this.remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
-        }
+        this.updateDataSource(data);
       },
       error: error => {
         //this.errorMessage = error.message;
         console.error('There was an error!', error);
       }
     })
+  }
+
+  private updateDataSource(data: FileList_Response) {
+    if (data.files) {
+      let remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
+
+     
+      this.dataSource.data = remoteFiles;
+    }
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -136,6 +157,8 @@ export class AppComponent {
   elementClick(element: FileDetails) {
     if (element.type == FileType.Directory) {
       this.cdRelPath(element.name)
+    } else if (element.type == FileType.File) {
+      this.downloadFileName(element.name)
     }
   }
 
@@ -148,8 +171,13 @@ export class AppComponent {
   }
 
   downloadFile() {
+    this.downloadFileName(this.fileName)
+  }
 
-    const href = environment.serverUrl + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory) + "/" + encodeURIComponent(this.fileName);
+
+
+  downloadFileName(fileName: string) {
+    const href = environment.serverUrl + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory) + "/" + encodeURIComponent(fileName);
     const link = document.createElement('a');
     link.setAttribute('target', '_blank');
     link.setAttribute('href', href);
@@ -191,5 +219,18 @@ export class AppComponent {
 
 
     return bytes.toFixed(dp) + ' ' + units[u];
+  }
+
+  /** Announce the change in sort state for assistive technology. */
+  announceSortChange(sortState: Sort) {
+    // This example uses English messages. If your application supports
+    // multiple language, you would internationalize these strings.
+    // Furthermore, you can customize the message to add additional
+    // details about the values being sorted.
+    if (sortState.direction) {
+      this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
+    } else {
+      this._liveAnnouncer.announce('Sorting cleared');
+    }
   }
 }
