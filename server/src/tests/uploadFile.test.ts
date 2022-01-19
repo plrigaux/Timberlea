@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs-extra'
 import os from 'os'
 import path from 'path'
 import request from 'supertest'
@@ -121,13 +121,19 @@ describe('Upload file', () => {
         //console.log('body', resp.body)
     });
 
-    test.only('Upload multiple files', async () => {
+    test('Upload multiple files', async () => {
         
         const file1 = `${__dirname}/datafiles/agile.png`
         const file2 = `${__dirname}/datafiles/waterfall.png`
 
         const fileName1 = path.parse(file1).name
         const fileName2 = path.parse(file2).name
+
+        const path1 = path.join(uploadDirectory, path.parse(file1).base)
+        const path2 = path.join(uploadDirectory, path.parse(file2).base)
+
+        fs.emptyDirSync(uploadDirectory)
+
         console.log(file1, file2)
 
         expect(fs.existsSync(file1)).toBeTruthy()
@@ -147,8 +153,6 @@ describe('Upload file', () => {
 
         expect(responseBody.error).toBeFalsy()
 
-        let path1 = path.join(uploadDirectory, path.parse(file1).base)
-        let path2 = path.join(uploadDirectory, path.parse(file2).base)
 
         //console.log(path1, path2)
 

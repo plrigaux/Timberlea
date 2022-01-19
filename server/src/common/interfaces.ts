@@ -12,7 +12,7 @@ export interface FileDetails {
 
 export interface FileList_Response extends FS_Response {
     parent: string
-    files: FileDetails[]
+    files?: FileDetails[]
 }
 
 interface FS_Response {
@@ -23,10 +23,11 @@ interface FS_Response {
 export interface ChangeDir_Request {
     remoteDirectory: string
     newPath: string
+    returnList?: boolean
 }
 
-export interface ChangeDir_Response extends FS_Response {
-    directory: string
+export interface ChangeDir_Response extends FileList_Response {
+
 }
 
 export interface MakeDirRequest {

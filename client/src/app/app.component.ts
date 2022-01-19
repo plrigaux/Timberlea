@@ -30,7 +30,7 @@ export class AppComponent {
     this.http.get<ChangeDir_Response>(this.serverUrl + endpoints.FS_PWD).subscribe({
       next: (data: ChangeDir_Response) => {
         console.log(data)
-        this.remoteDirectory = data.directory
+        this.remoteDirectory = data.parent
         this.list()
       },
       error: error => {
@@ -42,10 +42,14 @@ export class AppComponent {
 
 
   cd() {
+    this.cdRelPath(this.cdPath)
+  }
 
+  cdRelPath(relPath: string) {
     let newRemoteDirectory: ChangeDir_Request = {
       remoteDirectory: this.remoteDirectory,
-      newPath: this.cdPath
+      newPath: relPath,
+      returnList: true
     }
 
     console.log("path: " + newRemoteDirectory)
@@ -53,9 +57,15 @@ export class AppComponent {
     this.http.put<ChangeDir_Response>(this.serverUrl + endpoints.FS_CD, newRemoteDirectory).subscribe({
       next: (data: ChangeDir_Response) => {
         console.log(data)
-        this.remoteDirectory = data.directory
+        this.remoteDirectory = data.parent
         //this.remoteFiles = []
-        this.list()
+
+
+        if (data.files) {
+          this.remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
+        } else {
+          this.list()
+        }
       },
       error: error => {
         //this.errorMessage = error.message;
@@ -76,8 +86,9 @@ export class AppComponent {
       next: (data: FileList_Response) => {
         console.log(data)
         this.remoteDirectory = data.parent
-
-        this.remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
+        if (data.files) {
+          this.remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
+        }
       },
       error: error => {
         //this.errorMessage = error.message;
@@ -122,8 +133,10 @@ export class AppComponent {
   }
 
 
-  elementClick(e: FileDetails) {
-    console.log(e)
+  elementClick(element: FileDetails) {
+    if (element.type == FileType.Directory) {
+      this.cdRelPath(element.name)
+    }
   }
 
   setCdPath(param: FileDetails) {
@@ -150,7 +163,7 @@ export class AppComponent {
 
     let size = ""
     if (param.type == FileType.File && param.size) {
-      size = this.humanFileSize(param.size)
+      size = this.humanFileSize(param.size, true)
     }
     return size;
   }
@@ -166,7 +179,9 @@ export class AppComponent {
     const units = si
       ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
       : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+
     let u = -1;
+
     const r = 10 ** dp;
 
     do {

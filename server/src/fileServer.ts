@@ -22,17 +22,16 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
     console.log(`PWD __dirname ${__dirname} basename ${basename} extname ${extname} dirName ${dirName} process.cwd ${p}`)
 
     let newRemoteDirectory: ChangeDir_Response = {
-        directory: __dirname,
+        parent: __dirname,
         error: false,
         message: 'OK'
     }
     res.send(newRemoteDirectory)
 });
 
-function getList(req: Request, res: Response) {
+type ResponseCallback = (httpCode: number, flResponse: FileList_Response) => void;
 
-    const folder: string = req.params.path || __dirname
-
+function returnList(folder: string, respCb: ResponseCallback) {
     console.log(`folder ${folder}`)
 
     fs.promises.readdir(folder, { withFileTypes: true })
@@ -72,18 +71,17 @@ function getList(req: Request, res: Response) {
                 }
                 _files.forEach((f: void | FileDetails) => {
                     if (f) {
-                        resp.files.push(f)
+                        resp.files!.push(f)
                     }
                 })
                 return resp
             }).then(
-                resp => res.send(resp)
+                resp => respCb(HttpStatusCode.OK, resp)
             )
         }).catch((error) => {
             console.log(error)
             let resp: FileList_Response = {
                 parent: folder,
-                files: [],
                 error: true,
                 message: ''
             }
@@ -102,9 +100,17 @@ function getList(req: Request, res: Response) {
                     resp.message = `Unknown error`
                     code = HttpStatusCode.INTERNAL_SERVER
             }
-            res.status(code).send(resp)
-
+            //res.status(code).send(resp)
+            respCb(code, resp)
         });
+}
+
+function getList(req: Request, res: Response) {
+
+    const folder: string = req.params.path || __dirname
+    returnList(folder, (code: number, resp: FileList_Response) => {
+        res.status(code).send(resp)
+    })
 }
 
 //List without path
@@ -118,10 +124,10 @@ fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response) => {
 })
 
 
-function directoryValid(dirpath: string, res: Response) {
+function directoryValid(dirpath: string, respCb: ResponseCallback) {
 
-    let resp: ChangeDir_Response = {
-        directory: dirpath,
+    let resp: FileList_Response = {
+        parent: dirpath,
         error: true,
         message: ''
     }
@@ -137,11 +143,11 @@ function directoryValid(dirpath: string, res: Response) {
         }).then(() => {
             if (isDirectory) {
                 resp.error = false
-                resp.directory = dirpath
+                resp.parent = dirpath
                 statusCode = HttpStatusCode.OK
             } else {
                 resp.error = true
-                resp.directory = dirpath
+                resp.parent = dirpath
                 resp.message = `File is not a directory`
                 statusCode = HttpStatusCode.CONFLICT
             }
@@ -160,8 +166,8 @@ function directoryValid(dirpath: string, res: Response) {
                     resp.message = `Unknown error`
                     statusCode = HttpStatusCode.INTERNAL_SERVER
             }
-        }).finally(() =>{
-            res.status(statusCode).send(resp);
+        }).finally(() => {
+            respCb(statusCode, resp);
         });
 }
 
@@ -175,8 +181,26 @@ fileServer.put(endpoints.CD, (req: Request, res: Response) => {
     let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
     newPath = path.resolve(newPath);
 
-    directoryValid(newPath, res)
 
+    let respCb: ResponseCallback = (code: number, resp: FileList_Response) => {
+        res.status(code).send(resp)
+    }
+
+    let respCbList: ResponseCallback
+
+    if (newRemoteDirectory.returnList) {
+        respCbList = (code: number, resp: FileList_Response) => {
+            if (resp.error) {
+                respCb(code, resp)
+            } else {
+                returnList(newPath, respCb)
+            }
+        }
+    } else {
+        respCbList = respCb
+    }
+
+    directoryValid(newPath, respCbList)
 })
 
 fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response) => {

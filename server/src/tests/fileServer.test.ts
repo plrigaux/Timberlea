@@ -30,7 +30,7 @@ describe('GET test', () => {
 
         let respData: ChangeDir_Response = resp.body
         expect(resp.statusCode).toEqual(200)
-        expect(respData.directory).toContain("server")
+        expect(respData.parent).toContain("server")
 
     })
 })
