@@ -1,5 +1,5 @@
-import { Component, ViewChild } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Component, ViewChild, OnInit } from '@angular/core';
+import { HttpClient, HttpErrorResponse} from '@angular/common/http';
 import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType } from '../../../server/src/common/interfaces';
 import { endpoints } from '../../../server/src/common/constants';
 import { Router } from '@angular/router';
@@ -13,7 +13,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
   displayedColumns: string[] = ['type', 'name', 'size'];
   dataSource: MatTableDataSource<FileDetails>;
@@ -31,6 +31,11 @@ export class AppComponent {
     this.serverUrl = environment.serverUrl
 
     this.dataSource = new MatTableDataSource([] as FileDetails[]);
+  }
+
+
+  ngOnInit(): void {
+    this.list()
   }
 
   ngAfterViewInit() {
@@ -112,9 +117,9 @@ export class AppComponent {
   private updateDataSource(data: FileList_Response) {
     if (data.files) {
       let remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
-
-     
-      this.dataSource.data = remoteFiles;
+      
+      this.dataSource = new MatTableDataSource(remoteFiles)
+      this.dataSource.sort = this.sort
     }
   }
 
