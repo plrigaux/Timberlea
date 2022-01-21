@@ -3,8 +3,7 @@ import fs, { Dirent } from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
 import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
-
-
+import { body, validationResult } from 'express-validator';
 
 export const fileServer = express.Router()
 const default_folder = 'files';
@@ -171,37 +170,57 @@ function directoryValid(dirpath: string, respCb: ResponseCallback) {
         });
 }
 
-fileServer.put(endpoints.CD, (req: Request, res: Response) => {
-    console.log("cdpath: " + req.body)
-    console.log("remoteDirectory: " + req.body.remoteDirectory)
-    console.log("newPath: " + req.body.newPath)
+fileServer.put(endpoints.CD,
+    body('remoteDirectory').exists().isString(),
+    body('newPath').exists().isString(),
+    body('returnList').toBoolean()
+    , (req: Request, res: Response) => {
+        console.log("cdpath: " + req.body)
+        console.log("remoteDirectory: " + req.body.remoteDirectory)
+        console.log("newPath: " + req.body.newPath)
 
-    let newRemoteDirectory: ChangeDir_Request = req.body
+        let newRemoteDirectory: ChangeDir_Request = req.body
 
-    let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
-    newPath = path.resolve(newPath);
-
-
-    let respCb: ResponseCallback = (code: number, resp: FileList_Response) => {
-        res.status(code).send(resp)
-    }
-
-    let respCbList: ResponseCallback
-
-    if (newRemoteDirectory.returnList) {
-        respCbList = (code: number, resp: FileList_Response) => {
-            if (resp.error) {
-                respCb(code, resp)
-            } else {
-                returnList(newPath, respCb)
-            }
+        let respCb: ResponseCallback = (code: number, resp: FileList_Response) => {
+            res.status(code).send(resp)
         }
-    } else {
-        respCbList = respCb
-    }
 
-    directoryValid(newPath, respCbList)
-})
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.error("Bad request2", errors.array())
+
+            let resp: FileList_Response = {
+                parent: "",
+                error: true,
+                message: JSON.stringify(errors.array())
+            }
+
+            respCb(HttpStatusCode.BAD_REQUEST, resp)
+            return
+        }
+
+        let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
+        newPath = path.resolve(newPath);
+
+
+
+
+        let respCbList: ResponseCallback
+
+        if (newRemoteDirectory.returnList) {
+            respCbList = (code: number, resp: FileList_Response) => {
+                if (resp.error) {
+                    respCb(code, resp)
+                } else {
+                    returnList(newPath, respCb)
+                }
+            }
+        } else {
+            respCbList = respCb
+        }
+
+        directoryValid(newPath, respCbList)
+    })
 
 fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response) => {
     /*

@@ -21,15 +21,15 @@ export class FileServerService {
     console.log("click PWD")
 
     return lastValueFrom(this.http.get<ChangeDir_Response>(this.serverUrl + endpoints.FS_PWD))
-    .catch(err => {
-      this.handleError(err)
-      return err
-    })
-    .then((data: ChangeDir_Response) => {
-      console.log(data)
-      this.remoteDirectory = data.parent
-      return data
-    })
+      .catch(err => {
+        this.handleError(err)
+        return err
+      })
+      .then((data: ChangeDir_Response) => {
+       
+        this.setRemoteDirectory(data)
+        return data
+      })
   }
 
   cdRelPath(relPath: string, returnList = true): Promise<ChangeDir_Response> {
@@ -43,13 +43,14 @@ export class FileServerService {
     console.log("path: " + newRemoteDirectory)
 
     return lastValueFrom(this.http.put<ChangeDir_Response>(this.serverUrl + endpoints.FS_CD, newRemoteDirectory))
-    .catch(err => {
-      this.handleError(err)
-      return err
-    })
+      .catch(err => {
+        this.handleError(err)
+        return err
+      })
       .then((data: ChangeDir_Response) => {
-        console.log(data)
-        this.remoteDirectory = data.parent
+     
+        this.setRemoteDirectory(data)
+
         return data
       })
   }
@@ -65,11 +66,18 @@ export class FileServerService {
       })
       .then(
         (data: FileList_Response) => {
-          console.log(data)
-          this.remoteDirectory = data.parent
+        
+          this.setRemoteDirectory(data)
           return data
         }
       )
+  }
+
+  setRemoteDirectory(data: ChangeDir_Response) {
+    console.log(data)
+    if (!data.error) {
+      this.remoteDirectory = data.parent
+    }
   }
 
   private handleError(error: HttpErrorResponse) {
