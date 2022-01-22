@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import fs, { Dirent } from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
-import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
+import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType, FS_Response, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
 import { body, validationResult } from 'express-validator';
 
 export const fileServer = express.Router()
@@ -28,12 +28,12 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
     res.send(newRemoteDirectory)
 });
 
-type ResponseCallback = (httpCode: number, flResponse: FileList_Response) => void;
+interface Bob { statusCode: number; resp: FileList_Response }
 
-function returnList(folder: string, respCb: ResponseCallback) {
+function returnList(folder: string): Promise<Bob> {
     console.log(`folder ${folder}`)
 
-    fs.promises.readdir(folder, { withFileTypes: true })
+    return fs.promises.readdir(folder, { withFileTypes: true })
         .then((files: Dirent[]) => {
             return files.map((file: Dirent) => {
                 let fd: FileDetails = {
@@ -60,7 +60,7 @@ function returnList(folder: string, respCb: ResponseCallback) {
                 }
             })
 
-            Promise.all(promiseList).then(_files => {
+            return Promise.all(promiseList).then(_files => {
 
                 let resp: FileList_Response = {
                     parent: folder,
@@ -75,7 +75,10 @@ function returnList(folder: string, respCb: ResponseCallback) {
                 })
                 return resp
             }).then(
-                resp => respCb(HttpStatusCode.OK, resp)
+                resp => {
+                    let statusCode = HttpStatusCode.OK
+                    return { statusCode, resp }
+                }
             )
         }).catch((error) => {
             console.log(error)
@@ -84,31 +87,34 @@ function returnList(folder: string, respCb: ResponseCallback) {
                 error: true,
                 message: ''
             }
-            let code = HttpStatusCode.INTERNAL_SERVER
+            let statusCode = HttpStatusCode.INTERNAL_SERVER
             switch (error.code) {
                 case "ENOENT":
                     resp.message = `Directory doesn't exist`
-                    code = HttpStatusCode.NOT_FOUND;
+                    statusCode = HttpStatusCode.NOT_FOUND;
                     break;
                 case "EACCES":
                     resp.message = `Directory is not accessible`
-                    code = HttpStatusCode.FORBIDDEN
+                    statusCode = HttpStatusCode.FORBIDDEN
+                    break;
+                case "ENOTDIR":
+                    resp.message = `Not a directory`
+                    statusCode = HttpStatusCode.CONFLICT
                     break;
                 default:
                     console.error(error);
                     resp.message = `Unknown error`
-                    code = HttpStatusCode.INTERNAL_SERVER
+                    statusCode = HttpStatusCode.INTERNAL_SERVER
             }
-            //res.status(code).send(resp)
-            respCb(code, resp)
+            return { statusCode, resp }
         });
 }
 
 function getList(req: Request, res: Response) {
 
     const folder: string = req.params.path || __dirname
-    returnList(folder, (code: number, resp: FileList_Response) => {
-        res.status(code).send(resp)
+    returnList(folder).then((b: Bob) => {
+        res.status(b.statusCode).send(b.resp)
     })
 }
 
@@ -123,7 +129,7 @@ fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response) => {
 })
 
 
-function directoryValid(dirpath: string, respCb: ResponseCallback) {
+function directoryValid(dirpath: string): Promise<Bob> {
 
     let resp: FileList_Response = {
         parent: dirpath,
@@ -133,13 +139,9 @@ function directoryValid(dirpath: string, respCb: ResponseCallback) {
     let statusCode = 0
     let isDirectory = true
 
-    fs.promises.stat(dirpath)
+    return fs.promises.stat(dirpath)
         .then(stat => {
             isDirectory = stat.isDirectory()
-            if (isDirectory) {
-                return fs.promises.access(dirpath, fs.constants.R_OK)
-            }
-        }).then(() => {
             if (isDirectory) {
                 resp.error = false
                 resp.parent = dirpath
@@ -150,6 +152,7 @@ function directoryValid(dirpath: string, respCb: ResponseCallback) {
                 resp.message = `File is not a directory`
                 statusCode = HttpStatusCode.CONFLICT
             }
+            return { statusCode, resp }
         }).catch((error) => {
             switch (error.code) {
                 case FSErrorCode.ENOENT:
@@ -165,9 +168,8 @@ function directoryValid(dirpath: string, respCb: ResponseCallback) {
                     resp.message = `Unknown error`
                     statusCode = HttpStatusCode.INTERNAL_SERVER
             }
-        }).finally(() => {
-            respCb(statusCode, resp);
-        });
+            return { statusCode, resp }
+        })
 }
 
 fileServer.put(endpoints.CD,
@@ -181,45 +183,30 @@ fileServer.put(endpoints.CD,
 
         let newRemoteDirectory: ChangeDir_Request = req.body
 
-        let respCb: ResponseCallback = (code: number, resp: FileList_Response) => {
-            res.status(code).send(resp)
-        }
-
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            console.error("Bad request2", errors.array())
+            console.error("Bad request", errors.array())
 
-            let resp: FileList_Response = {
-                parent: "",
+            let resp: FS_Response = {
                 error: true,
                 message: JSON.stringify(errors.array())
             }
-
-            respCb(HttpStatusCode.BAD_REQUEST, resp)
+            res.status(HttpStatusCode.BAD_REQUEST).send(resp)
             return
         }
 
         let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
         newPath = path.resolve(newPath);
 
-
-
-
-        let respCbList: ResponseCallback
-
-        if (newRemoteDirectory.returnList) {
-            respCbList = (code: number, resp: FileList_Response) => {
-                if (resp.error) {
-                    respCb(code, resp)
-                } else {
-                    returnList(newPath, respCb)
-                }
+        directoryValid(newPath).then((valid: Bob) => {
+            if (newRemoteDirectory.returnList && !valid.resp.error) {
+                return returnList(newPath)
+            } else {
+                return valid
             }
-        } else {
-            respCbList = respCb
-        }
-
-        directoryValid(newPath, respCbList)
+        }).then((valid: Bob) => {
+            res.status(valid.statusCode).send(valid.resp)
+        })
     })
 
 fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response) => {

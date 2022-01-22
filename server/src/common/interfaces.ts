@@ -10,14 +10,14 @@ export interface FileDetails {
     type: FileType;
 }
 
+export interface FS_Response {
+    error: boolean,
+    message: string,
+}
+
 export interface FileList_Response extends FS_Response {
     parent: string
     files?: FileDetails[]
-}
-
-interface FS_Response {
-    error: boolean,
-    message: string,
 }
 
 export interface ChangeDir_Request {

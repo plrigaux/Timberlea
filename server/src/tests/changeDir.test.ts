@@ -97,4 +97,20 @@ describe('Change Directory', () => {
             expect(dataresp.message).toMatch(/not a directory/)
 
     });
+
+    test('Change Directory - Bad Request', async () => {
+
+        let changeDir = {
+            //remoteDirectory: dir
+            //newPath: newDir
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_CD)
+            .send(changeDir)
+            .expect(HttpStatusCode.BAD_REQUEST)
+            .expect("Content-Type", /json/);
+
+            console.log(resp.body)
+    });
 })
