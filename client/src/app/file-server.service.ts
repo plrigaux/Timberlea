@@ -3,12 +3,15 @@ import { Injectable } from '@angular/core';
 import { ChangeDir_Request, ChangeDir_Response, FileList_Response } from '../../../server/src/common/interfaces';
 import { environment } from '../../../client/src/environments/environment';
 import { endpoints } from '../../../server/src/common/constants';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileServerService {
+
+
+
 
   serverUrl: string
   remoteDirectory = ""
@@ -26,7 +29,7 @@ export class FileServerService {
         return err
       })
       .then((data: ChangeDir_Response) => {
-       
+
         this.setRemoteDirectory(data)
         return data
       })
@@ -48,12 +51,15 @@ export class FileServerService {
         return err
       })
       .then((data: ChangeDir_Response) => {
-     
+
         this.setRemoteDirectory(data)
 
         return data
       })
   }
+
+
+  fileList = new Observable<FileList_Response>();
 
   list(): Promise<FileList_Response> {
 
@@ -66,7 +72,7 @@ export class FileServerService {
       })
       .then(
         (data: FileList_Response) => {
-        
+
           this.setRemoteDirectory(data)
           return data
         }
@@ -94,4 +100,11 @@ export class FileServerService {
     return new Error(
       'Something bad happened; please try again later.');
   }
+
+  getFileHref(fileName: string): string {
+    const href = environment.serverUrl + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory + "/" + fileName);
+
+    return href
+  }
+
 }
