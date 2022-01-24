@@ -17,11 +17,13 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSortModule } from "@angular/material/sort"
 import { A11yModule } from '@angular/cdk/a11y';
+import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    TableNavigatorComponent
   ],
   imports: [
     BrowserModule,
