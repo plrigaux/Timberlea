@@ -209,22 +209,12 @@ fileServer.put(endpoints.CD,
         })
     })
 
-fileServer.get(endpoints.DOWNLOAD + '/:path/:file', (req: Request, res: Response) => {
-    /*
-        let folder: string = req.query.dir?.toString() || ""
-        if (!folder) {
-            folder = __dirname
-        }
-        const fileList = new FileListCls(folder)
+fileServer.get(endpoints.DOWNLOAD + '/:path', (req: Request, res: Response) => {
     
-        console.log(`folder ${folder}`)
-    */
-    let fileDir = req.params.path
-    let fileName = req.params.file
+    
+    let filePath = req.params.path
 
-    let filePath = path.join(fileDir, fileName)
-
-    console.log(`fp: ${fileDir} ${fileName}`)
+    console.log(`filePath`, filePath)
 
     res.download(filePath);
     //res.send("OK: " + fileDir + " " + fileName)
