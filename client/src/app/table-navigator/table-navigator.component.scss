@@ -1,0 +1,42 @@
+
+$magin-size: 2em;
+
+table {
+    width: calc(100% - $magin-size - $magin-size);
+    margin-top: 1em;
+    margin-left: $magin-size;
+    margin-right: $magin-size;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .container * {
+    margin: 1em;
+  }
+  
+  .directory {
+    color : green;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .file {
+    color: white;
+    cursor: pointer;
+  }
+
+  .mat-column-type {
+    width: 32px;
+    //border-right: 1px solid currentColor;
+    //padding-right: 24px;
+    //text-align: center;
+  }
+
+  .mat-column-name {
+    max-width: 22px;
+    padding-left: 1em;
+  }

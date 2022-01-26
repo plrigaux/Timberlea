@@ -8,7 +8,8 @@
     "copyClientFiles": "node scripts/copyClientFilesToServer.js",
     "build" : "npm run build_client && npm run copyClientFiles",
     "server": "npm --prefix ./server/ run serve",
-    "serve": "concurrently \"npm:client\" \"npm:server\""
+    "serve": "concurrently \"npm:client\" \"npm:server\"",
+    "postinstall": "(cd server && npm install); (cd client && npm install)"
   },
   "private": true,
   "dependencies": {

@@ -12,7 +12,7 @@ import { FileServerService } from './file-server.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent  {
+export class AppComponent implements OnInit {
 
   cdPath: string = "common"
   fileName: string = ""
@@ -26,12 +26,21 @@ export class AppComponent  {
     private fileServerService: FileServerService) {
     this.serverUrl = environment.serverUrl
 
-  
+
   }
 
+  ngOnInit(): void {
+
+    this.fileServerService.subscribeRemoteDirectory({
+      next: (remoteDirectory: string) => {
+        this.remoteDirectory = remoteDirectory
+      }
+    })
+  }
+  
   pwd() {
     console.log("click PWD")
-    this.fileServerService.pwd().then((response: ChangeDir_Response) => { this.fileServerService.list() })
+    this.fileServerService.pwd();
   }
 
 
@@ -40,13 +49,7 @@ export class AppComponent  {
   }
 
   cdRelPath(relPath: string) {
-    this.fileServerService.cdRelPath(relPath).then((response: ChangeDir_Response) => {
-      if (response.files) {
-        //this.updateDataSource(response);
-      } else {
-        this.fileServerService.list()
-      }
-    })
+    this.fileServerService.cdRelPath(relPath)
   }
 
   list() {
@@ -65,5 +68,5 @@ export class AppComponent  {
     }
   }
 
-  
+
 }

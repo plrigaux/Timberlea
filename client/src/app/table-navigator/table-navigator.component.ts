@@ -25,6 +25,14 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+
+    this.fileServerService.subscribeFileList({
+      next : (filelist : FileDetails[]) => {
+        this.updateDataSource(filelist)
+      }
+    })
+
+
     this.list()
   }
 
@@ -34,18 +42,13 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
 
 
   list() {
-    this.fileServerService.list().then((response: FileList_Response) => {
-      this.updateDataSource(response);
-    })
+    this.fileServerService.list()
   }
 
-  private updateDataSource(data: FileList_Response) {
-    if (data.files) {
-      let remoteFiles = [{ name: '..', type: FileType.Directory }, ...data.files]
-
+  private updateDataSource(filelist: FileDetails[]) {
+      let remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
       this.dataSource = new MatTableDataSource(remoteFiles)
       this.dataSource.sort = this.sort
-    }
   }
 
   /** Announce the change in sort state for assistive technology. */
