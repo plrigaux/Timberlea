@@ -1,8 +1,10 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { FileDetails, FileList_Response, FileType } from '../../../../server/src/common/interfaces';
+import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
 import { FileServerService } from '../file-server.service';
 
 @Component({
@@ -14,17 +16,16 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['type', 'name', 'size', 'dateModif'];
-
-
+  displayedColumns: string[] = ['type', 'name', 'size', 'dateModif', 'action'];
 
   dateFormat: Intl.DateTimeFormat
   timeFormat: Intl.DateTimeFormat
-
+  waitingCondition: boolean = false
   dataSource: MatTableDataSource<FileDetails>;
 
   constructor(private fileServerService: FileServerService,
-    private _liveAnnouncer: LiveAnnouncer) {
+    private _liveAnnouncer: LiveAnnouncer,
+    private _dialog: MatDialog) {
 
     this.dataSource = new MatTableDataSource([] as FileDetails[]);
 
@@ -44,13 +45,18 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     })
 
 
+    this.fileServerService.subscribeWaiting({
+      next: (wait: boolean) => {
+        this.waitingCondition = wait
+      }
+    })
+
     this.list()
   }
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
   }
-
 
   list() {
     this.fileServerService.list()
@@ -80,10 +86,6 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
   }
 
   displayDateModified(e: FileDetails): string {
-    console.log(e)
-
-
-
     if (e.mtime) {
       let date = new Date(e.mtime)
       return this.dateFormat.format(date) + " " + this.timeFormat.format(date)
@@ -91,8 +93,8 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     return ""
   }
 
-  displayTypeIcon(type: FileType): string {
-    switch (type) {
+  displayTypeIcon(e: FileDetails): string {
+    switch (e.type) {
       case FileType.Directory:
         return "folder"
     }
@@ -169,5 +171,14 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     return bytes.toFixed(dp) + ' ' + units[u];
   }
 
+  openDialog(element: FileDetails) {
 
+    console.log('Action clicked', element);
+    const dialog = this._dialog.open(FileDialogBoxComponent, {
+      width: '250px',
+      // Can be closed only by clicking the close button
+      disableClose: false,
+      data: element
+    });
+  }
 }

@@ -15,6 +15,7 @@ export class FileServerService {
 
   private newList = new Subject<FileDetails[]>()
   private newRemoteDirectory = new Subject<string>()
+  private waiting = new Subject<boolean>()
 
   constructor(private http: HttpClient) {
     this.serverUrl = environment.serverUrl
@@ -26,6 +27,10 @@ export class FileServerService {
 
   subscribeRemoteDirectory(obs: Partial<Observer<string>>): Subscription {
     return this.newRemoteDirectory.subscribe(obs)
+  }
+
+  subscribeWaiting(obs: Partial<Observer<boolean>>): Subscription {
+    return this.waiting.subscribe(obs)
   }
 
   pwd(): void {
@@ -70,7 +75,7 @@ export class FileServerService {
   }
 
   list(): void {
-
+    this.waiting.next(true)
     let remoteDirectory = encodeURIComponent(this.remoteDirectory);
 
     this.http.get<FileList_Response>(this.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory).pipe(
@@ -84,6 +89,7 @@ export class FileServerService {
         next: (data: FileList_Response) => {
           let files: FileDetails[] = data.files ? data.files : []
           this.newList.next(files)
+          this.waiting.next(false)
         },
         error: e => {
           console.error(e)

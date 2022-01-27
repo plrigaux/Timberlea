@@ -1,3 +1,4 @@
+import os from 'os'
 import express, { Request, Response } from 'express';
 import fs, { Dirent } from 'fs';
 import path from 'path';
@@ -6,8 +7,7 @@ import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, 
 import { body, validationResult } from 'express-validator';
 
 export const fileServer = express.Router()
-const default_folder = 'files';
-
+const default_folder = os.tmpdir();
 
 fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
 
@@ -18,10 +18,10 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
     let basename = path.basename(notes) // notes.txt
     let extname = path.extname(notes)
     let p = process.cwd()
-    console.log(`PWD __dirname ${__dirname} basename ${basename} extname ${extname} dirName ${dirName} process.cwd ${p}`)
+    console.log(`PWD  basename ${basename} extname ${extname} dirName ${dirName} process.cwd ${p}`)
 
     let newRemoteDirectory: ChangeDir_Response = {
-        parent: __dirname,
+        parent: default_folder,
         error: false,
         message: 'OK'
     }
@@ -112,7 +112,7 @@ function returnList(folder: string): Promise<Bob> {
 
 function getList(req: Request, res: Response) {
 
-    const folder: string = req.params.path || __dirname
+    const folder: string = req.params.path || default_folder
     returnList(folder).then((b: Bob) => {
         res.status(b.statusCode).send(b.resp)
     })
@@ -371,6 +371,3 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
     });
 })
 
-if (!fs.existsSync(default_folder)) {
-    fs.mkdirSync(default_folder);
-}

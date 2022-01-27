@@ -19,6 +19,8 @@ import { MatSortModule } from "@angular/material/sort"
 import { A11yModule } from '@angular/cdk/a11y';
 import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
 import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -42,7 +44,9 @@ import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.compon
     MatProgressBarModule,
     MatToolbarModule,
     MatSortModule,
-    A11yModule
+    A11yModule,
+    MatDialogModule,
+    MatProgressSpinnerModule
   ],
   providers: [],
   bootstrap: [AppComponent]
