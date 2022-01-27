@@ -18,12 +18,14 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSortModule } from "@angular/material/sort"
 import { A11yModule } from '@angular/cdk/a11y';
 import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
+import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     FileUploadComponent,
-    TableNavigatorComponent
+    TableNavigatorComponent,
+    FileDialogBoxComponent
   ],
   imports: [
     BrowserModule,

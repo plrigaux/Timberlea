@@ -40,3 +40,12 @@ table {
     max-width: 22px;
     padding-left: 1em;
   }
+
+  .file-row:hover {
+    background: grey;
+  }
+
+  .file-header-cell {
+    font-weight: bold;
+    font-size: larger;
+  }

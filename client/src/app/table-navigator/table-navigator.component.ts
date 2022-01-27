@@ -100,10 +100,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     }
   }
 
-
-
   downloadFileName(fileName: string) {
-
     const href = this.fileServerService.getFileHref(fileName);
 
     const link = document.createElement('a');
