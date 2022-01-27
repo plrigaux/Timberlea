@@ -8,6 +8,7 @@ export interface FileDetails {
     name: string
     size?: number
     type: FileType;
+    mtime?: string
 }
 
 export interface FS_Response {

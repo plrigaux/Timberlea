@@ -14,7 +14,12 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['type', 'name', 'size'];
+  displayedColumns: string[] = ['type', 'name', 'size', 'dateModif'];
+
+
+
+  dateFormat: Intl.DateTimeFormat
+  timeFormat: Intl.DateTimeFormat
 
   dataSource: MatTableDataSource<FileDetails>;
 
@@ -22,12 +27,18 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     private _liveAnnouncer: LiveAnnouncer) {
 
     this.dataSource = new MatTableDataSource([] as FileDetails[]);
+
+    let dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'numeric', year: 'numeric' };
+    let timeOptions: Intl.DateTimeFormatOptions = { hourCycle: "h24", hour: 'numeric', minute: '2-digit' };
+
+    this.dateFormat = Intl.DateTimeFormat('default', dateOptions)
+    this.timeFormat = Intl.DateTimeFormat('default', timeOptions)
   }
 
   ngOnInit(): void {
 
     this.fileServerService.subscribeFileList({
-      next : (filelist : FileDetails[]) => {
+      next: (filelist: FileDetails[]) => {
         this.updateDataSource(filelist)
       }
     })
@@ -46,9 +57,9 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
   }
 
   private updateDataSource(filelist: FileDetails[]) {
-      let remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
-      this.dataSource = new MatTableDataSource(remoteFiles)
-      this.dataSource.sort = this.sort
+    let remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
+    this.dataSource = new MatTableDataSource(remoteFiles)
+    this.dataSource.sort = this.sort
   }
 
   /** Announce the change in sort state for assistive technology. */
@@ -64,8 +75,20 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     }
   }
 
-  displayType(type: FileType): string {
-    return FileType[type]
+  displayType(e: FileDetails): string {
+    return FileType[e.type]
+  }
+
+  displayDateModified(e: FileDetails): string {
+    console.log(e)
+
+
+
+    if (e.mtime) {
+      let date = new Date(e.mtime)
+      return this.dateFormat.format(date) + " " + this.timeFormat.format(date)
+    }
+    return ""
   }
 
   displayTypeIcon(type: FileType): string {

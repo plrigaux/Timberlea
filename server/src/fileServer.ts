@@ -46,18 +46,18 @@ function returnList(folder: string): Promise<Bob> {
         .then(fileDetails => {
             let promiseList: (Promise<void | FileDetails> | FileDetails)[] = []
             fileDetails.forEach((file: FileDetails) => {
-                if (file.type === FileType.File) {
-                    let prom = fs.promises.stat(path.join(folder, file.name))
-                        .then(stats => {
+
+                let prom = fs.promises.stat(path.join(folder, file.name))
+                    .then(stats => {
+                        if (file.type === FileType.File) {
                             file.size = stats.size
-                            return file
-                        }).catch((error) => {
-                            console.log(error.code, error.message, file.name)
-                        });
-                    promiseList.push(prom)
-                } else {
-                    promiseList.push(file)
-                }
+                        }
+                        file.mtime = stats.mtime.toISOString()
+                        return file
+                    }).catch((error) => {
+                        console.log(error.code, error.message, file.name)
+                    });
+                promiseList.push(prom)
             })
 
             return Promise.all(promiseList).then(_files => {
@@ -210,8 +210,8 @@ fileServer.put(endpoints.CD,
     })
 
 fileServer.get(endpoints.DOWNLOAD + '/:path', (req: Request, res: Response) => {
-    
-    
+
+
     let filePath = req.params.path
 
     console.log(`filePath`, filePath)

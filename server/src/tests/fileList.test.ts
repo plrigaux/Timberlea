@@ -75,7 +75,7 @@ describe('File list - App root', () => {
         console.log(resp.body)
     });
 
-    test('Get file list - dir', async () => {
+    test('Get file list - directory', async () => {
 
         let new_File = "patate"
         let fileNum = 1
