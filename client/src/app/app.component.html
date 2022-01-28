@@ -1,8 +1,19 @@
 <div class="container">
   <div class="header">
-  <mat-toolbar>
-    <mat-toolbar-row>hello</mat-toolbar-row>
-    <mat-toolbar-row>Remote directory: {{remoteDirectory}}</mat-toolbar-row>
+    <mat-toolbar>
+      <mat-toolbar-row>hello</mat-toolbar-row>
+      <mat-toolbar-row>
+        <mat-chip-list>
+          <mat-chip
+            class="example-box"
+            cdkDrag
+            *ngFor="let chip of pathChip"
+            (click)="clickChip(chip)">
+            {{chip.name}}
+            <mat-icon>chevron_right</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+      </mat-toolbar-row>
     </mat-toolbar>
   </div>
   <div class="content">

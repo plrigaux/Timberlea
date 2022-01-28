@@ -22,7 +22,7 @@ import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.compon
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LongPressDirective } from './long-press.directive';
-
+import { MatChipsModule } from '@angular/material/chips';
 
 
 @NgModule({
@@ -51,7 +51,7 @@ import { LongPressDirective } from './long-press.directive';
     A11yModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-
+    MatChipsModule
 
   ],
   providers: [],

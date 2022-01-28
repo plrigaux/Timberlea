@@ -6,6 +6,13 @@ import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { FileServerService } from './file-server.service';
+import { MatChip } from '@angular/material/chips';
+
+
+interface PathChip {
+  name: string;
+  path: string
+}
 
 @Component({
   selector: 'app-root',
@@ -19,14 +26,12 @@ export class AppComponent implements OnInit {
   remoteDirectory = ""
   //remoteFiles: FileDetails[] = []
   serverUrl: string
-
-
+  pathChip: PathChip[] = []
+  re = /[\/\\]/
 
   constructor(
     private fileServerService: FileServerService) {
     this.serverUrl = environment.serverUrl
-
-
   }
 
   ngOnInit(): void {
@@ -34,10 +39,26 @@ export class AppComponent implements OnInit {
     this.fileServerService.subscribeRemoteDirectory({
       next: (remoteDirectory: string) => {
         this.remoteDirectory = remoteDirectory
+        this.pathChip = []
+
+        let path = ""
+        remoteDirectory.split(this.re).forEach(s => {
+          if (path.length > 0) {
+            path = path + "/"
+          }
+
+          path = path + s
+          let pc: PathChip = {
+            name: s,
+            path: path
+          }
+          this.pathChip.push(pc)
+        })
+
       }
     })
   }
-  
+
   pwd() {
     console.log("click PWD")
     this.fileServerService.pwd();
@@ -68,5 +89,9 @@ export class AppComponent implements OnInit {
     }
   }
 
+  clickChip(chip: PathChip) {
+    console.log(chip)
 
+    this.fileServerService.listPath(chip.path)
+  }
 }

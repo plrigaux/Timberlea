@@ -80,8 +80,12 @@ export class FileServerService {
   }
 
   list(): void {
+    this.listPath(null);
+  }
+  
+  listPath(path: string | null): void {
     this.waiting.next(true)
-    let remoteDirectory = encodeURIComponent(this.remoteDirectory);
+    let remoteDirectory = encodeURIComponent(path ? path : this.remoteDirectory);
 
     this.http.get<FileList_Response>(this.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory).pipe(
       tap((data: FileList_Response) => {
@@ -135,7 +139,7 @@ export class FileServerService {
     return href
   }
 
-  delete(fileName : string) {
+  delete(fileName: string) {
     this.deleteSub.next(fileName)
   }
 
