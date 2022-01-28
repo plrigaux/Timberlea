@@ -1,15 +1,17 @@
-<mat-toolbar class="header">
-  
-  <mat-toolbar-row>hello</mat-toolbar-row>
-  <mat-toolbar-row>Remote directory: {{remoteDirectory}}</mat-toolbar-row>
-  </mat-toolbar>
-
-<div id="contentPanel">
-  <app-table-navigator></app-table-navigator>
+<div class="container">
+  <div class="header">
+  <mat-toolbar>
+    <mat-toolbar-row>hello</mat-toolbar-row>
+    <mat-toolbar-row>Remote directory: {{remoteDirectory}}</mat-toolbar-row>
+    </mat-toolbar>
+  </div>
+  <div class="content">
+    <app-table-navigator></app-table-navigator>
+  </div>
+  <div class="footer">
+    <h2>footer</h2>
+  </div>
 </div>
-
-
-
 
 
 <!-- div *ngFor="let message of messages | async">
