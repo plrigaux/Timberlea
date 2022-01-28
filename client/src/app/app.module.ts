@@ -21,13 +21,17 @@ import { TableNavigatorComponent } from './table-navigator/table-navigator.compo
 import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LongPressDirective } from './long-press.directive';
+
+
 
 @NgModule({
   declarations: [
     AppComponent,
     FileUploadComponent,
     TableNavigatorComponent,
-    FileDialogBoxComponent
+    FileDialogBoxComponent,
+    LongPressDirective
   ],
   imports: [
     BrowserModule,
@@ -46,7 +50,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSortModule,
     A11yModule,
     MatDialogModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+
+
   ],
   providers: [],
   bootstrap: [AppComponent]

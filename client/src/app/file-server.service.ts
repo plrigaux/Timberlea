@@ -16,6 +16,7 @@ export class FileServerService {
   private newList = new Subject<FileDetails[]>()
   private newRemoteDirectory = new Subject<string>()
   private waiting = new Subject<boolean>()
+  private deleteSub = new Subject<string>()
 
   constructor(private http: HttpClient) {
     this.serverUrl = environment.serverUrl
@@ -31,6 +32,10 @@ export class FileServerService {
 
   subscribeWaiting(obs: Partial<Observer<boolean>>): Subscription {
     return this.waiting.subscribe(obs)
+  }
+
+  subscribeDelete(obs: Partial<Observer<string>>): Subscription {
+    return this.deleteSub.subscribe(obs)
   }
 
   pwd(): void {
@@ -89,7 +94,6 @@ export class FileServerService {
         next: (data: FileList_Response) => {
           let files: FileDetails[] = data.files ? data.files : []
           this.newList.next(files)
-          this.waiting.next(false)
         },
         error: e => {
           console.error(e)
@@ -129,6 +133,10 @@ export class FileServerService {
     const href = environment.serverUrl + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory + "/" + fileName);
 
     return href
+  }
+
+  delete(fileName : string) {
+    this.deleteSub.next(fileName)
   }
 
 }

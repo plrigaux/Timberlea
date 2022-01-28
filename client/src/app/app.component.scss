@@ -1,0 +1,20 @@
+.header {
+   /* position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;*/
+
+    position: fixed;
+    top:0;
+    color: inherits ;
+    z-index: 1000;
+  }
+
+  #contentPanel{
+    position: relative;
+    margin-top: 130px;
+    overflow: auto;
+    display: block;
+    height: 100%;
+  }

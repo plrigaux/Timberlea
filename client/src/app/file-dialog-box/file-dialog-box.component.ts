@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileDetails, FileType } from '../../../../server/src/common/interfaces';
+import { FileServerService } from '../file-server.service';
 
 @Component({
   selector: 'app-file-dialog-box',
@@ -10,7 +11,9 @@ import { FileDetails, FileType } from '../../../../server/src/common/interfaces'
 export class FileDialogBoxComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<FileDialogBoxComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: FileDetails) { }
+    @Inject(MAT_DIALOG_DATA) public data: FileDetails,
+    private fileServerService: FileServerService
+    ) { }
 
   ngOnInit(): void {
   }
@@ -25,5 +28,10 @@ export class FileDialogBoxComponent implements OnInit {
         return "folder"
     }
     return "text_snippet"
+  }
+
+  delete() {
+    this.onNoClick()
+    this.fileServerService.delete(this.data.name)
   }
 }

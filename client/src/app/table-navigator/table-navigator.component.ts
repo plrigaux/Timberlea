@@ -2,7 +2,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, Sort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { FileDetails, FileList_Response, FileType } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
 import { FileServerService } from '../file-server.service';
@@ -15,12 +15,13 @@ import { FileServerService } from '../file-server.service';
 export class TableNavigatorComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<any>;
 
   displayedColumns: string[] = ['type', 'name', 'size', 'dateModif', 'action'];
 
   dateFormat: Intl.DateTimeFormat
   timeFormat: Intl.DateTimeFormat
-  waitingCondition: boolean = false
+  isLoadingResults: boolean = false
   dataSource: MatTableDataSource<FileDetails>;
 
   constructor(private fileServerService: FileServerService,
@@ -44,10 +45,25 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
       }
     })
 
-
     this.fileServerService.subscribeWaiting({
       next: (wait: boolean) => {
-        this.waitingCondition = wait
+        this.isLoadingResults = wait
+      }
+    })
+
+    this.fileServerService.subscribeDelete({
+      next: (fileName: string) => {
+        console.log("delete file", fileName)
+        const index = this.dataSource.data.findIndex((element) => element.name == fileName)
+
+        console.log("delete file", fileName, index)
+        if (index > -1) {
+          console.log("delete file", this.dataSource.data.length)
+          this.dataSource.data.splice(index, 1)
+
+          let remoteFiles = this.dataSource.data
+          this.updateDataSource2(remoteFiles);
+        }
       }
     })
 
@@ -55,7 +71,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
+   
   }
 
   list() {
@@ -64,8 +80,14 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
 
   private updateDataSource(filelist: FileDetails[]) {
     let remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
-    this.dataSource = new MatTableDataSource(remoteFiles)
+    this.updateDataSource2(remoteFiles);
+  }
+
+  private updateDataSource2(filelist: FileDetails[]) {
+    this.dataSource = new MatTableDataSource(filelist)
     this.dataSource.sort = this.sort
+    this.table.renderRows()
+    this.isLoadingResults = false
   }
 
   /** Announce the change in sort state for assistive technology. */
@@ -180,5 +202,13 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
       disableClose: false,
       data: element
     });
+  }
+
+  onLongPress() {
+    console.log("onLongPress")
+  }
+
+  onLongPressing() {
+    console.log("onLongPressing")
   }
 }
