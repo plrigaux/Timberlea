@@ -23,6 +23,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LongPressDirective } from './long-press.directive';
 import { MatChipsModule } from '@angular/material/chips';
+import { ControlsComponent } from './controls/controls.component';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { MatChipsModule } from '@angular/material/chips';
     FileUploadComponent,
     TableNavigatorComponent,
     FileDialogBoxComponent,
-    LongPressDirective
+    LongPressDirective,
+    ControlsComponent
   ],
   imports: [
     BrowserModule,

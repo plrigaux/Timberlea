@@ -1,64 +1,95 @@
-
 $magin-size: 2em;
 
 table {
-    width: calc(100% - $magin-size - $magin-size);
-    margin-top: 1em;
-    margin-left: $magin-size;
-    margin-right: $magin-size;
-  }
-  
-  .container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-  }
-  
-  .container * {
-    margin: 1em;
-  }
-  
-  .directory {
-    color : green;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .file {
-    color: white;
-    cursor: pointer;
-  }
+  width: calc(100% - $magin-size - $magin-size);
+  margin-top: 1em;
+  margin-left: $magin-size;
+  margin-right: $magin-size;
+}
 
-  .mat-column-type {
-    width: 32px;
-    //border-right: 1px solid currentColor;
-    //padding-right: 24px;
-    //text-align: center;
-  }
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
 
-  .mat-column-name {
-    max-width: 22px;
-    padding-left: 1em;
-  }
+.container * {
+  margin: 1em;
+}
 
-  .file-row:hover {
-    background: grey;
-  }
+.directory {
+  color: green;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-  .file-header-cell {
-    font-weight: bold;
-    font-size: larger;
-  }
+.file {
+  color: white;
+  cursor: pointer;
+}
 
-  .loading-shade {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 56px;
-    right: 0;
-    background: rgba(0, 0, 0, 0.15);
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.mat-column-type {
+  width: 32px;
+  //border-right: 1px solid currentColor;
+  //padding-right: 24px;
+  //text-align: center;
+}
+
+.mat-column-name {
+  max-width: 22px;
+  padding-left: 1em;
+}
+
+
+$file-row-hover-color:  grey;
+$file-row-highlight-color:  rgb(110, 138, 115);;
+
+.file-row:hover {
+  background: $file-row-hover-color;
+}
+
+.file-row-pressing {
+  background: $file-row-hover-color;
+  animation-name: transit;
+  animation-duration: 1s;
+}
+
+.file-row-highlight {
+  background: $file-row-highlight-color;
+}
+
+.file-row-highlight:hover {
+  background: $file-row-highlight-color;
+}
+
+@keyframes transit {
+  from {background: $file-row-hover-color}
+  to {background: $file-row-highlight-color}
+}
+
+@keyframes example {
+  from {
+    background-color: red;
   }
+  to {
+    background-color: yellow;
+  }
+}
+
+.file-header-cell {
+  font-weight: bold;
+  font-size: larger;
+}
+
+.loading-shade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 56px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

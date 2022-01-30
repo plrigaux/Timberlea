@@ -17,6 +17,7 @@ export class FileServerService {
   private newRemoteDirectory = new Subject<string>()
   private waiting = new Subject<boolean>()
   private deleteSub = new Subject<string>()
+  private selectFileSub = new Subject<FileDetailsPlus | null>()
 
   constructor(private http: HttpClient) {
     this.serverUrl = environment.serverUrl
@@ -38,6 +39,10 @@ export class FileServerService {
     return this.deleteSub.subscribe(obs)
   }
 
+  subscribeSelectFileSub(obs: Partial<Observer<FileDetailsPlus | null>>): Subscription {
+    return this.selectFileSub.subscribe(obs)
+  }
+
   pwd(): void {
     console.log("click PWD")
 
@@ -50,7 +55,7 @@ export class FileServerService {
     )
   }
 
-  cd(relPath: string, remoteDirectory : string | null = null, returnList = true): void {
+  cd(relPath: string, remoteDirectory: string | null = null, returnList = true): void {
 
     let newRemoteDirectory: ChangeDir_Request = {
       remoteDirectory: remoteDirectory ? remoteDirectory : this.remoteDirectory,
@@ -131,7 +136,6 @@ export class FileServerService {
 
   getFileHref(fileName: string): string {
     const href = environment.serverUrl + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory + "/" + fileName);
-
     return href
   }
 
@@ -139,4 +143,16 @@ export class FileServerService {
     this.deleteSub.next(fileName)
   }
 
+  selectFile(file: FileDetails | null) {
+    let fdp: FileDetailsPlus = file as FileDetailsPlus
+    if (file) {
+      fdp.directory = this.remoteDirectory
+    }
+    this.selectFileSub.next(fdp)
+  }
+
+}
+
+export interface FileDetailsPlus extends FileDetails {
+  directory: string
 }

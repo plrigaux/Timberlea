@@ -95,7 +95,5 @@ export class AppComponent implements OnInit {
     this.fileServerService.list(chip.path)
   }
 
-  delete() {
-    
-  }
+
 }

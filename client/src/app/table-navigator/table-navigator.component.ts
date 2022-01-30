@@ -71,7 +71,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-   
+
   }
 
   list() {
@@ -101,6 +101,10 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     } else {
       this._liveAnnouncer.announce('Sorting cleared');
     }
+  }
+
+  highlightRow(row: any) {
+    console.log(row)
   }
 
   displayType(e: FileDetails): string {
@@ -204,11 +208,30 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onLongPress() {
-    console.log("onLongPress")
+  selectedRowIndex : string | null= null;
+  selectedRowIndex2 : string | null= null;
+  onlongPressing = false
+
+  onLongPressRow(row: FileDetails) {
+    console.log("onLongPress", row)
+    this.selectedRowIndex2 = row.name
   }
 
-  onLongPressing() {
-    console.log("onLongPressing")
+  onClickRow(row: FileDetails) {
+    console.log("onLongClick", row)
+    if (this.onlongPressing) {
+      this.selectedRowIndex = row.name
+      this.fileServerService.selectFile(row)
+    } else {
+      this.fileServerService.selectFile(null)
+      this.selectedRowIndex = null
+    }
+    this.onlongPressing = false
+    this.selectedRowIndex2 = null
+  }
+
+  onLongPressingRow(row: FileDetails) {
+    console.log("onLongPressing", row)
+    this.onlongPressing = true
   }
 }
