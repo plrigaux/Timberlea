@@ -141,7 +141,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
 
   elementClick(element: FileDetails) {
     if (element.type == FileType.Directory) {
-      this.fileServerService.cdRelPath(element.name)
+      this.fileServerService.cd(element.name)
     } else if (element.type == FileType.File) {
       this.downloadFileName(element.name)
     }

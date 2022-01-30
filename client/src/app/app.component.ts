@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
   }
 
   cdRelPath(relPath: string) {
-    this.fileServerService.cdRelPath(relPath)
+    this.fileServerService.cd(relPath)
   }
 
   list() {
@@ -92,6 +92,10 @@ export class AppComponent implements OnInit {
   clickChip(chip: PathChip) {
     console.log(chip)
 
-    this.fileServerService.listPath(chip.path)
+    this.fileServerService.list(chip.path)
+  }
+
+  delete() {
+    
   }
 }

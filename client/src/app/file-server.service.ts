@@ -50,10 +50,10 @@ export class FileServerService {
     )
   }
 
-  cdRelPath(relPath: string, returnList = true): void {
+  cd(relPath: string, remoteDirectory : string | null = null, returnList = true): void {
 
     let newRemoteDirectory: ChangeDir_Request = {
-      remoteDirectory: this.remoteDirectory,
+      remoteDirectory: remoteDirectory ? remoteDirectory : this.remoteDirectory,
       newPath: relPath,
       returnList: returnList
     }
@@ -79,11 +79,7 @@ export class FileServerService {
       })
   }
 
-  list(): void {
-    this.listPath(null);
-  }
-  
-  listPath(path: string | null): void {
+  list(path: string | null = null): void {
     this.waiting.next(true)
     let remoteDirectory = encodeURIComponent(path ? path : this.remoteDirectory);
 
