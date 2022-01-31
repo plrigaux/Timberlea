@@ -17,7 +17,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<any>;
 
-  displayedColumns: string[] = ['type', 'name', 'size', 'dateModif', 'action'];
+  displayedColumns: string[] = ['type', 'name', 'size', 'dateModif'];
 
   dateFormat: Intl.DateTimeFormat
   timeFormat: Intl.DateTimeFormat
