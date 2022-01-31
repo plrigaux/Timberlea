@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import fs, { Dirent } from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
-import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FileType, FS_Response, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
+import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetailsEnhanced, FileDetail_Response, FileList_Response, FileType, FS_Response, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
 import { body, validationResult } from 'express-validator';
 
 export const fileServer = express.Router()
@@ -123,11 +123,61 @@ fileServer.get(endpoints.LIST, (req: Request, res: Response) => {
     getList(req, res)
 })
 
-//List without path
 fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response) => {
     getList(req, res)
 })
 
+fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
+    const file: string = req.params.path
+
+    fs.promises.stat(file)
+        .then(stat => {
+
+            let resp: FileDetail_Response = {
+                file: {
+                    name: path.basename(file),
+                    type: stat.isFile() ? FileType.File : stat.isDirectory() ? FileType.Directory : FileType.Other,
+                    size: stat.size,
+                    parentDirectory: path.dirname(file),
+                    birthtime: stat.birthtime.toISOString()
+                },
+                error: false,
+                message: 'OK'
+            }
+            let statusCode: number = HttpStatusCode.OK
+            return { statusCode, resp }
+        })
+        .catch((error) => {
+            let statusCode = HttpStatusCode.INTERNAL_SERVER
+
+            let resp: FileDetail_Response = {
+                error: true,
+                message: ''
+            }
+
+            switch (error.code) {
+                case FSErrorCode.ENOENT:
+                    resp.message = `File doesn't exist`
+                    statusCode = HttpStatusCode.NOT_FOUND
+                    break;
+                case FSErrorCode.EACCES:
+                    resp.message = `File is not accessible`
+                    statusCode = HttpStatusCode.FORBIDDEN
+                    break;
+                default:
+                    console.warn(error)
+                    console.error(error);
+                    resp.message = `Unknown error`
+                    statusCode = HttpStatusCode.INTERNAL_SERVER
+            }
+            return { statusCode, resp }
+        }).then((o: {
+            statusCode: number;
+            resp: FileDetail_Response;
+        }) => {
+            res.status(o.statusCode).send(o.resp)
+        })
+})
 
 function directoryValid(dirpath: string): Promise<Bob> {
 
@@ -137,11 +187,10 @@ function directoryValid(dirpath: string): Promise<Bob> {
         message: ''
     }
     let statusCode = 0
-    let isDirectory = true
 
     return fs.promises.stat(dirpath)
         .then(stat => {
-            isDirectory = stat.isDirectory()
+            const isDirectory = stat.isDirectory()
             if (isDirectory) {
                 resp.error = false
                 resp.parent = dirpath
