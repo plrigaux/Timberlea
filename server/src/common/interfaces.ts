@@ -11,6 +11,11 @@ export interface FileDetails {
     mtime?: string
 }
 
+export interface FileDetailsEnhanced extends FileDetails {
+    parentDirectory: string
+    birthtime: string
+}
+
 export interface FS_Response {
     error: boolean,
     message: string,
@@ -19,6 +24,10 @@ export interface FS_Response {
 export interface FileList_Response extends FS_Response {
     parent: string
     files?: FileDetails[]
+}
+
+export interface FileDetail_Response extends FS_Response {
+    file?: FileDetailsEnhanced
 }
 
 export interface ChangeDir_Request {

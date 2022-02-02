@@ -11,6 +11,7 @@ import { FileDetailsPlus, FileServerService } from '../file-server.service';
 export class ControlsComponent implements OnInit {
 
   fileDetail: FileDetailsPlus | null = null
+  cutPaste = false
 
   constructor(private fileServerService: FileServerService,
     private _dialog: MatDialog) { }
@@ -23,8 +24,28 @@ export class ControlsComponent implements OnInit {
     })
   }
 
+  showFileCommands(): boolean {
+    return this.fileDetail != null && !this.cutPaste
+  }
+
   delete() {
 
+  }
+
+  copy() {
+    this.cutPaste = true
+  }
+
+  cut() {
+    this.cutPaste = true
+  }
+
+  cancelPaste() {
+    this.cutPaste = false
+  }
+
+  paste() {
+    this.cutPaste = false
   }
 
   info() {
@@ -44,5 +65,5 @@ export class ControlsComponent implements OnInit {
   templateUrl: 'dialog-file-info.html',
 })
 export class DialogDataExampleDialog {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) { }
 }
