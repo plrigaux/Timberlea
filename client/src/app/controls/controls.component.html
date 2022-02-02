@@ -1,10 +1,10 @@
-<div *ngIf="fileDetail">
+<div *ngIf="showFileCommands()">
 
-    <button mat-button>
+    <button mat-button (click)="copy()">
         <mat-icon>file_copy</mat-icon>
         Copy
     </button>
-    <button mat-button>
+    <button mat-button (click)="cut()">
         <mat-icon>content_cut</mat-icon>
         Cut
     </button>
@@ -12,15 +12,22 @@
         <mat-icon>edit</mat-icon>
         Rename
     </button>
-    <button mat-button>
-        <mat-icon>content_paste</mat-icon>
-        Paste
-    </button>
     <button mat-button (click)="delete()">
         <mat-icon>delete</mat-icon> Delete
     </button>
 
     <button mat-button (click)="info()">
-        <mat-icon>info</mat-icon> Info
+        <mat-icon fontSet="material-icons-outlined">info</mat-icon> Info
+    </button>
+</div>
+
+<div *ngIf="cutPaste">
+    <button mat-button (click)="cancelPaste()">
+        <mat-icon>close</mat-icon>
+        Cancel
+    </button>
+    <button mat-button (click)="paste()">
+        <mat-icon>content_paste</mat-icon>
+        Paste
     </button>
 </div>
