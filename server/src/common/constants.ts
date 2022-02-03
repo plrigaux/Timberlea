@@ -10,6 +10,7 @@ export namespace endpoints {
     export const REM = "/rem"
     export const MV = "/mv"
     export const DETAILS = "/details"
+    export const COPY = "/copy"
 
     export const FS_LIST = FS + LIST
     export const FS_CD = FS + CD
@@ -20,6 +21,7 @@ export namespace endpoints {
     export const FS_REM = FS + REM
     export const FS_MV = FS + MV
     export const FS_DETAILS = FS + DETAILS
+    export const FS_COPY = FS + COPY
 }
 
 export namespace uploadFile {

@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response } from '../../../server/src/common/interfaces';
+import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FS_Response, MvFile_Request, MvFile_Response } from '../../../server/src/common/interfaces';
 import { environment } from '../../../client/src/environments/environment';
 import { endpoints } from '../../../server/src/common/constants';
 import { catchError, Observable, Observer, of, retry, Subject, Subscription, tap } from 'rxjs';
@@ -10,6 +10,7 @@ import { catchError, Observable, Observer, of, retry, Subject, Subscription, tap
 })
 export class FileServerService {
 
+
   serverUrl: string
   remoteDirectory = ""
 
@@ -18,6 +19,7 @@ export class FileServerService {
   private waiting = new Subject<boolean>()
   private deleteSub = new Subject<string>()
   private selectFileSub = new Subject<FileDetailsPlus | null>()
+  private modifSub = new Subject<MvFile_Response>()
 
   constructor(private http: HttpClient) {
     this.serverUrl = environment.serverUrl
@@ -41,6 +43,10 @@ export class FileServerService {
 
   subscribeSelectFileSub(obs: Partial<Observer<FileDetailsPlus | null>>): Subscription {
     return this.selectFileSub.subscribe(obs)
+  }
+
+  subscribeModif(obs: Partial<Observer<MvFile_Response>>): Subscription {
+    return this.modifSub.subscribe(obs)
   }
 
   pwd(): void {
@@ -73,7 +79,7 @@ export class FileServerService {
       catchError((e) => this.handleError(e as HttpErrorResponse))
     ).subscribe(
       {
-        next: (data: ChangeDir_Response) => {
+        next: (data: ChangeDir_Response ) => {
           let files: FileDetails[] = data.files ? data.files : []
           this.newList.next(files)
         },
@@ -94,11 +100,11 @@ export class FileServerService {
       }),
       retry(2),
       catchError((e) => this.handleError(e as HttpErrorResponse))
+      
     ).subscribe(
       {
         next: (data: FileList_Response) => {
-          let files: FileDetails[] = data.files ? data.files : []
-          this.newList.next(files)
+            this.newList.next(data.files ?? [])
         },
         error: e => {
           console.error(e)
@@ -114,7 +120,7 @@ export class FileServerService {
     }
   }
 
-  private handleError(error: HttpErrorResponse): Observable<FileList_Response> {
+  private handleError(error: HttpErrorResponse): Observable<never> {
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
       console.error('An error occurred:', error.error);
@@ -125,12 +131,14 @@ export class FileServerService {
         `Backend returned code ${error.status}, body was: `, error.error);
     }
 
-    let fl: FileList_Response = {
-      parent: '',
+    /*
+    let fl: FS_Response = {
       error: true,
       message: 'Something bad happened; please try again later.'
     }
     return of(fl)
+    */
+    throw new Error('Something bad happened; please try again later.')
 
   }
 
@@ -149,6 +157,39 @@ export class FileServerService {
       fdp.directory = this.remoteDirectory
     }
     this.selectFileSub.next(fdp)
+  }
+
+  copyPaste(copySelect: FileDetailsPlus) {
+    console.log(`COPY ${copySelect.name} from ${copySelect.directory} to ${this.remoteDirectory}`)
+  }
+
+
+  cutPaste(cutSelect: FileDetailsPlus) {
+    console.log(`CUT ${cutSelect.name} from ${cutSelect.directory} to ${this.remoteDirectory}`)
+  
+    let request : MvFile_Request = {
+      parent: cutSelect.directory,
+      fileName: cutSelect.name,
+      newParent: this.remoteDirectory
+    }
+
+    this.http.put<MvFile_Response>(this.serverUrl + endpoints.FS_MV, request ).pipe(
+      tap((data: MvFile_Response) => {
+        this.setRemoteDirectory(data)
+      }),
+      retry(2),
+      catchError((e) => this.handleError(e as HttpErrorResponse))
+    ).subscribe(
+      {
+        next: (data: MvFile_Response) => {
+          
+          
+        },
+        error: e => {
+          console.error(e)
+          
+        }
+      })
   }
 
 }

@@ -10,8 +10,10 @@ import { FileDetailsPlus, FileServerService } from '../file-server.service';
 })
 export class ControlsComponent implements OnInit {
 
-  fileDetail: FileDetailsPlus | null = null
-  cutPaste = false
+  fileDetails: FileDetailsPlus | null = null
+  cutCopyPaste = false
+  cutSelect: FileDetailsPlus | null = null
+  copySelect: FileDetailsPlus | null = null
 
   constructor(private fileServerService: FileServerService,
     private _dialog: MatDialog) { }
@@ -19,13 +21,13 @@ export class ControlsComponent implements OnInit {
   ngOnInit(): void {
     this.fileServerService.subscribeSelectFileSub({
       next: (fileDetail: FileDetailsPlus | null) => {
-        this.fileDetail = fileDetail
+        this.fileDetails = fileDetail
       }
     })
   }
 
   showFileCommands(): boolean {
-    return this.fileDetail != null && !this.cutPaste
+    return this.fileDetails != null && !this.cutCopyPaste
   }
 
   delete() {
@@ -33,19 +35,31 @@ export class ControlsComponent implements OnInit {
   }
 
   copy() {
-    this.cutPaste = true
+    this.cutCopyPaste = true
+    this.copySelect = this.fileDetails
   }
 
   cut() {
-    this.cutPaste = true
+    this.cutCopyPaste = true
+    this.cutSelect = this.fileDetails
   }
 
   cancelPaste() {
-    this.cutPaste = false
+    this.cutCopyPaste = false
+    this.copySelect = this.cutSelect = null
   }
 
   paste() {
-    this.cutPaste = false
+    this.cutCopyPaste = false
+    if(this.copySelect) {
+      this.fileServerService.copyPaste(this.copySelect)
+      this.copySelect = null
+    }
+
+    if(this.cutSelect) {
+      this.fileServerService.cutPaste(this.cutSelect)
+      this.cutSelect = null
+    }
   }
 
   info() {
@@ -54,7 +68,7 @@ export class ControlsComponent implements OnInit {
       width: '350px',
       // Can be closed only by clicking the close button
       disableClose: false,
-      data: this.fileDetail
+      data: this.fileDetails
     });
   }
 }

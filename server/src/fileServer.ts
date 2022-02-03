@@ -376,14 +376,15 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
     const data: MvFile_Request = req.body
     console.log("MV", data)
 
-    const oldPath = path.join(data.parent, data.oldFileName)
-    const newPath = path.join(data.parent, data.newFileName)
+    const oldPath = path.join(data.parent, data.fileName)
+
+    const newPath = path.join(data.newParent ?? data.parent , data.newFileName ?? data.fileName)
 
     let responseData: MvFile_Response = {
         error: true,
         message: `Unkown error`,
         parent: path.dirname(newPath),
-        oldFileName: data.oldFileName,
+        oldFileName: data.fileName,
         newFileName: path.basename(newPath)
     }
     let statuCode: number = HttpStatusCode.INTERNAL_SERVER
