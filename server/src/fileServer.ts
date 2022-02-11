@@ -1,11 +1,10 @@
-import os from 'os'
 import express, { Request, Response } from 'express';
+import { body, validationResult } from 'express-validator';
 import fs, { Dirent } from 'fs';
-import fse from 'fs-extra';
+import os from 'os';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
-import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetailsEnhanced, FileDetail_Response, FileList_Response, FileType, FS_Response, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
-import { body, validationResult } from 'express-validator';
+import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetail_Response, FileList_Response, FileType, FS_Response, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
 
 export const fileServer = express.Router()
 const default_folder = os.tmpdir();
@@ -397,41 +396,48 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
     }
     let statusCode: number = HttpStatusCode.INTERNAL_SERVER
 
-    fs.promises.access(newPath).then(() => {
-        return true
-    }).catch(() => {
-        return false
-    }).then((targetExist) => {
+    let fileExistCheck: Promise<boolean>
+
+    if (data.overwrite) {
+        fileExistCheck = Promise.resolve(false)
+    } else {
+        fileExistCheck = fs.promises.access(newPath).then(() => {
+            return true
+        }).catch(() => {
+            return false
+        })
+    }
+
+    fileExistCheck.then((targetExist) => {
         if (targetExist) {
             let e = new FileError("file already exist ...")
             e.code = FSErrorCode.EEXIST
             throw e
         }
         return fs.promises.rename(oldPath, newPath)
+    }).then(() => {
+        //console.warn("OK .. ")
+        resp.error = false
+        resp.message = "OK"
+        statusCode = HttpStatusCode.OK
+    }).catch((error) => {
+        //console.warn(error)
+        switch (error.code) {
+            case FSErrorCode.ENOENT:
+                resp.message = `Directory doesn't exist`
+                statusCode = HttpStatusCode.NOT_FOUND
+                break;
+            case FSErrorCode.EEXIST:
+                resp.message = "File already exists"
+                statusCode = HttpStatusCode.CONFLICT
+                break;
+            default:
+                console.error(error);
+                resp.message = `Unknown error`
+                statusCode = HttpStatusCode.INTERNAL_SERVER
+        }
+    }).finally(() => {
+        res.status(statusCode).send(resp);
     })
-        .then(() => {
-            //console.warn("OK .. ")
-            resp.error = false
-            resp.message = "OK"
-            statusCode = HttpStatusCode.OK
-        }).catch((error) => {
-            //console.warn(error)
-            switch (error.code) {
-                case FSErrorCode.ENOENT:
-                    resp.message = `Directory doesn't exist`
-                    statusCode = HttpStatusCode.NOT_FOUND
-                    break;
-                case FSErrorCode.EEXIST:
-                    resp.message = "File already exists"
-                    statusCode = HttpStatusCode.CONFLICT
-                    break;
-                default:
-                    console.error(error);
-                    resp.message = `Unknown error`
-                    statusCode = HttpStatusCode.INTERNAL_SERVER
-            }
-        }).finally(() => {
-            res.status(statusCode).send(resp);
-        })
 })
 

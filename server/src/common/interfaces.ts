@@ -67,6 +67,7 @@ export interface MvFile_Request {
     newParent?: string
     fileName: string
     newFileName?: string
+    overwrite?: boolean
 }
 
 export interface MvFile_Response extends FS_Response {
