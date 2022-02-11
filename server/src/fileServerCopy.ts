@@ -23,9 +23,8 @@ fileServerCopy.put(endpoints.ROOT, (req: Request, res: Response) => {
         oldFileName: data.fileName,
         newFileName: path.basename(newPath)
     }
+    
     let statusCode: number = HttpStatusCode.INTERNAL_SERVER
-
-
 
     let mode = data.overwrite ? 0 : fs.constants.COPYFILE_EXCL
 
