@@ -53,7 +53,7 @@ describe('Copy file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy;
+        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
         //expect(dataresp.message).toMatch(/^File/)
@@ -80,13 +80,13 @@ describe('Copy file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy;
+        expect(dataresp.error).toBeTruthy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
-    test('Rename a single file - target exist', async () => {
+    test('Copy a single file - target exist', async () => {
 
         let oldFileName = "poutpout3.txt"
         let newFileName = 'robert4.txt'
@@ -109,13 +109,43 @@ describe('Copy file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy;
+        expect(dataresp.error).toBeTruthy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
-    test('Rename a single directory', async () => {
+    test('Copy a single file - target exist - overwrite target', async () => {
+
+        let oldFileName = "poutpout8.txt"
+        let newFileName = 'robert8.txt'
+
+        tu.createFile(oldFileName, dir, "File data, file data file data")
+        tu.createFile(newFileName, dir, "File data, file data file data")
+
+        const data: MvFile_Request = {
+            parent: dir,
+            fileName: oldFileName,
+            newFileName: newFileName,
+            overwrite: true
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_COPY)
+            .send(data)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        let dataresp: MvFile_Response = resp.body
+        console.log(dataresp)
+
+        expect(dataresp.error).toBeFalsy();
+        expect(dataresp.newFileName).toEqual(newFileName)
+        expect(dataresp.parent).toEqual(dir)
+        //expect(dataresp.message).toMatch(/^File/)
+    });
+
+    test('Copy a single directory', async () => {
 
         let oldFileName = "directory dir"
         let newFileName = 'directory bear'
@@ -130,15 +160,15 @@ describe('Copy file', () => {
         }
 
         const resp = await request(app)
-            .put(endpoints.FS_MV)
+            .put(endpoints.FS_COPY)
             .send(data)
-            .expect(HttpStatusCode.OK)
+            .expect(HttpStatusCode.FORBIDDEN)
             .expect("Content-Type", /json/);
 
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy;
+        expect(dataresp.error).toBeTruthy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
     });

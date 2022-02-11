@@ -27,7 +27,7 @@ fileServerCopy.put(endpoints.ROOT, (req: Request, res: Response) => {
 
 
 
-    let mode = fs.constants.COPYFILE_EXCL
+    let mode = data.overwrite ? 0 : fs.constants.COPYFILE_EXCL
 
     fs.promises.copyFile(oldPath, newPath, mode)
         .then(() => {
@@ -48,6 +48,10 @@ fileServerCopy.put(endpoints.ROOT, (req: Request, res: Response) => {
                 case FSErrorCode.EEXIST:
                     resp.message = "File already exists"
                     statusCode = HttpStatusCode.CONFLICT
+                    break;
+                case FSErrorCode.EPERM:
+                    resp.message = "Operation not permitted"
+                    statusCode = HttpStatusCode.FORBIDDEN
                     break;
                 default:
                     console.error(error);
