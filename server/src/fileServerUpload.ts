@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs';
 import multer from 'multer';
 import { FileUpload_Response } from './common/interfaces';
-import { fileServerErrors, FSErrorCode, HttpStatusCode, uploadFile } from './common/constants';
+import { endpoints, fileServerErrors, FSErrorCode, HttpStatusCode, uploadFile } from './common/constants';
 
 export const fileServerUpload = express.Router()
 
@@ -86,7 +86,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage }).any();
 
-fileServerUpload.post("/", (req, res) => {
+fileServerUpload.post(endpoints.ROOT, (req, res) => {
     upload(req, res, (err) => {
         //console.log(err)
 

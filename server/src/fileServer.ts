@@ -1,6 +1,7 @@
 import os from 'os'
 import express, { Request, Response } from 'express';
 import fs, { Dirent } from 'fs';
+import fse from 'fs-extra';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
 import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetailsEnhanced, FileDetail_Response, FileList_Response, FileType, FS_Response, MakeDirRequest, MakeDirResponse, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
@@ -371,6 +372,13 @@ fileServer.delete(endpoints.REM, (req: Request, res: Response) => {
     }
 })
 
+
+class FileError extends Error {
+    code: string | undefined;
+}
+
+
+
 fileServer.put(endpoints.MV, (req: Request, res: Response) => {
 
     const data: MvFile_Request = req.body
@@ -378,46 +386,52 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
 
     const oldPath = path.join(data.parent, data.fileName)
 
-    const newPath = path.join(data.newParent ?? data.parent , data.newFileName ?? data.fileName)
+    const newPath = path.join(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
 
-    let responseData: MvFile_Response = {
+    let resp: MvFile_Response = {
         error: true,
         message: `Unkown error`,
         parent: path.dirname(newPath),
         oldFileName: data.fileName,
         newFileName: path.basename(newPath)
     }
-    let statuCode: number = HttpStatusCode.INTERNAL_SERVER
+    let statusCode: number = HttpStatusCode.INTERNAL_SERVER
 
-    const send = () => {
-        res.status(statuCode).send(responseData);
-    }
-
-    fs.access(newPath, function (error) {
-        if (!error) {
-            statuCode = HttpStatusCode.CONFLICT
-            responseData.message = "New file exists"
-            send()
-        } else {
-            fs.rename(oldPath, newPath, (error) => {
-                if (error) {
-                    // Show the error 
-                    console.error(error);
-                    if (error.code == FSErrorCode.ENOENT) {
-                        statuCode = HttpStatusCode.NOT_FOUND
-                        responseData.message = `File not found`
-                    }
-                }
-                else {
-                    responseData.error = false
-                    // List all the filenames after renaming
-                    console.log("\nFile Renamed\n");
-                    statuCode = 200
-                    responseData.message = `File moved succesfully`
-                }
-                send()
-            });
+    fs.promises.access(newPath).then(() => {
+        return true
+    }).catch(() => {
+        return false
+    }).then((targetExist) => {
+        if (targetExist) {
+            let e = new FileError("file already exist ...")
+            e.code = FSErrorCode.EEXIST
+            throw e
         }
-    });
+        return fs.promises.rename(oldPath, newPath)
+    })
+        .then(() => {
+            //console.warn("OK .. ")
+            resp.error = false
+            resp.message = "OK"
+            statusCode = HttpStatusCode.OK
+        }).catch((error) => {
+            //console.warn(error)
+            switch (error.code) {
+                case FSErrorCode.ENOENT:
+                    resp.message = `Directory doesn't exist`
+                    statusCode = HttpStatusCode.NOT_FOUND
+                    break;
+                case FSErrorCode.EEXIST:
+                    resp.message = "File already exists"
+                    statusCode = HttpStatusCode.CONFLICT
+                    break;
+                default:
+                    console.error(error);
+                    resp.message = `Unknown error`
+                    statusCode = HttpStatusCode.INTERNAL_SERVER
+            }
+        }).finally(() => {
+            res.status(statusCode).send(resp);
+        })
 })
 

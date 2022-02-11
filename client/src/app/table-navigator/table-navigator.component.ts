@@ -1,9 +1,10 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { FileDetails, FileList_Response, FileType } from '../../../../server/src/common/interfaces';
+import { Subscription } from 'rxjs';
+import { FileDetails, FileList_Response, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
 import { FileServerService } from '../file-server.service';
 
@@ -12,7 +13,7 @@ import { FileServerService } from '../file-server.service';
   templateUrl: './table-navigator.component.html',
   styleUrls: ['./table-navigator.component.scss']
 })
-export class TableNavigatorComponent implements OnInit, AfterViewInit {
+export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<any>;
@@ -23,6 +24,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
   timeFormat: Intl.DateTimeFormat
   isLoadingResults: boolean = false
   dataSource: MatTableDataSource<FileDetails>;
+  private subscriptions: Subscription[] = []
 
   constructor(private fileServerService: FileServerService,
     private _liveAnnouncer: LiveAnnouncer,
@@ -39,19 +41,19 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
 
-    this.fileServerService.subscribeFileList({
+    this.subscriptions.push(this.fileServerService.subscribeFileList({
       next: (filelist: FileDetails[]) => {
         this.updateDataSource(filelist)
       }
-    })
+    }))
 
-    this.fileServerService.subscribeWaiting({
+    this.subscriptions.push(this.fileServerService.subscribeWaiting({
       next: (wait: boolean) => {
         this.isLoadingResults = wait
       }
-    })
+    }))
 
-    this.fileServerService.subscribeDelete({
+    this.subscriptions.push(this.fileServerService.subscribeDelete({
       next: (fileName: string) => {
         console.log("delete file", fileName)
         const index = this.dataSource.data.findIndex((element) => element.name == fileName)
@@ -65,13 +67,25 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
           this.updateDataSource2(remoteFiles);
         }
       }
-    })
+    }))
+
+    this.subscriptions.push(this.fileServerService.subscribeModif({
+      next: (data: MvFile_Response) => {
+        data.parent
+        }
+      }
+    ))
 
     this.list()
   }
 
   ngAfterViewInit() {
 
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(s => s.unsubscribe())
+    this.subscriptions.length = 0
   }
 
   list() {
@@ -208,8 +222,8 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit {
     });
   }
 
-  selectedRowIndex : string | null= null;
-  selectedRowIndex2 : string | null= null;
+  selectedRowIndex: string | null = null;
+  selectedRowIndex2: string | null = null;
   onlongPressing = false
 
   onLongPressRow(row: FileDetails) {

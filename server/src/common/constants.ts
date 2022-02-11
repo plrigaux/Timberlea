@@ -1,4 +1,6 @@
 export namespace endpoints {
+
+    export const ROOT = "/"
     export const FS = "/fs"
 
     export const LIST = "/list"
@@ -49,4 +51,5 @@ export enum HttpStatusCode {
 export enum FSErrorCode {
     EACCES  = "EACCES",
     ENOENT  = "ENOENT",
+    EEXIST = "EEXIST"
  }

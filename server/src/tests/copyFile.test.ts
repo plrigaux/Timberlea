@@ -8,7 +8,7 @@ import { MvFile_Request, MvFile_Response } from '../common/interfaces'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
-const testDir = "rename file dir"
+const testDir = "copy file dir"
 const dir = path.join(os.tmpdir(), testDirMain, testDir)
 
 beforeAll(() => {
@@ -30,7 +30,7 @@ afterAll(() => {
     }
 });
 
-describe('Rename or move file', () => {
+describe('Copy file', () => {
 
     test('Rename a single file', async () => {
 
@@ -45,7 +45,7 @@ describe('Rename or move file', () => {
         }
 
         const resp = await request(app)
-            .put(endpoints.FS_MV)
+            .put(endpoints.FS_COPY)
             .send(data)
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
@@ -61,7 +61,7 @@ describe('Rename or move file', () => {
 
     test('Rename a single file - Not found', async () => {
 
-        let oldFileName = "poutpout2dd.txt"
+        let oldFileName = "poutpout2.txt"
         let newFileName = 'robert2.txt'
         //tu.createFile(oldFileName, dir, "File data, file data file data")
 
@@ -72,7 +72,7 @@ describe('Rename or move file', () => {
         }
 
         const resp = await request(app)
-            .put(endpoints.FS_MV)
+            .put(endpoints.FS_COPY)
             .send(data)
             .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /json/);
@@ -101,7 +101,7 @@ describe('Rename or move file', () => {
         }
 
         const resp = await request(app)
-            .put(endpoints.FS_MV)
+            .put(endpoints.FS_COPY)
             .send(data)
             .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
