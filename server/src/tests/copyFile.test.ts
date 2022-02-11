@@ -1,4 +1,5 @@
 import fs, { RmOptions } from 'fs'
+import fse from 'fs-extra'
 import os from 'os'
 import path from 'path'
 import request from 'supertest'
@@ -32,7 +33,7 @@ afterAll(() => {
 
 describe('Copy file', () => {
 
-    test('Rename a single file', async () => {
+    test('Copy a single file', async () => {
 
         let oldFileName = "poutpout.txt"
         let newFileName = 'robert.txt'
@@ -59,7 +60,37 @@ describe('Copy file', () => {
         //expect(dataresp.message).toMatch(/^File/)
     });
 
-    test('Rename a single file - Not found', async () => {
+    test('Copy a single file in another dir', async () => {
+
+        let oldFileName = "poutpoutttt.txt"
+
+        tu.createFile(oldFileName, dir, "File data, file data file data")
+
+        let dirPath = path.join(dir, "outDir")
+        fs.mkdirSync(dirPath);
+
+        const data: MvFile_Request = {
+            parent: dir,
+            fileName: oldFileName,
+            newParent: dirPath
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_COPY)
+            .send(data)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        let dataresp: MvFile_Response = resp.body
+        console.log(dataresp)
+
+        expect(dataresp.error).toBeFalsy();
+        expect(dataresp.newFileName).toEqual(oldFileName)
+        expect(dataresp.parent).toEqual(dirPath)
+        //expect(dataresp.message).toMatch(/^File/)
+    });
+
+    test('Copy2 a single file - Not found', async () => {
 
         let oldFileName = "poutpout2.txt"
         let newFileName = 'robert2.txt'
@@ -112,7 +143,6 @@ describe('Copy file', () => {
         expect(dataresp.error).toBeTruthy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
-        //expect(dataresp.message).toMatch(/^File/)
     });
 
     test('Copy a single file - target exist - overwrite target', async () => {

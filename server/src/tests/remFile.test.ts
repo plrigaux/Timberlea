@@ -53,7 +53,6 @@ describe('Delete file or directory', () => {
 
             expect(dataresp.error).toBeFalsy;
             expect(dataresp.file).toEqual(fileName)
-            expect(dataresp.message).toMatch(/^File/)
     });
 
     test('Delete a single file - recusive', async () => {
@@ -79,7 +78,6 @@ describe('Delete file or directory', () => {
 
             expect(dataresp.error).toBeFalsy;
             expect(dataresp.file).toEqual(fileName)
-            expect(dataresp.message).toMatch(/^File/)
     });
 
     test('Delete a single file - not exits', async () => {
@@ -101,9 +99,8 @@ describe('Delete file or directory', () => {
             let dataresp : RemFile_Response = resp.body
             console.log(dataresp)
 
-            expect(dataresp.error).toBeFalsy;
+            expect(dataresp.error).toBeTruthy();
             expect(dataresp.file).toEqual(fileName)
-            expect(dataresp.message).toMatch(/^File/)
     });
 
     test('Delete a single directory', async () => {
@@ -128,46 +125,7 @@ describe('Delete file or directory', () => {
 
             expect(dataresp.error).toBeFalsy;
             expect(dataresp.file).toEqual(fileName)
-            expect(dataresp.message).toMatch(/^Directory/)
-    });
-/*
-    test('Create a single directory - Directory already exist', async () => {
-        const data: MakeDir = {
-            parentDir: dir,
-            dirName: 'pout pout',
-            recursive: false
-        }
-
-        const resp = await request(app)
-            .post(endpoints.FS_MKDIR)
-            .send(data)
-            .expect(200)
-            .expect("Content-Type", /json/)
-
+         
     });
 
-    test('Create a single directory - File already exist', async () => {
-        const file = 'thisIsAfile'
-
-        fs.writeFileSync(path.join(dir, file), 'Learn Node FS module')
-
-        const data: MakeDir = {
-            parentDir: dir,
-            dirName: file,
-            recursive: false
-        }
-
-        const resp = await request(app)
-            .post(endpoints.FS_MKDIR)
-            .send(data)
-            .expect(409)
-            .expect("Content-Type", /json/)
-
-    });
-
-
-    test('Create multiple directory', () => {
-
-    });
-*/
 })
