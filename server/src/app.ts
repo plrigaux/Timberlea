@@ -4,6 +4,7 @@ import { endpoints } from './common/constants';
 import { fileServer } from './fileServer';
 import { fileServerUpload } from './fileServerUpload';
 import { fileServerCopy } from './fileServerCopy';
+import { fileServerMv } from './fileServerMv';
 
 export const app = express();
 
@@ -32,3 +33,4 @@ app.get('/', (req : Request, res : Response) => {
 app.use(endpoints.FS, fileServer)
 app.use(endpoints.FS_UPLOAD, fileServerUpload)
 app.use(endpoints.FS_COPY, fileServerCopy)
+app.use(endpoints.FS_MV, fileServerMv)

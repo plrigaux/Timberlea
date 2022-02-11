@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
