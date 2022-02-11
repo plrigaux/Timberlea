@@ -53,7 +53,7 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy;
+        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
         //expect(dataresp.message).toMatch(/^File/)
@@ -80,7 +80,7 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy;
+        expect(dataresp.error).toBeTruthy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
         //expect(dataresp.message).toMatch(/^File/)
@@ -109,7 +109,37 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy;
+        expect(dataresp.error).toBeTruthy();
+        expect(dataresp.newFileName).toEqual(newFileName)
+        expect(dataresp.parent).toEqual(dir)
+        //expect(dataresp.message).toMatch(/^File/)
+    });
+
+    test('Rename a single file - target exist - overwrite', async () => {
+
+        let oldFileName = "poutpout3.txt"
+        let newFileName = 'robert4.txt'
+
+        tu.createFile(oldFileName, dir, "File data, file data file data")
+        tu.createFile(newFileName, dir, "File data, file data file data")
+
+        const data: MvFile_Request = {
+            parent: dir,
+            fileName: oldFileName,
+            newFileName: newFileName,
+            overwrite : true
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_MV)
+            .send(data)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        let dataresp: MvFile_Response = resp.body
+        console.log(dataresp)
+
+        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
         //expect(dataresp.message).toMatch(/^File/)
@@ -138,7 +168,7 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy;
+        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dir)
     });
