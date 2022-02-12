@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
-import { MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from './common/interfaces';
+import { RemFile_Request, RemFile_Response } from './common/interfaces';
 
 export const fileServerRem = express.Router()
 

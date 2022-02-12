@@ -12,7 +12,6 @@
   "author": "PLR",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^6.4.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "eslint": "^8.3.0",

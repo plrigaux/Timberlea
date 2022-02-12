@@ -54,7 +54,7 @@ describe('Create directory', () => {
         const resp = await request(app)
             .post(endpoints.FS_MKDIR)
             .send(data)
-            .expect(HttpStatusCode.OK)
+            .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/)
 
     });

@@ -6,6 +6,7 @@ import { fileServerUpload } from './fileServerUpload';
 import { fileServerCopy } from './fileServerCopy';
 import { fileServerMv } from './fileServerMv';
 import { fileServerRem } from './fileServerRem';
+import { fileServerMkDir } from './fileServerMkdir';
 
 export const app = express();
 
@@ -36,4 +37,5 @@ app.use(endpoints.FS_UPLOAD, fileServerUpload)
 app.use(endpoints.FS_COPY, fileServerCopy)
 app.use(endpoints.FS_MV, fileServerMv)
 app.use(endpoints.FS_REM, fileServerRem)
+app.use(endpoints.FS_MKDIR, fileServerMkDir)
 app.use(endpoints.FS, fileServer)

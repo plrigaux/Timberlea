@@ -130,10 +130,15 @@ fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response) => {
 fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
     const file: string = req.params.path
 
+    let resp: FileDetail_Response = {
+        error: true,
+        message: ''
+    }
+
+    let statusCode = -1
     fs.promises.stat(file)
         .then(stat => {
-
-            let resp: FileDetail_Response = {
+            resp = {
                 file: {
                     name: path.basename(file),
                     type: stat.isFile() ? FileType.File : stat.isDirectory() ? FileType.Directory : FileType.Other,
@@ -144,16 +149,10 @@ fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
                 error: false,
                 message: 'OK'
             }
-            let statusCode: number = HttpStatusCode.OK
-            return { statusCode, resp }
+            statusCode = HttpStatusCode.OK
         })
         .catch((error) => {
             let statusCode = HttpStatusCode.INTERNAL_SERVER
-
-            let resp: FileDetail_Response = {
-                error: true,
-                message: ''
-            }
 
             switch (error.code) {
                 case FSErrorCode.ENOENT:
@@ -166,16 +165,12 @@ fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
                     break;
                 default:
                     console.warn(error)
-                    console.error(error);
-                    resp.message = `Unknown error`
+                    resp.message = error.message
                     statusCode = HttpStatusCode.INTERNAL_SERVER
             }
-            return { statusCode, resp }
-        }).then((o: {
-            statusCode: number;
-            resp: FileDetail_Response;
-        }) => {
-            res.status(o.statusCode).send(o.resp)
+
+        }).finally(() => {
+            res.status(statusCode).send(resp)
         })
 })
 
@@ -269,57 +264,3 @@ fileServer.get(endpoints.DOWNLOAD + '/:path', (req: Request, res: Response) => {
     //res.send("OK: " + fileDir + " " + fileName)
 })
 
-fileServer.post(endpoints.MKDIR, (req: Request, res: Response) => {
-
-    const data: MakeDirRequest = req.body
-    console.log("Mkdir", data)
-    let dirPath = path.join(data.parent, data.dirName)
-
-    let responseData: MakeDirResponse = {
-        error: false,
-        message: '',
-        directory: dirPath
-    }
-
-    let code = -1
-    let notSent = true
-    const send = () => {
-        if (notSent) {
-            res.status(code).send(responseData);
-            notSent = false
-        }
-    }
-
-    fs.promises.stat(dirPath)
-        .then(stat => {
-            if (stat.isDirectory()) {
-                code = HttpStatusCode.OK
-                responseData.message = `Directory already exist`;
-                send()
-            } else {
-                code = HttpStatusCode.CONFLICT
-                responseData.error = true
-                responseData.message = `File already exist`
-                send()
-            }
-        }).catch(error => {
-            if (error.code == FSErrorCode.ENOENT) {
-                let options = { recursive: data.recursive ? true : false }
-
-                console.log("Mkdir options", options)
-                return fs.promises.mkdir(dirPath, options)
-                    .then(() => {
-                        code = HttpStatusCode.CREATED
-                        responseData.error = false
-                        responseData.message = `Directory Created : ${dirPath}`
-                        send()
-                    })
-                    .catch(error => {
-                        code = HttpStatusCode.INTERNAL_SERVER
-                        responseData.error = true
-                        responseData.message = JSON.stringify(error)
-                        send()
-                    })
-            }
-        })
-})
