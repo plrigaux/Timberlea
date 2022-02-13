@@ -1,6 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FS_Response, MvFile_Request, MvFile_Response } from '../../../server/src/common/interfaces';
+import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FS_Response, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from '../../../server/src/common/interfaces';
 import { environment } from '../../../client/src/environments/environment';
 import { endpoints } from '../../../server/src/common/constants';
 import { catchError, Observable, Observer, of, retry, Subject, Subscription, tap, throwError, throwIfEmpty } from 'rxjs';
@@ -151,8 +151,41 @@ export class FileServerService {
     return href
   }
 
-  delete(fileName: string) {
-    this.deleteSub.next(fileName)
+  delete(fileName: string | null | undefined) {
+    if(!fileName) {
+      return;
+    }
+
+
+    let request: RemFile_Request = {
+      parent: this.remoteDirectory,
+      fileName: fileName,
+    }
+
+    const options = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+      body: request,
+    };
+
+    let ob = this.http.delete<RemFile_Response>(this.serverUrl + endpoints.FS_REM, options).pipe(
+      tap((data: RemFile_Response) => {
+        this.setRemoteDirectory(data)
+      }),
+      retry(2),
+      catchError((e) => this.handleError(e as HttpErrorResponse))
+    )
+    
+    ob.subscribe(
+      {
+        next: (data: RemFile_Response) => {
+          this.deleteSub.next(fileName)
+        },
+        error: e => {
+          console.error(e)
+        }
+      })
   }
 
   selectFile(file: FileDetails | null) {

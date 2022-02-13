@@ -51,7 +51,7 @@ export interface MakeDirResponse extends FS_Response {
 }
 
 export interface RemFile_Request {
-    parent: string
+    parent: string 
     fileName: string
     recursive?: boolean,
     force?: boolean

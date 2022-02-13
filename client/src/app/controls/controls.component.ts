@@ -31,7 +31,7 @@ export class ControlsComponent implements OnInit {
   }
 
   delete() {
-
+    this.fileServerService.delete(this.fileDetails?.name)
   }
 
   copy() {
