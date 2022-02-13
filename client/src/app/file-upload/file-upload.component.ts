@@ -2,6 +2,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { finalize, Subscription } from 'rxjs';
 import { endpoints, uploadFile } from '../../../../server/src/common/constants';
+import { FileDetails, FileType } from '../../../../server/src/common/interfaces';
 import { environment } from '../../environments/environment';
 import { FileServerService } from '../file-server.service';
 
@@ -24,32 +25,40 @@ export class FileUploadComponent implements OnInit {
   uploadProgress: number | null = null;
   uploadSub: Subscription | null = null;
 
-  constructor(private http: HttpClient, private fileServerService: FileServerService ) { }
+  constructor(private http: HttpClient, private fileServerService: FileServerService) { }
 
   onFileSelected(event: any) {
-    const file: File = event.target.files[0];
+    const files: FileList = event.target.files;
 
-    if (file) {
-      this.fileName = file.name;
-      const formData = new FormData();
-      formData.append(uploadFile.DESTINATION_FOLDER, this.fileServerService.getRemoteDirectory())
-      formData.append(this.fileName , file); //File needs to be last
+    //console.warn(files)
+
+    Array.from(files).forEach(file => {
+      this.uploadFile(file);
+    })
+  }
+
+  private uploadFile(file: File) {
+    console.warn("upload", file)
+    this.fileName = file.name;
+    const formData = new FormData();
+    formData.append(uploadFile.DESTINATION_FOLDER, this.fileServerService.getRemoteDirectory())
+    formData.append(this.fileName, file); //File needs to be last
 
 
-      const upload$ = this.http.post(environment.serverUrl + endpoints.FS_UPLOAD, formData, {
-        reportProgress: true,
-        observe: 'events',
-        responseType: 'text'
-      }).pipe(
-          finalize(() => this.reset())
-        );
+    const upload$ = this.http.post(environment.serverUrl + endpoints.FS_UPLOAD, formData, {
+      reportProgress: true,
+      observe: 'events',
+      responseType: 'text'
+    }).pipe(
+      finalize(() => this.reset(file))
+    );
 
-      this.uploadSub = upload$.subscribe(event => {
-        if (event.type == HttpEventType.UploadProgress && event.total) {
-          this.uploadProgress = Math.round(100 * (event.loaded / event.total));
-        }
-      })
-    }
+    this.uploadSub = upload$.subscribe(event => {
+      if (event.type == HttpEventType.UploadProgress && event.total) {
+        this.uploadProgress = Math.round(100 * (event.loaded / event.total));
+      }
+    })
+
   }
 
   cancelUpload() {
@@ -59,9 +68,19 @@ export class FileUploadComponent implements OnInit {
     this.reset();
   }
 
-  reset() {
+  private reset(file: File | null = null) {
     this.uploadProgress = null;
     this.uploadSub = null;
-    this.fileServerService.list();
+
+    if (file) {
+
+      let fileDetails : FileDetails = {
+        name: file.name,
+        type: FileType.File
+      }
+
+      this.fileServerService.addNewFile(fileDetails)
+    }
+    //this.fileServerService.list();
   }
 }

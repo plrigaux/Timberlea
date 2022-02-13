@@ -72,8 +72,20 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
     this.subscriptions.push(this.fileServerService.subscribeModif({
       next: (data: MvFile_Response) => {
         data.parent
-        }
       }
+    }
+    ))
+
+    this.subscriptions.push(this.fileServerService.subscribeNewFileSubjet({
+      next: (data: FileDetails) => {
+        console.log("f upload", data)
+
+        let remoteFiles = this.dataSource.data
+        remoteFiles.push(data)
+
+        this.updateDataSource2(remoteFiles);
+      }
+    }
     ))
 
     this.list()

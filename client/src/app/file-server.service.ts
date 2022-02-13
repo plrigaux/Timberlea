@@ -20,6 +20,7 @@ export class FileServerService {
   private deleteSub = new Subject<string>()
   private selectFileSub = new Subject<FileDetailsPlus | null>()
   private modifSub = new Subject<MvFile_Response>()
+  private newFileSubjet = new Subject<FileDetails>()
 
   constructor(private http: HttpClient) {
     this.serverUrl = environment.serverUrl
@@ -47,6 +48,14 @@ export class FileServerService {
 
   subscribeModif(obs: Partial<Observer<MvFile_Response>>): Subscription {
     return this.modifSub.subscribe(obs)
+  }
+
+  subscribeNewFileSubjet(obs: Partial<Observer<FileDetails>>): Subscription {
+    return this.newFileSubjet.subscribe(obs)
+  }
+
+  addNewFile(file : FileDetails): void {
+    this.newFileSubjet.next(file)
   }
 
   pwd(): void {
