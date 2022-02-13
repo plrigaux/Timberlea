@@ -1,8 +1,9 @@
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { finalize, Subscription } from 'rxjs';
-import { endpoints } from '../../../../server/src/common/constants';
+import { endpoints, uploadFile } from '../../../../server/src/common/constants';
 import { environment } from '../../environments/environment';
+import { FileServerService } from '../file-server.service';
 
 @Component({
   selector: 'app-file-upload',
@@ -23,7 +24,7 @@ export class FileUploadComponent implements OnInit {
   uploadProgress: number | null = null;
   uploadSub: Subscription | null = null;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private fileServerService: FileServerService ) { }
 
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
@@ -31,8 +32,8 @@ export class FileUploadComponent implements OnInit {
     if (file) {
       this.fileName = file.name;
       const formData = new FormData();
-      formData.append("pizza", "true");
-      formData.append("thumbnail", file); //File needs to be last
+      formData.append(uploadFile.DESTINATION_FOLDER, this.fileServerService.getRemoteDirectory())
+      formData.append(this.fileName , file); //File needs to be last
 
 
       const upload$ = this.http.post(environment.serverUrl + endpoints.FS_UPLOAD, formData, {
@@ -61,5 +62,6 @@ export class FileUploadComponent implements OnInit {
   reset() {
     this.uploadProgress = null;
     this.uploadSub = null;
+    this.fileServerService.list();
   }
 }

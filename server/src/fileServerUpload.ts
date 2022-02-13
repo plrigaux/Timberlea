@@ -57,7 +57,7 @@ const storage = multer.diskStorage({
         let fnError: Error | null = null
         let newFileName: string
         if (file.fieldname) {
-            newFileName = file.fieldname + path.extname(file.originalname)
+            newFileName = file.fieldname //+ path.extname(file.originalname)
         } else {
             newFileName = file.originalname
         }
@@ -87,8 +87,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }).any();
 
 fileServerUpload.post(endpoints.ROOT, (req, res) => {
-    upload(req, res, (err) => {
-        //console.log(err)
+    
+    upload(req, res, (error) => {
+        console.warn("Upload File !!!")
+        console.log(error)
 
         let response: FileUpload_Response = {
             parent: req.body[uploadFile.DESTINATION_FOLDER],
@@ -97,42 +99,42 @@ fileServerUpload.post(endpoints.ROOT, (req, res) => {
             files: []
         }
 
-        let code = -1
-        if (err) {
+        let statusCode = -1
+        if (error) {
             response.error = true
             //TODO test if can write a file
-            switch (err.name) {
+            switch (error.name) {
 
                 case fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED:
-                    response.message = err.name
-                    code = HttpStatusCode.NOT_FOUND
+                    response.message = error.name
+                    statusCode = HttpStatusCode.BAD_REQUEST
                     break;
 
                 case fileServerErrors.FILE_ALREADY_EXIST:
-                    response.message = err.name
-                    code = HttpStatusCode.CONFLICT
+                    response.message = error.name
+                    statusCode = HttpStatusCode.CONFLICT
                     break;
 
                 case fileServerErrors.DESTINATION_FOLDER_DOESNT_EXIST:
-                    response.message = err.name
-                    code = HttpStatusCode.NOT_FOUND
+                    response.message = error.name
+                    statusCode = HttpStatusCode.NOT_FOUND
                     break;
 
                 case fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY:
-                    response.message = err.name
-                    code = HttpStatusCode.CONFLICT
+                    response.message = error.name
+                    statusCode = HttpStatusCode.CONFLICT
                     break;
 
                 case fileServerErrors.DESTINATION_FOLDER_NOT_ACCESSIBLE:
-                    response.message = err.name
-                    code = HttpStatusCode.FORBIDDEN
+                    response.message = error.name
+                    statusCode = HttpStatusCode.FORBIDDEN
                     break;
 
                 default:
-                    code = HttpStatusCode.INTERNAL_SERVER
+                    statusCode = HttpStatusCode.INTERNAL_SERVER
             }
         } else {
-            code = HttpStatusCode.OK
+            statusCode = HttpStatusCode.OK
             response.message = "OK"
 
             if (req.file) {
@@ -150,6 +152,6 @@ fileServerUpload.post(endpoints.ROOT, (req, res) => {
                 }
             }
         }
-        res.status(code).send(response);
+        res.status(statusCode).send(response);
     });
 });

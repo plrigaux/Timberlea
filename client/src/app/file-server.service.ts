@@ -11,8 +11,8 @@ import { catchError, Observable, Observer, of, retry, Subject, Subscription, tap
 export class FileServerService {
 
 
-  serverUrl: string
-  remoteDirectory = ""
+  private serverUrl: string
+  private remoteDirectory = ""
 
   private newList = new Subject<FileDetails[]>()
   private newRemoteDirectory = new Subject<string>()
@@ -118,6 +118,10 @@ export class FileServerService {
       this.remoteDirectory = data.parent
       this.newRemoteDirectory.next(this.remoteDirectory)
     }
+  }
+
+  getRemoteDirectory() : string {
+    return this.remoteDirectory
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
