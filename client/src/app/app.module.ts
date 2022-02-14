@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { CdkTableModule } from '@angular/cdk/table';
 import { FileUploadComponent } from './file-upload/file-upload.component';
@@ -23,7 +23,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LongPressDirective } from './long-press.directive';
 import { MatChipsModule } from '@angular/material/chips';
-import { ControlsComponent } from './controls/controls.component';
+import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/controls.component';
 
 
 @NgModule({
@@ -33,7 +33,9 @@ import { ControlsComponent } from './controls/controls.component';
     TableNavigatorComponent,
     FileDialogBoxComponent,
     LongPressDirective,
-    ControlsComponent
+    ControlsComponent,
+    DialogFileRename,
+    DialogFileInfo
   ],
   imports: [
     BrowserModule,
@@ -53,7 +55,8 @@ import { ControlsComponent } from './controls/controls.component';
     A11yModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-    MatChipsModule
+    MatChipsModule,
+    ReactiveFormsModule
 
   ],
   providers: [],

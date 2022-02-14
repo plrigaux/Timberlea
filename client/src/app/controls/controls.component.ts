@@ -1,4 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileDetails } from '../../../../server/src/common/interfaces';
 import { FileDetailsPlus, FileServerService } from '../file-server.service';
@@ -51,12 +52,12 @@ export class ControlsComponent implements OnInit {
 
   paste() {
     this.cutCopyPaste = false
-    if(this.copySelect) {
+    if (this.copySelect) {
       this.fileServerService.copyPaste(this.copySelect)
       this.copySelect = null
     }
 
-    if(this.cutSelect) {
+    if (this.cutSelect) {
       this.fileServerService.cutPaste(this.cutSelect)
       this.cutSelect = null
     }
@@ -64,20 +65,57 @@ export class ControlsComponent implements OnInit {
 
   info() {
     console.log('Info clicked');
-    const dialog = this._dialog.open(DialogDataExampleDialog, {
+    const dialog = this._dialog.open(DialogFileInfo, {
       width: '350px',
       // Can be closed only by clicking the close button
       disableClose: false,
       data: this.fileDetails
     });
   }
-}
 
+  editName() {
+    const dialog = this._dialog.open(DialogFileRename, {
+      width: '350px',
+      // Can be closed only by clicking the close button
+      disableClose: false,
+      data: this.fileDetails
+    });
+
+
+    dialog.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
+
+    });
+  }
+}
 
 @Component({
   selector: 'dialog-file-info',
   templateUrl: 'dialog-file-info.html',
 })
-export class DialogDataExampleDialog {
+export class DialogFileInfo {
   constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) { }
+}
+
+
+function forbiddenNameValidator(nameRe: RegExp): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const forbidden = nameRe.test(control.value);
+    return forbidden ? {forbiddenName: {value: control.value}} : null;
+  };
+}
+
+@Component({
+  selector: 'dialog-file-rename',
+  templateUrl: 'dialog-file-rename.html',
+})
+export class DialogFileRename {
+
+  newFileName: FormControl
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
+    this.newFileName = new FormControl(data.name, [Validators.required, forbiddenNameValidator(/\/\\\<\>\"?\:\*/)]);
+  }
+
+
 }
