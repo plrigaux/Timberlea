@@ -84,7 +84,8 @@ export class ControlsComponent implements OnInit {
 
     dialog.afterClosed().subscribe(result => {
       console.log('The dialog was closed', result);
-
+      
+      this.fileServerService.renameFile(this.fileDetails?.name, result)
     });
   }
 }
@@ -98,7 +99,7 @@ export class DialogFileInfo {
 }
 
 
-function forbiddenNameValidator(nameRe: RegExp): ValidatorFn {
+export function forbiddenCharValidator(nameRe: RegExp): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const forbidden = nameRe.test(control.value);
     return forbidden ? {forbiddenName: {value: control.value}} : null;
@@ -114,7 +115,7 @@ export class DialogFileRename {
   newFileName: FormControl
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
-    this.newFileName = new FormControl(data.name, [Validators.required, forbiddenNameValidator(/\/\\\<\>\"?\:\*/)]);
+    this.newFileName = new FormControl(data.name, [Validators.required, forbiddenCharValidator(/\/\\\<\>\"?\:\*/)]);
   }
 
 

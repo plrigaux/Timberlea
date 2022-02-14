@@ -19,7 +19,7 @@ export class FileServerService {
   private waiting = new Subject<boolean>()
   private deleteSub = new Subject<string>()
   private selectFileSub = new Subject<FileDetailsPlus | null>()
-  private modifSub = new Subject<MvFile_Response>()
+  private modifSubjet = new Subject<MvFile_Response>()
   private newFileSubjet = new Subject<FileDetails>()
 
   constructor(private http: HttpClient) {
@@ -47,14 +47,14 @@ export class FileServerService {
   }
 
   subscribeModif(obs: Partial<Observer<MvFile_Response>>): Subscription {
-    return this.modifSub.subscribe(obs)
+    return this.modifSubjet.subscribe(obs)
   }
 
   subscribeNewFileSubjet(obs: Partial<Observer<FileDetails>>): Subscription {
     return this.newFileSubjet.subscribe(obs)
   }
 
-  addNewFile(file : FileDetails): void {
+  addNewFile(file: FileDetails): void {
     this.newFileSubjet.next(file)
   }
 
@@ -129,7 +129,7 @@ export class FileServerService {
     }
   }
 
-  getRemoteDirectory() : string {
+  getRemoteDirectory(): string {
     return this.remoteDirectory
   }
 
@@ -161,7 +161,7 @@ export class FileServerService {
   }
 
   delete(fileName: string | null | undefined) {
-    if(!fileName) {
+    if (!fileName) {
       return;
     }
 
@@ -185,7 +185,7 @@ export class FileServerService {
       retry(2),
       catchError((e) => this.handleError(e as HttpErrorResponse))
     )
-    
+
     ob.subscribe(
       {
         next: (data: RemFile_Response) => {
@@ -210,6 +210,21 @@ export class FileServerService {
   }
 
 
+  renameFile(fileName: string | null | undefined, newFileName: string | null | undefined) {
+
+    if (!(fileName && newFileName)) {
+      return
+    }
+
+    let request: MvFile_Request = {
+      parent: this.remoteDirectory,
+      fileName: fileName,
+      newFileName: newFileName
+    }
+
+    this.move(request)
+  }
+
   cutPaste(cutSelect: FileDetailsPlus) {
     console.log(`CUT ${cutSelect.name} from ${cutSelect.directory} to ${this.remoteDirectory}`)
 
@@ -218,6 +233,10 @@ export class FileServerService {
       fileName: cutSelect.name,
       newParent: this.remoteDirectory
     }
+    this.move(request)
+  }
+
+  private move(request: MvFile_Request) {
 
     let ob = this.http.put<MvFile_Response>(this.serverUrl + endpoints.FS_MV, request).pipe(
       tap((data: MvFile_Response) => {
@@ -226,16 +245,15 @@ export class FileServerService {
       retry(2),
       catchError((e) => this.handleError(e as HttpErrorResponse))
     )
-    
+
     ob.subscribe(
       {
         next: (data: MvFile_Response) => {
-
-          this.modifSub.next(data)
+          this.modifSubjet.next(data)
         },
         error: e => {
           console.error(e)
-
+          this.modifSubjet.error(e)
         }
       })
   }
