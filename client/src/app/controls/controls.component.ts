@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileDetails } from '../../../../server/src/common/interfaces';
 import { FileDetailsPlus, FileServerService } from '../file-server.service';
@@ -108,9 +109,18 @@ export function forbiddenCharValidator(): ValidatorFn {
   };
 }
 
+
+
+export class DirtyErrorStateMatcher implements ErrorStateMatcher {
+    isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+        return !!(control && control.invalid && (control.dirty || control.touched));
+    }
+}
+
 @Component({
   selector: 'dialog-file-rename',
   templateUrl: 'dialog-file-rename.html',
+  providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher}]
 })
 export class DialogFileRename implements AfterViewInit {
 
@@ -119,8 +129,7 @@ export class DialogFileRename implements AfterViewInit {
   @ViewChild('newFileInput', { static: true }) newFileInput!: ElementRef;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
-    this.newFileName = new FormControl(data.name, [Validators.required, forbiddenCharValidator()]);
-
+    this.newFileName = new FormControl(data.name,  { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change'});
   }
 
 
