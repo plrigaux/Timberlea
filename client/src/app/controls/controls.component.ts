@@ -99,10 +99,12 @@ export class DialogFileInfo {
 }
 
 
-export function forbiddenCharValidator(nameRe: RegExp): ValidatorFn {
+export function forbiddenCharValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    const forbidden = nameRe.test(control.value);
-    return forbidden ? { forbiddenName: { value: control.value } } : null;
+    const forbidden = /[\/\\\<\>\"?\:\*]/.test(control.value);
+
+
+    return forbidden ? { forbiddenChar: { value: control.value } } : null;
   };
 }
 
@@ -117,7 +119,7 @@ export class DialogFileRename implements AfterViewInit {
   @ViewChild('newFileInput', { static: true }) newFileInput!: ElementRef;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
-    this.newFileName = new FormControl(data.name, [Validators.required, forbiddenCharValidator(/\/\\\<\>\"?\:\*/)]);
+    this.newFileName = new FormControl(data.name, [Validators.required, forbiddenCharValidator()]);
 
   }
 

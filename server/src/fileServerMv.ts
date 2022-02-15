@@ -54,7 +54,7 @@ fileServerMv.put(endpoints.ROOT, (req: Request, res: Response) => {
         resp.message = "OK"
         statusCode = HttpStatusCode.OK
     }).catch((error) => {
-        console.warn(error)
+        //console.warn(error)
         switch (error.code) {
             case FSErrorCode.ENOENT: //TODO check invalid Char
                 resp.message = `Directory doesn't exist`
