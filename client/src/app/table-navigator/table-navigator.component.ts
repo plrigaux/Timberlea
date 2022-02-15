@@ -83,6 +83,14 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
           this.updateDataSource2(remoteFiles);
         }
+
+        if(this.selectedRowIndex ==data.oldFileName ) {
+          this.selectedRowIndex = data.newFileName
+        }
+        
+        if(this.selectedRowIndex2 ==data.oldFileName ) {
+          this.selectedRowIndex2 = data.newFileName
+        }
       }
     }))
 
@@ -246,7 +254,6 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   selectedRowIndex: string | null = null;
   selectedRowIndex2: string | null = null;
-  onlongPressing = false
 
   onLongPressRow(row: FileDetails) {
     console.log("onLongPress", row)
@@ -255,19 +262,18 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   onClickRow(row: FileDetails) {
     console.log("onLongClick", row)
-    if (this.onlongPressing) {
-      this.selectedRowIndex = row.name
-      this.fileServerService.selectFile(row)
-    } else {
+    if (this.selectedRowIndex != row.name) {
       this.fileServerService.selectFile(null)
       this.selectedRowIndex = null
     }
-    this.onlongPressing = false
     this.selectedRowIndex2 = null
   }
 
-  onLongPressingRow(row: FileDetails) {
-    console.log("onLongPressing", row)
-    this.onlongPressing = true
+  onLongPressingRow(fileDetails: FileDetails) {
+    console.log("onLongPressing",fileDetails)
+    if (this.selectedRowIndex != fileDetails.name) { //to limit the number of calls
+      this.selectedRowIndex = fileDetails.name
+      this.fileServerService.selectFile(fileDetails)
+    }
   }
 }
