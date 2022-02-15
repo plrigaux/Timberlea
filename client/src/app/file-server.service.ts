@@ -242,7 +242,6 @@ export class FileServerService {
       tap((data: MvFile_Response) => {
         this.setRemoteDirectory(data)
       }),
-      retry(2),
       catchError((e) => this.handleError(e as HttpErrorResponse))
     )
 

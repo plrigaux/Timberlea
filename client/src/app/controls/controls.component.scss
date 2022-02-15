@@ -3,3 +3,30 @@
     text-align: left;
 
 }
+
+.mat-form-field-type-mat-native-select.mat-focused:not(.mat-form-field-invalid) .mat-form-field-infix::after{
+    color: green;
+  }
+
+  .mat-form-field-type-mat-native-select .mat-form-field-infix::after {
+    color: green;
+}
+
+::ng-deep .mat-focused .mat-form-field-label {
+    /*change color of label*/
+    color: green !important;
+   }
+  
+   ::ng-deep.mat-form-field-underline {
+    /*change color of underline*/
+    background-color: green !important;
+  } 
+  
+  ::ng-deep.mat-form-field-ripple {
+   /*change color of underline when focused*/
+   background-color: green !important;;
+  }
+
+  ::ng-deep.mat-input-element {
+    caret-color: rgb(255, 255, 255) !important;
+}

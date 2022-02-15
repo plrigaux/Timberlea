@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileDetails } from '../../../../server/src/common/interfaces';
@@ -84,7 +84,7 @@ export class ControlsComponent implements OnInit {
 
     dialog.afterClosed().subscribe(result => {
       console.log('The dialog was closed', result);
-      
+
       this.fileServerService.renameFile(this.fileDetails?.name, result)
     });
   }
@@ -102,7 +102,7 @@ export class DialogFileInfo {
 export function forbiddenCharValidator(nameRe: RegExp): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const forbidden = nameRe.test(control.value);
-    return forbidden ? {forbiddenName: {value: control.value}} : null;
+    return forbidden ? { forbiddenName: { value: control.value } } : null;
   };
 }
 
@@ -110,13 +110,32 @@ export function forbiddenCharValidator(nameRe: RegExp): ValidatorFn {
   selector: 'dialog-file-rename',
   templateUrl: 'dialog-file-rename.html',
 })
-export class DialogFileRename {
+export class DialogFileRename implements AfterViewInit {
 
   newFileName: FormControl
 
+  @ViewChild('newFileInput', { static: true }) newFileInput!: ElementRef;
+
   constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
     this.newFileName = new FormControl(data.name, [Validators.required, forbiddenCharValidator(/\/\\\<\>\"?\:\*/)]);
+
   }
 
+
+  ngAfterViewInit(): void {
+    console.log(this.newFileInput)
+
+
+    setTimeout(() => {
+
+      let fileName: string = this.newFileName.value
+
+      let lastPoint = fileName.lastIndexOf(".")
+      if (lastPoint > 0) {
+        this.newFileInput.nativeElement.setSelectionRange(0, lastPoint)
+      }
+      this.newFileInput.nativeElement.focus()
+    }, 0);
+  }
 
 }
