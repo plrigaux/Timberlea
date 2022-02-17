@@ -27,7 +27,7 @@ app.use(function (req : Request, res : Response, next : NextFunction) {
   next();
 });
 
-app.get('/', (req : Request, res : Response) => {
+app.get(endpoints.ROOT, (req : Request, res : Response) => {
   res.redirect('/client/index.html');
 });
 
