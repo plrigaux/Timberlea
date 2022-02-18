@@ -1,6 +1,11 @@
 {
   server: {
-    host: 'localhost',
+    host: "localhost",
     port: 3000
-  }
+  },
+  filePaths: [
+    { label: 'TEMP', env: 'TEMP' },
+    { label: 'HOME', env: 'HOME' },
+    { label: 'Storage', path: 'd:\\' }
+  ]
 }
