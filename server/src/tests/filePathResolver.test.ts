@@ -3,6 +3,8 @@ import Resolver from '../filePathResolver'
 import os from 'os'
 import path from 'path'
 
+const TEMP = "TEMP"
+const HOME = "HOME"
 
 describe('FileResolver', () => {
     test('init', () => {
@@ -11,6 +13,7 @@ describe('FileResolver', () => {
 
     test('Home Keys', () => {
         let home = Resolver.instance.root()
+        //console.log(home)
         expect(home.sort()).toEqual(["HOME", 'TEMP', 'Storage'].sort());
     });
 
@@ -87,5 +90,29 @@ describe('FileResolver', () => {
         expect(pathResolved).toEqual(path.join(os.tmpdir()))
     });
 
+})
 
+describe('Path to key Path', () => {
+    test('replaceWithKey a PATH - TEMP', () => {
+        const ext = "test"
+        let pathTest = path.join(os.tmpdir() , ext)
+        let pathReplaced = Resolver.instance.replaceWithKey(pathTest)
+        expect(pathReplaced).toEqual(path.join(TEMP, ext))
+    });
+
+    test('replaceWithKey a PATH - TEMP', () => {
+        const ext = "/test/"
+        let pathTest = path.join(os.tmpdir() , ext)
+        let pathReplaced = Resolver.instance.replaceWithKey(pathTest)
+        expect(pathReplaced).toEqual(path.join(TEMP, ext))
+        console.warn(pathReplaced)
+    });
+
+    test('replaceWithKey a PATH - HOME', () => {
+        const ext = "/test/"
+        let pathTest = path.join(os.homedir() , ext)
+        let pathReplaced = Resolver.instance.replaceWithKey(pathTest)
+        expect(pathReplaced).toEqual(path.join(HOME, ext))
+        console.warn(pathReplaced)
+    });
 })

@@ -1,6 +1,7 @@
 import config from 'config'
 import { env } from 'process';
 import path from 'path'
+import { Result } from 'express-validator';
 
 interface FilePathConfig {
     label: string
@@ -15,6 +16,8 @@ interface FilePath {
 
 class Resolver {
 
+    static get home(): string { return "" }
+
     private static _instance: Resolver;
 
     public static get instance(): Resolver {
@@ -22,7 +25,7 @@ class Resolver {
     }
 
     private filePaths = new Map<string, FilePath>()
-    private rootKeys : string[] 
+    private rootKeys: string[]
 
     private constructor() {
         const configFilePaths = config.get<FilePathConfig[]>('filePaths');
@@ -30,27 +33,29 @@ class Resolver {
 
 
         configFilePaths.forEach(fpc => {
-            let path
+            let keyPath
 
             if (fpc.env || fpc.path) {
                 if (fpc.env) {
-                    path = env[fpc.env]
+                    keyPath = env[fpc.env]
                 } else {
-                    path = fpc.path
+                    keyPath = fpc.path
                 }
             } else {
                 console.error("Bad Config - No path or env")
                 return
             }
 
-            if (!path) {
+            if (!keyPath) {
                 console.error("Bad Config - Path resolve error")
                 return
             }
 
+            keyPath = path.normalize(keyPath)
+
             let fp: FilePath = {
                 name: fpc.label,
-                path: path
+                path: keyPath
             }
 
             this.filePaths.set(fp.name, fp)
@@ -58,7 +63,7 @@ class Resolver {
 
         console.log(this.filePaths)
 
-        this.rootKeys =  [...this.filePaths.keys()]
+        this.rootKeys = [...this.filePaths.keys()]
     }
 
     getPath(key: string): string | undefined {
@@ -73,14 +78,14 @@ class Resolver {
 
         if (pathSplited.length == 0) {
             console.error("Invalid");
-            return null
+            return Resolver.home
         }
 
         let key = pathSplited[0]
 
         let newPathprfix = this.getPath(key)
         if (!newPathprfix) {
-            console.error(`Invalid key "${key}"`);
+            console.warn(`Invalid key "${key}"`);
             return null
         }
 
@@ -90,6 +95,23 @@ class Resolver {
     root(): string[] {
         return this.rootKeys
     }
+
+    replaceWithKey(filePath: string): string | null {
+        let result = null
+        filePath = path.normalize(filePath)
+
+        for (const [key, value] of this.filePaths.entries()) {
+
+            let fp = value.path
+
+            if (filePath.startsWith(fp)) {
+                result = path.join(key, filePath.substring(fp.length))
+                break
+            }
+        }
+        return result
+    }
+
 }
 
 
