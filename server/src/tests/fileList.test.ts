@@ -6,13 +6,13 @@ import request from 'supertest'
 import { app } from '../app'
 import { testUtils as tu } from './testUtils'
 import { FileList_Response, FileType } from '../common/interfaces'
-import { Resolver } from '../filePathResolver'
+import { Resolver, ResolverPath } from '../filePathResolver'
 
 const testDirMain = "fileServer"
 const testDir = "file list"
 const dir = path.join(os.tmpdir(), testDirMain, testDir)
-
-const dirToSend = path.join("TEMP", testDirMain, testDir)
+const TEMP = "TEMP"
+const dirToSend = Resolver.instance.createResolverPath(TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     console.log(dir);
@@ -66,9 +66,9 @@ describe('File list - App root', () => {
         expect(dataresp.error).toBeTruthy();
     });
 
-    test.skip('Get file list - Root', async () => {
+    test('Get file list - TEMP', async () => {
 
-        let remoteDirectory = encodeURIComponent("c:/");
+        let remoteDirectory = encodeURIComponent(TEMP);
         const url = path.join(endpoints.FS_LIST, remoteDirectory)
         const resp = await request(app)
             .get(url)
@@ -89,7 +89,8 @@ describe('File list - App root', () => {
         let new_Dir = "new_dir"
         tu.createDir(new_Dir, dir)
 
-        let remoteDirectory = encodeURIComponent(dirToSend);
+        let remoteDirectory = encodeURIComponent(dirToSend.getPathNetwork());
+        console.warn(remoteDirectory)
         const url = path.join(endpoints.FS_LIST, remoteDirectory)
         const resp = await request(app)
             .get(url)

@@ -17,18 +17,28 @@ interface FilePath {
 }
 
 export class ResolverPath {
-    key: string
-    prefix: string
-    rest: string[]
+    private key: string
+    private prefix: string
+    private dirFiles: string[]
 
     constructor(key: string, prefix: string, ...rest: string[]) {
         this.key = key
         this.prefix = prefix
-        this.rest = rest
+        this.dirFiles = rest
     }
 
-    getFullPath(): string {
-        return path.join(this.prefix, ...this.rest)
+    getPathServer(): string {
+        return path.join(this.prefix, ...this.dirFiles)
+    }
+
+    getPathNetwork(): string {
+        let pathNetwork = path.join(this.key, ...this.dirFiles)
+        pathNetwork = pathNetwork.replaceAll("\\", "/")
+        return pathNetwork == "." ? HOME : pathNetwork
+    }
+
+    add(...extention: string[]) {
+        return new ResolverPath(this.key, this.prefix, ...this.dirFiles, ...extention)
     }
 }
 
@@ -88,11 +98,17 @@ export class Resolver {
         return this.filePaths.get(key)?.path
     }
 
-    resolve(pathToResolve: string | null | undefined): ResolverPath | null {
-        
-        if (!pathToResolve) {
+    resolve(pathToResolve: string | null | undefined, ...dirs : string[]): ResolverPath | null {
+
+        if (pathToResolve == null) {
+            console.warn("=== null")
             return HOME_ResolverPath
-        }
+        } else if (pathToResolve === "") {
+            //TO handle the case HOME/<dir/file>
+            console.warn("=== EMPTY")
+            pathToResolve = dirs[0]
+            dirs = []
+        } 
 
         //normalisation should happen before resolution to avoid security issues
         pathToResolve = path.normalize(pathToResolve);
@@ -106,15 +122,23 @@ export class Resolver {
 
         let key = pathSplited[0]
 
-        let newPathprfix = this.getPath(key)
-        if (!newPathprfix) {
-            console.warn(`Invalid key "${key}"`);
+        let newPathprefix = this.getKeyPath(key)
+        if (!newPathprefix) {
             return null
         }
 
-        let resolverPath = new ResolverPath(key, newPathprfix, ...pathSplited.slice(1))
+        let resolverPath = new ResolverPath(key, newPathprefix, ...pathSplited.slice(1), ...dirs)
 
         return resolverPath
+    }
+
+    private getKeyPath(key: string): string | null {
+        let newPathprefix = this.getPath(key)
+        if (!newPathprefix) {
+            console.warn(`Invalid key "${key}"`);
+            return null
+        }
+        return newPathprefix
     }
 
     root(): string[] {
@@ -135,6 +159,15 @@ export class Resolver {
             }
         }
         return result
+    }
+
+    createResolverPath(key: string, ...dirs: string[]): ResolverPath | null {
+        let newPathprefix = this.getKeyPath(key)
+        if (!newPathprefix) {
+            return null
+        }
+
+        return new ResolverPath(key, newPathprefix, ...dirs)
     }
 
 }

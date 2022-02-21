@@ -41,6 +41,12 @@ export class AppComponent implements OnInit {
         this.remoteDirectory = remoteDirectory
         this.pathChip = []
 
+        let pc: PathChip = {
+          name: "HOME",
+          path: ""
+        }
+        this.pathChip.push(pc)
+        
         let path = ""
         remoteDirectory.split(this.re).forEach(s => {
           if (path.length > 0) {

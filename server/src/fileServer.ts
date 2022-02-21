@@ -46,7 +46,7 @@ function returnList(folder: ResolverPath | null): Promise<Bob> {
         return ret;
     } else if (folder == HOME_ResolverPath) {
         let resp: FileList_Response = {
-            parent: "",
+            parent: HOME_ResolverPath.getPathNetwork(),
             error: false,
             message: "HOME",
             files: [],
@@ -70,7 +70,7 @@ function returnList(folder: ResolverPath | null): Promise<Bob> {
         return ret;
     }
 
-    return fs.promises.readdir(folder.getFullPath(), { withFileTypes: true })
+    return fs.promises.readdir(folder.getPathServer(), { withFileTypes: true })
         .then((files: Dirent[]) => {
             return files.map((file: Dirent) => {
                 let fd: FileDetails = {
@@ -84,7 +84,7 @@ function returnList(folder: ResolverPath | null): Promise<Bob> {
             let promiseList: (Promise<void | FileDetails> | FileDetails)[] = []
             fileDetails.forEach((file: FileDetails) => {
 
-                let prom = fs.promises.stat(path.join(folder.getFullPath(), file.name))
+                let prom = fs.promises.stat(path.join(folder.getPathServer(), file.name))
                     .then(stats => {
                         if (file.type === FileType.File) {
                             file.size = stats.size
@@ -100,7 +100,7 @@ function returnList(folder: ResolverPath | null): Promise<Bob> {
             return Promise.all(promiseList).then(_files => {
 
                 let resp: FileList_Response = {
-                    parent: folder.getFullPath(),
+                    parent: folder.getPathNetwork(),
                     files: [],
                     error: false,
                     message: 'Ok'
@@ -120,21 +120,21 @@ function returnList(folder: ResolverPath | null): Promise<Bob> {
         }).catch((error) => {
             console.log(error)
             let resp: FileList_Response = {
-                parent: folder.getFullPath(),
+                parent: folder.getPathServer(),
                 error: true,
                 message: ''
             }
             let statusCode = HttpStatusCode.INTERNAL_SERVER
             switch (error.code) {
-                case "ENOENT":
+                case FSErrorCode.ENOENT:
                     resp.message = `Directory doesn't exist`
                     statusCode = HttpStatusCode.NOT_FOUND;
                     break;
-                case "EACCES":
+                case FSErrorCode.EACCES:
                     resp.message = `Directory is not accessible`
                     statusCode = HttpStatusCode.FORBIDDEN
                     break;
-                case "ENOTDIR":
+                case FSErrorCode.ENOTDIR:
                     resp.message = `Not a directory`
                     statusCode = HttpStatusCode.CONFLICT
                     break;
@@ -211,28 +211,47 @@ fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
         })
 })
 
-function directoryValid(dirpath: string): Promise<Bob> {
+
+class FooError extends Error {
+    code: string = ""
+    constructor(msg: string, code: string) {
+        super(msg);
+
+        // Set the prototype explicitly.
+        Object.setPrototypeOf(this, FooError.prototype);
+        this.code = code
+    }
+
+}
+
+function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
 
     let resp: FileList_Response = {
-        parent: dirpath,
+        parent: dirpath?.getPathNetwork() || "",
         error: true,
         message: ''
     }
     let statusCode = 0
 
-    return fs.promises.stat(dirpath)
-        .then(stat => {
+    return Promise.resolve(dirpath)
+        .then(dp => {
+            if (!dp) {
+                throw new FooError('path not resoled', FSErrorCode.ENOENT)
+            }
+
+            return fs.promises.stat(dp.getPathServer())
+        })
+        .then((stat: fs.Stats) => {
             const isDirectory = stat.isDirectory()
             if (isDirectory) {
                 resp.error = false
-                resp.parent = dirpath
                 statusCode = HttpStatusCode.OK
             } else {
                 resp.error = true
-                resp.parent = dirpath
                 resp.message = `File is not a directory`
                 statusCode = HttpStatusCode.CONFLICT
             }
+            //resp.parent = dirpath.getPathNetwork()
             return { statusCode, resp }
         }).catch((error) => {
             switch (error.code) {
@@ -276,13 +295,14 @@ fileServer.put(endpoints.CD,
             return
         }
 
-        let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
-        newPath = path.resolve(newPath);
+        //let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
+        //newPath = path.resolve(newPath);
+
+        let newPath = Resolver.instance.resolve(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
 
         directoryValid(newPath).then((valid: Bob) => {
             if (newRemoteDirectory.returnList && !valid.resp.error) {
-                let rp = Resolver.instance.resolve(newPath)
-                return returnList(rp)
+                return returnList(newPath)
             } else {
                 return valid
             }

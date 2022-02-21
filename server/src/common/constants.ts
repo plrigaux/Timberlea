@@ -48,10 +48,10 @@ export enum HttpStatusCode {
     INTERNAL_SERVER = 500,
 }
 
-
 export enum FSErrorCode {
     EACCES = "EACCES",
     ENOENT = "ENOENT",
     EEXIST = "EEXIST",
-    EPERM = "EPERM"
+    EPERM = "EPERM",
+    ENOTDIR = "ENOTDIR"
 }

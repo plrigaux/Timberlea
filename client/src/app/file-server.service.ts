@@ -12,7 +12,16 @@ export class FileServerService {
 
 
   private serverUrl: string
-  private remoteDirectory = ""
+  private rd = ""
+
+  get remoteDirectory() {
+    return this.rd
+  }
+
+  private set remoteDirectory(rd : string) {
+    console.warn("rd", rd)
+    this.rd = rd
+  }
 
   private newList = new Subject<FileDetails[]>()
   private newRemoteDirectory = new Subject<string>()
@@ -78,7 +87,7 @@ export class FileServerService {
       returnList: returnList
     }
 
-    console.log("path: " + newRemoteDirectory)
+    console.log("path:", newRemoteDirectory)
 
     this.http.put<ChangeDir_Response>(this.serverUrl + endpoints.FS_CD, newRemoteDirectory).pipe(
       tap((data: ChangeDir_Response) => {
