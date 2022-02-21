@@ -1,7 +1,9 @@
 import config from 'config'
 import { env } from 'process';
 import path from 'path'
-import { Result } from 'express-validator';
+
+
+export const HOME = ""
 
 interface FilePathConfig {
     label: string
@@ -14,9 +16,25 @@ interface FilePath {
     path: string
 }
 
-class Resolver {
+export class ResolverPath {
+    key: string
+    prefix: string
+    rest: string[]
 
-    static get home(): string { return "" }
+    constructor(key: string, prefix: string, ...rest: string[]) {
+        this.key = key
+        this.prefix = prefix
+        this.rest = rest
+    }
+
+    getFullPath(): string {
+        return path.join(this.prefix, ...this.rest)
+    }
+}
+
+export const HOME_ResolverPath = new ResolverPath("", "")
+
+export class Resolver {
 
     private static _instance: Resolver;
 
@@ -70,7 +88,12 @@ class Resolver {
         return this.filePaths.get(key)?.path
     }
 
-    resolve(pathToResolve: string): string | null {
+    resolve(pathToResolve: string | null | undefined): ResolverPath | null {
+        
+        if (!pathToResolve) {
+            return HOME_ResolverPath
+        }
+
         //normalisation should happen before resolution to avoid security issues
         pathToResolve = path.normalize(pathToResolve);
 
@@ -78,7 +101,7 @@ class Resolver {
 
         if (pathSplited.length == 0) {
             console.error("Invalid");
-            return Resolver.home
+            return HOME_ResolverPath
         }
 
         let key = pathSplited[0]
@@ -89,7 +112,9 @@ class Resolver {
             return null
         }
 
-        return path.join(newPathprfix, ...pathSplited.slice(1))
+        let resolverPath = new ResolverPath(key, newPathprfix, ...pathSplited.slice(1))
+
+        return resolverPath
     }
 
     root(): string[] {
@@ -113,6 +138,3 @@ class Resolver {
     }
 
 }
-
-
-export default Resolver;

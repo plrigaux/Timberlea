@@ -6,10 +6,13 @@ import request from 'supertest'
 import { app } from '../app'
 import { testUtils as tu } from './testUtils'
 import { FileList_Response, FileType } from '../common/interfaces'
+import { Resolver } from '../filePathResolver'
 
 const testDirMain = "fileServer"
 const testDir = "file list"
 const dir = path.join(os.tmpdir(), testDirMain, testDir)
+
+const dirToSend = path.join("TEMP", testDirMain, testDir)
 
 beforeAll(() => {
     console.log(dir);
@@ -63,7 +66,7 @@ describe('File list - App root', () => {
         expect(dataresp.error).toBeTruthy();
     });
 
-    test('Get file list - Root', async () => {
+    test.skip('Get file list - Root', async () => {
 
         let remoteDirectory = encodeURIComponent("c:/");
         const url = path.join(endpoints.FS_LIST, remoteDirectory)
@@ -86,7 +89,7 @@ describe('File list - App root', () => {
         let new_Dir = "new_dir"
         tu.createDir(new_Dir, dir)
 
-        let remoteDirectory = encodeURIComponent(dir);
+        let remoteDirectory = encodeURIComponent(dirToSend);
         const url = path.join(endpoints.FS_LIST, remoteDirectory)
         const resp = await request(app)
             .get(url)
@@ -111,18 +114,21 @@ describe('File list - App root', () => {
         })
     });
 
-
-
-
-
-
     test('Get file list - from a file', async () => {
 
         let new_File = "tomato.txt"
 
-        let p = tu.createFile(new_File, dir, "File data, file data file data")
+        let p: string = tu.createFile(new_File, dir, "File data, file data file data")
 
-        let remoteDirectory = encodeURIComponent(p);
+        let p1 = Resolver.instance.replaceWithKey(p)
+
+        expect(p1).not.toBeNull()
+
+        if (!p1) {
+            return
+        }
+
+        let remoteDirectory = encodeURIComponent(p1);
         const url = path.join(endpoints.FS_LIST, remoteDirectory)
         const resp = await request(app)
             .get(url)

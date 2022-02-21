@@ -1,5 +1,5 @@
 
-import Resolver from '../filePathResolver'
+import { Resolver } from '../filePathResolver'
 import os from 'os'
 import path from 'path'
 
@@ -39,7 +39,7 @@ describe('FileResolver', () => {
         const ext = "some_dir/and other dir"
         let pathTest = "TEMP/" + ext
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved).toEqual(path.join(os.tmpdir(), ext))
+        expect(pathResolved?.getFullPath()).toEqual(path.join(os.tmpdir(), ext))
     });
 
 
@@ -59,19 +59,19 @@ describe('FileResolver', () => {
     test('resolve a PATH - Key only', () => {
         let pathTest = "TEMP"
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved).toEqual(path.join(os.tmpdir()))
+        expect(pathResolved?.getFullPath()).toEqual(path.join(os.tmpdir()))
     });
 
     test('resolve a PATH - Key only /', () => {
         let pathTest = "TEMP/"
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved).toEqual(path.join(os.tmpdir()))
+        expect(pathResolved?.getFullPath()).toEqual(path.join(os.tmpdir()))
     });
 
     test('resolve a PATH - Key only \\', () => {
         let pathTest = "TEMP\\"
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved).toEqual(path.join(os.tmpdir()))
+        expect(pathResolved?.getFullPath()).toEqual(path.join(os.tmpdir()))
     });
 
 
@@ -87,7 +87,7 @@ describe('FileResolver', () => {
         const ext = "test/.."
         let pathTest = "TEMP/" + ext
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved).toEqual(path.join(os.tmpdir()))
+        expect(pathResolved?.getFullPath()).toEqual(path.join(os.tmpdir()))
     });
 
 })
