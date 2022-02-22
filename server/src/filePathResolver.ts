@@ -47,7 +47,7 @@ export class ResolverPath {
         return pathNetwork == "." ? HOME : pathNetwork
     }
 
-    add(...extention: string[]) {
+    add(...extention: string[]) : ResolverPath{
 
         if (isRoot(this.key)) {
             if (extention.length == 0) {
@@ -57,7 +57,8 @@ export class ResolverPath {
             let key = extention[0]
             extention = extention.slice(1)
 
-            return Resolver.instance.createResolverPath(key, ...extention)
+            let newPath = Resolver.instance.createResolverPath(key, ...extention)
+            return newPath ? newPath : HOME_ResolverPath
         }
 
         return new ResolverPath(this.key, this.prefix, ...this.dirFiles, ...extention)

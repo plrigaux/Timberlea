@@ -48,10 +48,15 @@ export enum HttpStatusCode {
     INTERNAL_SERVER = 500,
 }
 
+/**
+ * This are error codes
+ */
 export enum FSErrorCode {
     EACCES = "EACCES",
-    ENOENT = "ENOENT",
+    /** No such file or directory */
+    ENOENT = "ENOENT", 
     EEXIST = "EEXIST",
     EPERM = "EPERM",
-    ENOTDIR = "ENOTDIR"
+    ENOTDIR = "ENOTDIR", //** Not directoro */
+    EINVAL = "EINVAL"
 }

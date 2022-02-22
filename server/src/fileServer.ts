@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import fs, { Dirent } from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
+import { FileServerError } from './common/fileServerCommon';
 import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetail_Response, FileList_Response, FileType, FS_Response } from './common/interfaces';
 import { HOME, HOME_ResolverPath, Resolver, ResolverPath } from './filePathResolver';
 
@@ -212,17 +213,7 @@ fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
 })
 
 
-class FooError extends Error {
-    code: string = ""
-    constructor(msg: string, code: string) {
-        super(msg);
 
-        // Set the prototype explicitly.
-        Object.setPrototypeOf(this, FooError.prototype);
-        this.code = code
-    }
-
-}
 
 function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
 
@@ -236,7 +227,7 @@ function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
     return Promise.resolve(dirpath)
         .then(dp => {
             if (!dp) {
-                throw new FooError('path not resoled', FSErrorCode.ENOENT)
+                throw new FileServerError('path not resoled', FSErrorCode.ENOENT)
             }
 
             return fs.promises.stat(dp.getPathServer())
