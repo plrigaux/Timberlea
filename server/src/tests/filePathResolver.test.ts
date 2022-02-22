@@ -1,5 +1,5 @@
 
-import { Resolver } from '../filePathResolver'
+import { HOME_ResolverPath, Resolver } from '../filePathResolver'
 import os from 'os'
 import path from 'path'
 
@@ -51,10 +51,7 @@ describe('FileResolver', () => {
         expect(pathResolved).toBeNull()
     });
 
-    test('resolve a PATH  empty string', () => {
-        let pathResolved = Resolver.instance.resolve("")
-        expect(pathResolved).toBeNull()
-    });
+
 
     test('resolve a PATH - Key only', () => {
         let pathTest = "TEMP"
@@ -115,4 +112,22 @@ describe('Path to key Path', () => {
         expect(pathReplaced).toEqual(path.join(HOME, ext))
         console.warn(pathReplaced)
     });
+})
+
+
+describe('Around Home Tests', () => {
+
+    test('resolve a PATH  empty string', () => {
+        let pathResolved = Resolver.instance.resolve("")
+        expect(pathResolved).toEqual(HOME_ResolverPath)
+    });
+
+    test('ROOT', () => {
+
+        let rPath = Resolver.instance.createResolverPath("")
+
+        expect(rPath).toEqual(HOME_ResolverPath)
+    });
+
+   
 })

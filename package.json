@@ -9,7 +9,8 @@
     "build" : "npm run build_client && npm run copyClientFiles",
     "server": "npm --prefix ./server/ run serve",
     "serve": "concurrently \"npm:client\" \"npm:server\"",
-    "postinstall": "(cd server && npm install); (cd client && npm install)"
+    "postinstall": "(cd server && npm install); (cd client && npm install)",
+    "serverTest": "npm --prefix ./server/ run test -- filePathResolver"
   },
   "private": true,
   "dependencies": {
