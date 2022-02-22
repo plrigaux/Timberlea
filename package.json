@@ -10,7 +10,7 @@
     "server": "npm --prefix ./server/ run serve",
     "serve": "concurrently \"npm:client\" \"npm:server\"",
     "postinstall": "(cd server && npm install); (cd client && npm install)",
-    "serverTest": "npm --prefix ./server/ run test -- filePathResolver"
+    "serverTest": "npm --prefix ./server/ run test -- uploadFile"
   },
   "private": true,
   "dependencies": {

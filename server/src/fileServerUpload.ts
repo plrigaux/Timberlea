@@ -4,6 +4,7 @@ import fs from 'fs';
 import multer from 'multer';
 import { FileUpload_Response } from './common/interfaces';
 import { endpoints, fileServerErrors, FSErrorCode, HttpStatusCode, uploadFile } from './common/constants';
+import { Resolver } from './filePathResolver';
 
 export const fileServerUpload = express.Router()
 
@@ -24,8 +25,12 @@ const storage = multer.diskStorage({
                 resolve(destinationFolder)
             }
         }).then((destinationFolder: string) => {
-            cbDestinationFolder = destinationFolder
-            return fs.promises.stat(destinationFolder)
+            let df = Resolver.instance.resolve(destinationFolder)
+            if (!df) {
+                throw new Error(fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED)
+            }
+            cbDestinationFolder = df.getPathServer()
+            return fs.promises.stat(cbDestinationFolder)
         }).then(stat => {
             if (!stat.isDirectory()) {
                 let newError = new Error(`Not a directory`)

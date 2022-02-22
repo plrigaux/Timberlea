@@ -123,7 +123,14 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private updateDataSource(filelist: FileDetails[]) {
-    let remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
+
+    let remoteFiles : FileDetails[]
+    if (this.fileServerService.getRemoteDirectory() != "") {
+       remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
+    } else {
+       remoteFiles = filelist
+    }
+    
     this.updateDataSource2(remoteFiles);
   }
 

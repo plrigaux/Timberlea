@@ -3,6 +3,9 @@ import fs, { RmDirOptions, RmOptions } from 'fs'
 import path from 'path'
 
 export namespace testUtils {
+
+    export const TEMP = "TEMP"
+
     export function createFile(fileName: string, parentDir: string, filecontent: string) : string {
         let p = path.join(parentDir, fileName)
         fs.writeFileSync(p, filecontent)

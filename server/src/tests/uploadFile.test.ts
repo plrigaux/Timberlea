@@ -5,11 +5,13 @@ import request from 'supertest'
 import { app } from '../app'
 import { endpoints, fileServerErrors, HttpStatusCode, uploadFile } from '../common/constants'
 import { FileUpload_Response } from '../common/interfaces'
+import { Resolver, ResolverPath } from '../filePathResolver'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "upload file dir"
 const uploadDirectory = path.join(os.tmpdir(), testDirMain, testDir)
+const uploadDirectoryRes = Resolver.instance.createResolverPath(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     tu.createDir(uploadDirectory)
@@ -22,7 +24,7 @@ afterAll(() => {
 describe('Upload file', () => {
 
     test('Upload single file', async () => {
-        
+
         const file = `${__dirname}/datafiles/agile.png`
 
         const fileName = path.parse(file).name
@@ -44,20 +46,20 @@ describe('Upload file', () => {
         //console.log('body', resp.body)
     });
 
-    test('Upload single file - Already exists', async () => {
-        
+    test.only('Upload single file - Already exists', async () => {
+
         const file = `${__dirname}/datafiles/agile.png`
         console.log(file)
         expect(fs.existsSync(file)).toBeTruthy()
 
         const fileName = "bob"
 
-        tu.createFile(`${fileName}${path.parse(file).ext}`, uploadDirectory, "File data, file data file data")
+        tu.createFile(`${fileName}${path.parse(file).ext}`, uploadDirectoryRes.getPathServer(), "File data, file data file data")
 
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, uploadDirectory)
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.getPathNetwork())
             .attach(fileName, file)
             .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
@@ -71,7 +73,7 @@ describe('Upload file', () => {
     });
 
     test('Upload single file - Destination folder doesn\'t exist', async () => {
-        
+
         const file = `${__dirname}/datafiles/agile.png`
         console.log(file)
         expect(fs.existsSync(file)).toBeTruthy()
@@ -95,14 +97,14 @@ describe('Upload file', () => {
     });
 
     test('Upload single file - Destination folder not a directory', async () => {
-        
+
         const file = `${__dirname}/datafiles/agile.png`
         console.log(file)
         expect(fs.existsSync(file)).toBeTruthy()
 
         tu.createFile(`baba`, uploadDirectory, "File data, file data file data")
-        
-        
+
+
         const fileName = path.parse(file).name
 
         const resp = await request(app)
@@ -122,7 +124,7 @@ describe('Upload file', () => {
     });
 
     test('Upload multiple files', async () => {
-        
+
         const file1 = `${__dirname}/datafiles/agile.png`
         const file2 = `${__dirname}/datafiles/waterfall.png`
 
@@ -159,7 +161,7 @@ describe('Upload file', () => {
         expect(fs.existsSync(path1)).toBeTruthy()
         expect(fs.existsSync(path2)).toBeTruthy()
 
-        
+
         console.log('body', resp.body)
     });
 })

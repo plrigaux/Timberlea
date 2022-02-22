@@ -154,5 +154,12 @@ describe('Around Home Tests', () => {
         expect(rPath).toEqual(rPath2)
     });
 
+    test('Back to Root', () => {
+
+        let rPath = Resolver.instance.createResolverPath(TEMP, "..")
+        let rPath2 = HOME_ResolverPath
+        
+        expect(rPath).toEqual(rPath2)
+    });
    
 })

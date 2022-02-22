@@ -1,18 +1,18 @@
+import fs, { RmOptions } from 'fs'
 import os from 'os'
-import fs, { RmDirOptions, RmOptions } from 'fs'
 import path from 'path'
-import { endpoints, HttpStatusCode } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { testUtils as tu } from './testUtils'
+import { endpoints, HttpStatusCode } from '../common/constants'
 import { FileList_Response, FileType } from '../common/interfaces'
 import { Resolver, ResolverPath } from '../filePathResolver'
+import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "file list"
 const dir = path.join(os.tmpdir(), testDirMain, testDir)
-const TEMP = "TEMP"
-const dirToSend = Resolver.instance.createResolverPath(TEMP, testDirMain, testDir) as ResolverPath
+
+const dirToSend = Resolver.instance.createResolverPath(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     console.log(dir);
@@ -68,7 +68,7 @@ describe('File list - App root', () => {
 
     test('Get file list - TEMP', async () => {
 
-        let remoteDirectory = encodeURIComponent(TEMP);
+        let remoteDirectory = encodeURIComponent(tu.TEMP);
         const url = path.join(endpoints.FS_LIST, remoteDirectory)
         const resp = await request(app)
             .get(url)
@@ -102,7 +102,7 @@ describe('File list - App root', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.files?.length).toEqual(4)
-        expect(dataresp.parent).toEqual(dir)
+        expect(dataresp.parent).toEqual(dirToSend.getPathNetwork())
 
         dataresp.files?.forEach(a => {
             if (a.name == new_Dir) {

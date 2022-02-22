@@ -56,7 +56,7 @@ export class ResolverPath {
 
             let key = extention[0]
             extention = extention.slice(1)
-           
+
             return Resolver.instance.createResolverPath(key, ...extention)
         }
 
@@ -123,8 +123,7 @@ export class Resolver {
     resolve(pathToResolve: string | null | undefined, ...dirs: string[]): ResolverPath | null {
 
         if (pathToResolve === null || pathToResolve === undefined) {
-            console.warn("=== null")
-
+            return HOME_ResolverPath
         } else if (pathToResolve === "") {
             //TO handle the case HOME/<dir/file>
             console.warn("=== EMPTY")
@@ -137,7 +136,7 @@ export class Resolver {
         }
 
         //normalisation should happen before resolution to avoid security issues
-        pathToResolve = path.normalize(pathToResolve as string);
+        pathToResolve = path.normalize(pathToResolve);
 
         let pathSplited = pathToResolve.split(/[\/\\]/)
 
@@ -198,6 +197,14 @@ export class Resolver {
             if (dirs.length != 0) {
                 key = dirs[0]
                 dirs = dirs.slice(1)
+            }
+        }
+
+        if (dirs.length != 0) {
+            if (dirs[0] == "..") {
+                key = HOME
+                dirs = dirs.slice(1)
+                return this.createResolverPath(key, ...dirs)
             }
         }
 
