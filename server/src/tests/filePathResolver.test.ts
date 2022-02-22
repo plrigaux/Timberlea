@@ -4,7 +4,8 @@ import os from 'os'
 import path from 'path'
 
 const TEMP = "TEMP"
-const HOME = "HOME"
+const HOME_DIR = "HOME"
+const ROOT = ""
 
 describe('FileResolver', () => {
     test('init', () => {
@@ -109,7 +110,7 @@ describe('Path to key Path', () => {
         const ext = "/test/"
         let pathTest = path.join(os.homedir() , ext)
         let pathReplaced = Resolver.instance.replaceWithKey(pathTest)
-        expect(pathReplaced).toEqual(path.join(HOME, ext))
+        expect(pathReplaced).toEqual(path.join(HOME_DIR, ext))
         console.warn(pathReplaced)
     });
 })
@@ -127,6 +128,30 @@ describe('Around Home Tests', () => {
         let rPath = Resolver.instance.createResolverPath("")
 
         expect(rPath).toEqual(HOME_ResolverPath)
+    });
+
+    test('ROOT 2', () => {
+
+        let rPath = Resolver.instance.createResolverPath("/")
+
+        expect(rPath).toEqual(HOME_ResolverPath)
+    });
+
+
+    test('Resolve TEMP', () => {
+
+        let rPath = Resolver.instance.createResolverPath(ROOT, TEMP)
+        let rPath2 = HOME_ResolverPath.add(TEMP)
+
+        expect(rPath).toEqual(rPath2)
+    });
+
+    test('Resolve TEMP 2', () => {
+
+        let rPath = Resolver.instance.createResolverPath(ROOT, TEMP)
+        let rPath2 = Resolver.instance.createResolverPath(TEMP)
+        
+        expect(rPath).toEqual(rPath2)
     });
 
    

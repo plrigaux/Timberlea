@@ -16,15 +16,25 @@ interface FilePath {
     path: string
 }
 
+function isRoot(key: string): boolean {
+    return key === "" || key === "/"
+}
+
 export class ResolverPath {
     private key: string
     private prefix: string
     private dirFiles: string[]
 
     constructor(key: string, prefix: string, ...rest: string[]) {
-        this.key = key
-        this.prefix = prefix
-        this.dirFiles = rest
+        if (isRoot(key)) {
+            this.key = HOME
+            this.prefix = HOME
+            this.dirFiles = []
+        } else {
+            this.key = key
+            this.prefix = prefix
+            this.dirFiles = rest
+        }
     }
 
     getPathServer(): string {
@@ -38,6 +48,18 @@ export class ResolverPath {
     }
 
     add(...extention: string[]) {
+
+        if (isRoot(this.key)) {
+            if (extention.length == 0) {
+                return HOME_ResolverPath
+            }
+
+            let key = extention[0]
+            extention = extention.slice(1)
+           
+            return Resolver.instance.createResolverPath(key, ...extention)
+        }
+
         return new ResolverPath(this.key, this.prefix, ...this.dirFiles, ...extention)
     }
 }
@@ -136,14 +158,12 @@ export class Resolver {
         return resolverPath
     }
 
-    private isRoot(key: string): boolean {
-        return key === ""
-    }
+
 
     private getKeyPath(key: string): string | null {
         let newPathprefix = this.getPath(key)
         if (!newPathprefix) {
-            if (this.isRoot(key)) {
+            if (isRoot(key)) {
                 return ""
             }
             console.warn(`Invalid key "${key}"`);
@@ -173,6 +193,14 @@ export class Resolver {
     }
 
     createResolverPath(key: string, ...dirs: string[]): ResolverPath | null {
+
+        if (isRoot(key)) {
+            if (dirs.length != 0) {
+                key = dirs[0]
+                dirs = dirs.slice(1)
+            }
+        }
+
         let newPathprefix = this.getKeyPath(key)
         if (newPathprefix === null) {
             return null
