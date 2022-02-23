@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import fs, { Dirent } from 'fs';
 import path from 'path';
-import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
+import { endpoints, fileServerErrors, FSErrorCode, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetail_Response, FileList_Response, FileType, FS_Response } from './common/interfaces';
 import { HOME, HOME_ResolverPath, Resolver, ResolverPath } from './filePathResolver';
@@ -128,20 +128,20 @@ function returnList(folder: ResolverPath | null): Promise<Bob> {
             let statusCode = HttpStatusCode.INTERNAL_SERVER
             switch (error.code) {
                 case FSErrorCode.ENOENT:
-                    resp.message = `Directory doesn't exist`
+                    resp.message = fileServerErrors.DESTINATION_FOLDER_DOESNT_EXIST
                     statusCode = HttpStatusCode.NOT_FOUND;
                     break;
                 case FSErrorCode.EACCES:
-                    resp.message = `Directory is not accessible`
+                    resp.message = fileServerErrors.DESTINATION_FOLDER_NOT_ACCESSIBLE
                     statusCode = HttpStatusCode.FORBIDDEN
                     break;
                 case FSErrorCode.ENOTDIR:
-                    resp.message = `Not a directory`
+                    resp.message = fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY
                     statusCode = HttpStatusCode.CONFLICT
                     break;
                 default:
                     console.error(error);
-                    resp.message = `Unknown error`
+                    resp.message = fileServerErrors.UNKNOWN_ERROR
                     statusCode = HttpStatusCode.INTERNAL_SERVER
             }
             return { statusCode, resp }
@@ -194,11 +194,11 @@ fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
 
             switch (error.code) {
                 case FSErrorCode.ENOENT:
-                    resp.message = `File doesn't exist`
+                    resp.message = fileServerErrors.FILE_DOESNT_EXIST
                     statusCode = HttpStatusCode.NOT_FOUND
                     break;
                 case FSErrorCode.EACCES:
-                    resp.message = `File is not accessible`
+                    resp.message = fileServerErrors.FILE_NOT_ACCESSIBLE
                     statusCode = HttpStatusCode.FORBIDDEN
                     break;
                 default:
@@ -239,7 +239,7 @@ function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
                 statusCode = HttpStatusCode.OK
             } else {
                 resp.error = true
-                resp.message = `File is not a directory`
+                resp.message = fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY
                 statusCode = HttpStatusCode.CONFLICT
             }
             //resp.parent = dirpath.getPathNetwork()
@@ -247,16 +247,16 @@ function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
         }).catch((error) => {
             switch (error.code) {
                 case FSErrorCode.ENOENT:
-                    resp.message = `Directory doesn't exist`
+                    resp.message =  fileServerErrors.DESTINATION_FOLDER_DOESNT_EXIST
                     statusCode = HttpStatusCode.NOT_FOUND
                     break;
                 case FSErrorCode.EACCES:
-                    resp.message = `Directory is not accessible`
+                    resp.message = fileServerErrors.DESTINATION_FOLDER_NOT_ACCESSIBLE
                     statusCode = HttpStatusCode.FORBIDDEN
                     break;
                 default:
                     console.error(error);
-                    resp.message = `Unknown error`
+                    resp.message = fileServerErrors.UNKNOWN_ERROR
                     statusCode = HttpStatusCode.INTERNAL_SERVER
             }
             return { statusCode, resp }
@@ -276,11 +276,12 @@ fileServer.put(endpoints.CD,
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            console.error("Bad request", errors.array())
+            //console.error("Bad request", errors.array())
 
             let resp: FS_Response = {
                 error: true,
-                message: JSON.stringify(errors.array())
+                message: fileServerErrors.BAD_REQUEST,
+                suplemental : JSON.stringify(errors.array())
             }
             res.status(HttpStatusCode.BAD_REQUEST).send(resp)
             return

@@ -19,6 +19,7 @@ export interface FileDetailsEnhanced extends FileDetails {
 export interface FS_Response {
     error: boolean,
     message: string,
+    suplemental?: string
 }
 
 export interface FileList_Response extends FS_Response {

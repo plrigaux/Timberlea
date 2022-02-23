@@ -87,7 +87,7 @@ describe('File list - App root', () => {
         tu.createFile(new_File + fileNum++, dir, "File data, file data file data")
 
         let new_Dir = "new_dir"
-        tu.createDir(new_Dir, dir)
+        tu.createDir(dir, new_Dir)
 
         let remoteDirectory = encodeURIComponent(dirToSend.getPathNetwork());
         console.warn(remoteDirectory)
