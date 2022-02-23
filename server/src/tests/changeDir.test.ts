@@ -4,7 +4,7 @@ import path from 'path'
 import { endpoints, FSErrorMsg, HttpStatusCode } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
-import { ChangeDir_Request, ChangeDir_Response } from '../common/interfaces'
+import { ChangeDir_Request, ChangeDir_Response, FileDetails } from '../common/interfaces'
 import { testUtils as tu } from './testUtils'
 import { Resolver, ResolverPath } from '../filePathResolver'
 
@@ -40,8 +40,8 @@ describe('Change Directory', () => {
 
         let newDir = "patate"
         tu.createDir(directoryRes.getPathServer(), newDir)
-       
-        let changeDir : ChangeDir_Request = {
+
+        let changeDir: ChangeDir_Request = {
             remoteDirectory: directoryRes.getPathNetwork(),
             newPath: newDir
         }
@@ -52,19 +52,19 @@ describe('Change Directory', () => {
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
-            console.log(resp.body)
-            let response : ChangeDir_Response = resp.body
-            
-            let expectDir = directoryRes.add(newDir).getPathNetwork()
-            expect(response.error).toBeFalsy();
-            expect(response.parent).toEqual(expectDir)
+        console.log(resp.body)
+        let response: ChangeDir_Response = resp.body
+
+        let expectDir = directoryRes.add(newDir).getPathNetwork()
+        expect(response.error).toBeFalsy();
+        expect(response.parent).toEqual(expectDir)
     });
 
     test('Change Directory - ..', async () => {
 
         let newDir = "patate"
         tu.createDir(directoryRes.getPathServer(), newDir)
-        let changeDir : ChangeDir_Request = {
+        let changeDir: ChangeDir_Request = {
             remoteDirectory: directoryRes.add(newDir).getPathNetwork(),
             newPath: ".."
         }
@@ -75,16 +75,16 @@ describe('Change Directory', () => {
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
-            let response : ChangeDir_Response = resp.body
-            
-            let expectDir = directoryRes.getPathNetwork()
-            expect(response.error).toBeFalsy();
-            expect(response.parent).toEqual(expectDir)
+        let response: ChangeDir_Response = resp.body
+
+        let expectDir = directoryRes.getPathNetwork()
+        expect(response.error).toBeFalsy();
+        expect(response.parent).toEqual(expectDir)
     });
 
     test('Change Directory - TEMP ..', async () => {
 
-        let changeDir : ChangeDir_Request = {
+        let changeDir: ChangeDir_Request = {
             remoteDirectory: tu.TEMP,
             newPath: ".."
         }
@@ -95,15 +95,15 @@ describe('Change Directory', () => {
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
-            let response : ChangeDir_Response = resp.body
-            
-            expect(response.error).toBeFalsy();
-            expect(response.parent).toEqual(tu.HOME_ROOT)
+        let response: ChangeDir_Response = resp.body
+
+        expect(response.error).toBeFalsy();
+        expect(response.parent).toEqual(tu.HOME_ROOT)
     });
 
     test('Change Directory - ROOT to TEMP', async () => {
 
-        let changeDir : ChangeDir_Request = {
+        let changeDir: ChangeDir_Request = {
             remoteDirectory: tu.HOME_ROOT,
             newPath: tu.TEMP
         }
@@ -114,17 +114,17 @@ describe('Change Directory', () => {
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
-            let response : ChangeDir_Response = resp.body
-            
-            expect(response.error).toBeFalsy();
-            expect(response.parent).toEqual(tu.TEMP)
+        let response: ChangeDir_Response = resp.body
+
+        expect(response.error).toBeFalsy();
+        expect(response.parent).toEqual(tu.TEMP)
     });
 
     test('Change Directory - Not exist', async () => {
 
         let newDir = "patate2"
-   
-        let changeDir : ChangeDir_Request = {
+
+        let changeDir: ChangeDir_Request = {
             remoteDirectory: directoryRes.getPathNetwork(),
             newPath: newDir
         }
@@ -135,20 +135,20 @@ describe('Change Directory', () => {
             .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /json/);
 
-            let dataresp: ChangeDir_Response = resp.body
+        let dataresp: ChangeDir_Response = resp.body
 
-            console.log(dataresp)
-            expect(dataresp.error).toBeTruthy;
-            expect(dataresp.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST)
+        console.log(dataresp)
+        expect(dataresp.error).toBeTruthy;
+        expect(dataresp.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST)
 
     });
-    
+
     test('Change Directory - not a Directory', async () => {
 
         let newDir = "patate3"
         tu.createFile(newDir, directoryRes.getPathServer(), "File data, file data file data")
 
-        let changeDir : ChangeDir_Request = {
+        let changeDir: ChangeDir_Request = {
             remoteDirectory: directoryRes.getPathNetwork(),
             newPath: newDir
         }
@@ -159,11 +159,11 @@ describe('Change Directory', () => {
             .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
 
-            let dataresp: ChangeDir_Response = resp.body
+        let dataresp: ChangeDir_Response = resp.body
 
-            console.log(dataresp)
-            expect(dataresp.error).toBeTruthy();
-            expect(dataresp.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY)
+        console.log(dataresp)
+        expect(dataresp.error).toBeTruthy();
+        expect(dataresp.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY)
 
     });
 
@@ -180,8 +180,69 @@ describe('Change Directory', () => {
             .expect(HttpStatusCode.BAD_REQUEST)
             .expect("Content-Type", /json/);
 
-            let dataresp: ChangeDir_Response = resp.body
+        let dataresp: ChangeDir_Response = resp.body
 
-            expect(dataresp.error).toBeTruthy();
+        expect(dataresp.error).toBeTruthy();
     });
+})
+
+
+describe('Change Directory with files', () => {
+
+    test('Change Directory - Home to Temp', async () => {
+
+        let changeDir: ChangeDir_Request = {
+            remoteDirectory: tu.HOME_ROOT,
+            newPath: tu.TEMP,
+            returnList: true
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_CD)
+            .send(changeDir)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        console.log(resp.body)
+        let response: ChangeDir_Response = resp.body
+
+        expect(response.error).toBeFalsy();
+        expect(response.parent).toEqual(tu.TEMP)
+        expect(response.files).toBeDefined()
+
+        expect(response.files).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: testDirMain }),
+            ])
+        );
+    });
+
+    test('Change Directory - Temp ..', async () => {
+
+        let changeDir: ChangeDir_Request = {
+            remoteDirectory: tu.TEMP,
+            newPath: "..",
+            returnList: true
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_CD)
+            .send(changeDir)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        console.log(resp.body)
+        let response: ChangeDir_Response = resp.body
+
+        expect(response.error).toBeFalsy();
+        expect(response.parent).toEqual(tu.HOME_ROOT)
+        expect(response.files).toBeDefined()
+
+        expect(response.files).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: tu.TEMP }),
+            ])
+        );
+    });
+
 })

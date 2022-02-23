@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\server\\src\\filePathResolver.ts",
+            "program": "${workspaceFolder}\\server\\src\\tests\\filePathResolver.test.ts",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]

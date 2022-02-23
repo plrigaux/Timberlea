@@ -47,7 +47,7 @@ export class ResolverPath {
         return pathNetwork == "." ? HOME : pathNetwork
     }
 
-    add(...extention: string[]) : ResolverPath{
+    add(...extention: string[]): ResolverPath {
 
         if (isRoot(this.key)) {
             if (extention.length == 0) {
@@ -123,21 +123,25 @@ export class Resolver {
 
     resolve(pathToResolve: string | null | undefined, ...dirs: string[]): ResolverPath | null {
 
+
         if (pathToResolve === null || pathToResolve === undefined) {
+            pathToResolve = HOME
+        }
+
+        let array = [pathToResolve, ...dirs]
+        array = array.filter(s => s !== "")
+        pathToResolve = array.join("/");
+
+        if (pathToResolve === "") {
             return HOME_ResolverPath
-        } else if (pathToResolve === "") {
-            //TO handle the case HOME/<dir/file>
-            console.warn("=== EMPTY")
-            if (dirs.length != 0) {
-                pathToResolve = dirs[0]
-                dirs = []
-            } else {
-                return HOME_ResolverPath
-            }
         }
 
         //normalisation should happen before resolution to avoid security issues
         pathToResolve = path.normalize(pathToResolve);
+
+        if (pathToResolve === ".") {
+            return HOME_ResolverPath
+        }
 
         let pathSplited = pathToResolve.split(/[\/\\]/)
 
@@ -153,7 +157,7 @@ export class Resolver {
             return null
         }
 
-        let resolverPath = new ResolverPath(key, newPathprefix, ...pathSplited.slice(1), ...dirs)
+        let resolverPath = new ResolverPath(key, newPathprefix, ...pathSplited.slice(1))
 
         return resolverPath
     }

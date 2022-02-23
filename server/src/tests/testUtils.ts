@@ -7,6 +7,7 @@ export namespace testUtils {
     export const TEMP = "TEMP"
     export const HOME = "HOME"
     export const HOME_ROOT = ""
+    export const PATH_LEVEL_UP = ".."
 
     export function createFile(fileName: string, parentDir: string, filecontent: string) : string {
         let p = path.join(parentDir, fileName)

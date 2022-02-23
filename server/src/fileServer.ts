@@ -230,7 +230,8 @@ function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
                 throw new FileServerError('path not resoled', FSErrorCode.ENOENT)
             }
 
-            return fs.promises.stat(dp.getPathServer())
+            let pathServer = dp.getPathServer()
+            return fs.promises.stat(pathServer)
         })
         .then((stat: fs.Stats) => {
             const isDirectory = stat.isDirectory()
