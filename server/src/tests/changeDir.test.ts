@@ -1,7 +1,7 @@
 import os from 'os'
 import fs, { RmDirOptions, RmOptions } from 'fs'
 import path from 'path'
-import { endpoints, HttpStatusCode } from '../common/constants'
+import { endpoints, FSErrorMsg, HttpStatusCode } from '../common/constants'
 import request from 'supertest'
 import { app } from '../app'
 import { ChangeDir_Request, ChangeDir_Response } from '../common/interfaces'
@@ -139,7 +139,7 @@ describe('Change Directory', () => {
 
             console.log(dataresp)
             expect(dataresp.error).toBeTruthy;
-            expect(dataresp.message).toMatch(/doesn't exist/)
+            expect(dataresp.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST)
 
     });
     
@@ -163,7 +163,7 @@ describe('Change Directory', () => {
 
             console.log(dataresp)
             expect(dataresp.error).toBeTruthy();
-            expect(dataresp.message).toMatch(/not a directory/) 
+            expect(dataresp.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY)
 
     });
 
@@ -184,23 +184,4 @@ describe('Change Directory', () => {
 
             expect(dataresp.error).toBeTruthy();
     });
-
-/*
-    test('Change Directory - OK', async () => {
-
-        let newDir = "patate"
-        fs.mkdirSync(path.join(directoryRes.getPathServer(), newDir))
-        let changeDir : ChangeDir_Request = {
-            remoteDirectory: directoryRes.getPathNetwork(),
-            newPath: newDir
-        }
-
-        const resp = await request(app)
-            .put(endpoints.FS_CD)
-            .send(changeDir)
-            .expect(HttpStatusCode.OK)
-            .expect("Content-Type", /json/);
-
-            console.log(resp.body)
-    });*/
 })

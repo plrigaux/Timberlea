@@ -3,7 +3,7 @@ import os from 'os'
 import path from 'path'
 import request from 'supertest'
 import { app } from '../app'
-import { endpoints, fileServerErrors, HttpStatusCode, uploadFile } from '../common/constants'
+import { endpoints, FSErrorMsg, HttpStatusCode, uploadFile } from '../common/constants'
 import { FileUpload_Response } from '../common/interfaces'
 import { Resolver, ResolverPath } from '../filePathResolver'
 import { testUtils as tu } from './testUtils'
@@ -72,7 +72,7 @@ describe('Upload file', () => {
 
         console.log('responseBody', responseBody)
         expect(responseBody.error).toBeTruthy()
-        expect(responseBody.message).toEqual(fileServerErrors.FILE_ALREADY_EXIST)
+        expect(responseBody.message).toEqual(FSErrorMsg.FILE_ALREADY_EXIST)
  
     });
 
@@ -96,7 +96,7 @@ describe('Upload file', () => {
         const responseBody: FileUpload_Response = resp.body
 
         expect(responseBody.error).toBeTruthy()
-        expect(responseBody.message).toEqual(fileServerErrors.DESTINATION_FOLDER_DOESNT_EXIST)
+        expect(responseBody.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST)
         //console.log('body', resp.body)
     });
 
@@ -123,7 +123,7 @@ describe('Upload file', () => {
         const responseBody: FileUpload_Response = resp.body
 
         expect(responseBody.error).toBeTruthy()
-        expect(responseBody.message).toEqual(fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY)
+        expect(responseBody.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY)
         //console.log('body', resp.body)
     });
 

@@ -1,11 +1,10 @@
 import express, { Request } from 'express';
-import path from 'path'
 import fs from 'fs';
 import multer from 'multer';
-import { FileUpload_Response } from './common/interfaces';
-import { endpoints, fileServerErrors, FSErrorCode, HttpStatusCode, uploadFile } from './common/constants';
-import { Resolver } from './filePathResolver';
+import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode, uploadFile } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
+import { FileUpload_Response } from './common/interfaces';
+import { Resolver } from './filePathResolver';
 
 export const fileServerUpload = express.Router()
 
@@ -19,7 +18,7 @@ const storage = multer.diskStorage({
         new Promise<string>((resolve, reject) => {
             let destinationFolder = req.body[uploadFile.DESTINATION_FOLDER]
             if (!destinationFolder) {
-                let newError = new FileServerError(fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
+                let newError = new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
                 reject(newError)
             } else {
                 resolve(destinationFolder)
@@ -27,13 +26,13 @@ const storage = multer.diskStorage({
         }).then((destinationFolder: string) => {
             let df = Resolver.instance.resolve(destinationFolder)
             if (!df) {
-                throw new FileServerError(fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
+                throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
             }
             cbDestinationFolder = df.getPathServer()
             return fs.promises.stat(cbDestinationFolder)
         }).then(stat => {
             if (!stat.isDirectory()) {
-                let newError = new FileServerError(fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY, FSErrorCode.ENOTDIR)
+                let newError = new FileServerError(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY, FSErrorCode.ENOTDIR)
                 dsError = newError
             } else {
                 return fs.promises.access(cbDestinationFolder, fs.constants.R_OK | fs.constants.W_OK);
@@ -42,10 +41,10 @@ const storage = multer.diskStorage({
             dsError = error
             if (error) {
                 if (error.code == FSErrorCode.ENOENT) {
-                    let newError = new FileServerError(fileServerErrors.DESTINATION_FOLDER_DOESNT_EXIST, FSErrorCode.ENOENT)
+                    let newError = new FileServerError(FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST, FSErrorCode.ENOENT)
                     dsError = newError
                 } else if (error.code == FSErrorCode.EACCES) {
-                    let newError = new FileServerError(fileServerErrors.DESTINATION_FOLDER_NOT_ACCESSIBLE, FSErrorCode.EACCES)
+                    let newError = new FileServerError(FSErrorMsg.DESTINATION_FOLDER_NOT_ACCESSIBLE, FSErrorCode.EACCES)
                     dsError = newError
                 }
             }
@@ -69,7 +68,7 @@ const storage = multer.diskStorage({
 
         let df = Resolver.instance.resolve(req.body.destinationFolder)
         if (!df) {
-            throw new FileServerError(fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
+            throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
         }
        
         let filePath = df.add(newFileName).getPathServer()
@@ -77,7 +76,7 @@ const storage = multer.diskStorage({
         console.log("filePath", filePath)
         fs.promises.stat(filePath)
             .then(stat => {
-                let errorFileName = new FileServerError(fileServerErrors.FILE_ALREADY_EXIST, FSErrorCode.EEXIST)
+                let errorFileName = new FileServerError(FSErrorMsg.FILE_ALREADY_EXIST, FSErrorCode.EEXIST)
                 fnError = errorFileName
             }).catch(error => {
                 if (error) {
@@ -114,27 +113,27 @@ fileServerUpload.post(endpoints.ROOT, (req, res) => {
             switch (error.code) {
 
                 case FSErrorCode.EINVAL:
-                    response.message = fileServerErrors.NO_DESTINATION_FOLDER_SUPPLIED
+                    response.message = FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED
                     statusCode = HttpStatusCode.BAD_REQUEST
                     break;
 
                 case FSErrorCode.EEXIST:
-                    response.message = fileServerErrors.FILE_ALREADY_EXIST
+                    response.message = FSErrorMsg.FILE_ALREADY_EXIST
                     statusCode = HttpStatusCode.CONFLICT
                     break;
 
                 case FSErrorCode.ENOENT:
-                    response.message = fileServerErrors.DESTINATION_FOLDER_DOESNT_EXIST
+                    response.message = FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST
                     statusCode = HttpStatusCode.NOT_FOUND
                     break;
 
                 case FSErrorCode.ENOTDIR:
-                    response.message = fileServerErrors.DESTINATION_FOLDER_NOT_DIRECTORY
+                    response.message = FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY
                     statusCode = HttpStatusCode.CONFLICT
                     break;
 
                 case FSErrorCode.EACCES:
-                    response.message = fileServerErrors.DESTINATION_FOLDER_NOT_ACCESSIBLE
+                    response.message = FSErrorMsg.DESTINATION_FOLDER_NOT_ACCESSIBLE
                     statusCode = HttpStatusCode.FORBIDDEN
                     break;
 
