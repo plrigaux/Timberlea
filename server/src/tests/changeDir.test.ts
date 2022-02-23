@@ -11,8 +11,7 @@ import { Resolver, ResolverPath } from '../filePathResolver'
 const testDirMain = "fileServer"
 const testDir = "change dir"
 
-const directoryRes = Resolver.instance.createResolverPath(tu.TEMP, testDirMain, testDir) as ResolverPath
-
+const directoryRes = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     const dir = directoryRes.getPathServer()
@@ -55,7 +54,7 @@ describe('Change Directory', () => {
         console.log(resp.body)
         let response: ChangeDir_Response = resp.body
 
-        let expectDir = directoryRes.add(newDir).getPathNetwork()
+        let expectDir = directoryRes.add(newDir)?.getPathNetwork()
         expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(expectDir)
     });
@@ -64,8 +63,9 @@ describe('Change Directory', () => {
 
         let newDir = "patate"
         tu.createDir(directoryRes.getPathServer(), newDir)
+        let newDirRes = directoryRes.add(newDir) as ResolverPath
         let changeDir: ChangeDir_Request = {
-            remoteDirectory: directoryRes.add(newDir).getPathNetwork(),
+            remoteDirectory: newDirRes.getPathNetwork(),
             newPath: ".."
         }
 

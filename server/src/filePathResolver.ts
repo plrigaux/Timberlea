@@ -4,6 +4,8 @@ import path from 'path'
 
 
 export const HOME = ""
+export const PATH_UP = ".."
+const SEPARATOR = /[\/\\]/
 
 interface FilePathConfig {
     label: string
@@ -21,34 +23,42 @@ function isRoot(key: string): boolean {
 }
 
 export class ResolverPath {
-    private key: string
+    //private key: string
     private prefix: string
     private dirFiles: string[]
+    private pathServer: string | null = null
+    private pathNetwork: string | null = null
 
-    constructor(key: string, prefix: string, ...rest: string[]) {
-        if (isRoot(key)) {
-            this.key = HOME
+    constructor(prefix: string, dirFiles: string[]) {
+        if (dirFiles.length === 0) {
             this.prefix = HOME
             this.dirFiles = []
         } else {
-            this.key = key
             this.prefix = prefix
-            this.dirFiles = rest
+            this.dirFiles = dirFiles
         }
     }
 
+    get key() {
+        return this.dirFiles.length === 0 ? "" : this.dirFiles[0]
+    }
+
     getPathServer(): string {
-        return path.join(this.prefix, ...this.dirFiles)
+        if (!this.pathServer) {
+            this.pathServer = path.join(this.prefix, ...this.dirFiles.slice(1))
+        }
+        return this.pathServer
     }
 
     getPathNetwork(): string {
-        let pathNetwork = path.join(this.key, ...this.dirFiles)
-        pathNetwork = pathNetwork.replaceAll("\\", "/")
-        return pathNetwork == "." ? HOME : pathNetwork
+        if (!this.pathNetwork) {
+            this.pathNetwork = this.dirFiles.join("/")
+        }
+        return this.pathNetwork
     }
 
-    add(...extention: string[]): ResolverPath {
-
+    add(...extention: string[]): ResolverPath | null {
+/*
         if (isRoot(this.key)) {
             if (extention.length == 0) {
                 return HOME_ResolverPath
@@ -60,12 +70,23 @@ export class ResolverPath {
             let newPath = Resolver.instance.createResolverPath(key, ...extention)
             return newPath ? newPath : HOME_ResolverPath
         }
+*/
+        
 
-        return new ResolverPath(this.key, this.prefix, ...this.dirFiles, ...extention)
+        if (this.isHomeRoot()) {
+            return Resolver.instance.resolve(extention.join("/"))
+        }
+
+        let array = [...this.dirFiles, ...extention]
+        return new ResolverPath(this.prefix, array)
+    }
+
+    isHomeRoot() {
+        return this.prefix === HOME
     }
 }
 
-export const HOME_ResolverPath = new ResolverPath("", "")
+export const HOME_ResolverPath = new ResolverPath("", [])
 
 export class Resolver {
 
@@ -122,47 +143,43 @@ export class Resolver {
     }
 
     resolve(pathToResolve: string | null | undefined, ...dirs: string[]): ResolverPath | null {
-
-
         if (pathToResolve === null || pathToResolve === undefined) {
             pathToResolve = HOME
         }
 
-        let array = [pathToResolve, ...dirs]
-        array = array.filter(s => s !== "")
-        pathToResolve = array.join("/");
+        let array: string[] = pathToResolve.split(SEPARATOR)
+        dirs.forEach(s => {
+            let splited: string[] = s.split(SEPARATOR)
+            array.push(...splited)
+        })
 
-        if (pathToResolve === "") {
+        let array2 = []
+        for (let i = 0; i < array.length; ++i) {
+            let s = array[i]
+            if (s === "") {
+
+            } else if (s === PATH_UP) {
+                array2.pop()
+            } else {
+                array2.push(s)
+            }
+        }
+
+        if (array2.length === 0) {
             return HOME_ResolverPath
         }
 
-        //normalisation should happen before resolution to avoid security issues
-        pathToResolve = path.normalize(pathToResolve);
-
-        if (pathToResolve === ".") {
-            return HOME_ResolverPath
-        }
-
-        let pathSplited = pathToResolve.split(/[\/\\]/)
-
-        if (pathSplited.length == 0) {
-            console.error("Invalid");
-            return HOME_ResolverPath
-        }
-
-        let key = pathSplited[0]
+        let key = array2[0]
 
         let newPathprefix = this.getKeyPath(key)
         if (!newPathprefix) {
             return null
         }
 
-        let resolverPath = new ResolverPath(key, newPathprefix, ...pathSplited.slice(1))
+        let resolverPath = new ResolverPath(newPathprefix, array2)
 
         return resolverPath
     }
-
-
 
     private getKeyPath(key: string): string | null {
         let newPathprefix = this.getPath(key)
@@ -195,30 +212,4 @@ export class Resolver {
         }
         return result
     }
-
-    createResolverPath(key: string, ...dirs: string[]): ResolverPath | null {
-
-        if (isRoot(key)) {
-            if (dirs.length != 0) {
-                key = dirs[0]
-                dirs = dirs.slice(1)
-            }
-        }
-
-        if (dirs.length != 0) {
-            if (dirs[0] == "..") {
-                key = HOME
-                dirs = dirs.slice(1)
-                return this.createResolverPath(key, ...dirs)
-            }
-        }
-
-        let newPathprefix = this.getKeyPath(key)
-        if (newPathprefix === null) {
-            return null
-        }
-
-        return new ResolverPath(key, newPathprefix, ...dirs)
-    }
-
 }

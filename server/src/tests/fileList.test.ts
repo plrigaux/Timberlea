@@ -12,7 +12,7 @@ const testDirMain = "fileServer"
 const testDir = "file list"
 const dir = path.join(os.tmpdir(), testDirMain, testDir)
 
-const dirToSend = Resolver.instance.createResolverPath(tu.TEMP, testDirMain, testDir) as ResolverPath
+const dirToSend = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     console.log(dir);

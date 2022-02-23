@@ -66,12 +66,12 @@ const storage = multer.diskStorage({
         console.log("filename: info ", req.body, req.params)
         console.log("file", file)
 
-        let df = Resolver.instance.resolve(req.body.destinationFolder)
+        let df = Resolver.instance.resolve(req.body.destinationFolder, newFileName)
         if (!df) {
             throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
         }
        
-        let filePath = df.add(newFileName).getPathServer()
+        let filePath = df.getPathServer()
         
         console.log("filePath", filePath)
         fs.promises.stat(filePath)

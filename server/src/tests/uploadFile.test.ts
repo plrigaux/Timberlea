@@ -11,7 +11,7 @@ import { testUtils as tu } from './testUtils'
 const testDirMain = "fileServer"
 const testDir = "upload file dir"
 const uploadDirectoryServe = path.join(os.tmpdir(), testDirMain, testDir)
-const uploadDirectoryRes = Resolver.instance.createResolverPath(tu.TEMP, testDirMain, testDir) as ResolverPath
+const uploadDirectoryRes = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     tu.createDir(uploadDirectoryServe)

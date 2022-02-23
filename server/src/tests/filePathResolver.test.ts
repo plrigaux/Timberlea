@@ -121,14 +121,14 @@ describe('Around Home Tests', () => {
 
     test('ROOT', () => {
 
-        let rPath = Resolver.instance.createResolverPath("")
+        let rPath = Resolver.instance.resolve("")
 
         expect(rPath).toEqual(HOME_ResolverPath)
     });
 
     test('ROOT 2', () => {
 
-        let rPath = Resolver.instance.createResolverPath("/")
+        let rPath = Resolver.instance.resolve("/")
 
         expect(rPath).toEqual(HOME_ResolverPath)
     });
@@ -136,7 +136,7 @@ describe('Around Home Tests', () => {
 
     test('Resolve TEMP', () => {
 
-        let rPath = Resolver.instance.createResolverPath(tu.HOME_ROOT, tu.TEMP)
+        let rPath = Resolver.instance.resolve(tu.HOME_ROOT, tu.TEMP)
         let rPath2 = HOME_ResolverPath.add(tu.TEMP)
 
         expect(rPath).toEqual(rPath2)
@@ -144,15 +144,15 @@ describe('Around Home Tests', () => {
 
     test('Resolve TEMP 2', () => {
 
-        let rPath = Resolver.instance.createResolverPath(tu.HOME_ROOT, tu.TEMP)
-        let rPath2 = Resolver.instance.createResolverPath(tu.TEMP)
+        let rPath = Resolver.instance.resolve(tu.HOME_ROOT, tu.TEMP)
+        let rPath2 = Resolver.instance.resolve(tu.TEMP)
         
         expect(rPath).toEqual(rPath2)
     });
 
     test('Back to Root', () => {
 
-        let rPath = Resolver.instance.createResolverPath(tu.TEMP, tu.PATH_LEVEL_UP)
+        let rPath = Resolver.instance.resolve(tu.TEMP, tu.PATH_LEVEL_UP)
         let rPath2 = HOME_ResolverPath
         
         expect(rPath).toEqual(rPath2)
@@ -165,6 +165,37 @@ describe('Around Home Tests', () => {
         
         expect(rPath).toEqual(rPath2)
     });
+
+    test('Back to Root ../..', () => {
+
+        let rPath = Resolver.instance.resolve(tu.TEMP  + "/somthing", tu.PATH_LEVEL_UP + "/" + tu.PATH_LEVEL_UP)
+        let rPath2 = HOME_ResolverPath
+        
+        expect(rPath).toEqual(rPath2)
+    });
     
+    test('Back to Root ../.. 2', () => {
+
+        let rPath = Resolver.instance.resolve(tu.TEMP  + "/somthing", tu.PATH_LEVEL_UP, tu.PATH_LEVEL_UP)
+        let rPath2 = HOME_ResolverPath
+        
+        expect(rPath).toEqual(rPath2)
+    });
+
+    test('Back to Root ../../..', () => {
+
+        let rPath = Resolver.instance.resolve(tu.TEMP  + "/somthing",tu.PATH_LEVEL_UP + "/" + tu.PATH_LEVEL_UP + "/" + tu.PATH_LEVEL_UP)
+        let rPath2 = HOME_ResolverPath
+        
+        expect(rPath).toEqual(rPath2)
+    });
+
+    test('Back to Root ../../..', () => {
+
+        let rPath = Resolver.instance.resolve(tu.TEMP  + "/somthing", tu.PATH_LEVEL_UP, tu.PATH_LEVEL_UP, tu.PATH_LEVEL_UP)
+        let rPath2 = HOME_ResolverPath
+        
+        expect(rPath).toEqual(rPath2)
+    });
    
 })
