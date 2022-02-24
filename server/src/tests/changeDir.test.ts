@@ -241,6 +241,7 @@ describe('Change Directory with files', () => {
         expect(response.files).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ name: tu.TEMP }),
+                expect.objectContaining({ name: tu.HOME }),
             ])
         );
     });

@@ -48,6 +48,13 @@ describe('File list - App root', () => {
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.files).toBeDefined();
         expect(dataresp.files?.length).toBeDefined();
+
+        expect(dataresp.files).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: tu.TEMP }),
+                expect.objectContaining({ name: tu.HOME }),
+            ])
+        );
     });
 
     test('Get file list - Not exist', async () => {
@@ -75,16 +82,29 @@ describe('File list - App root', () => {
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
 
-        console.log(resp.body)
+        let dataresp: FileList_Response = resp.body
+
+        expect(dataresp.error).toBeFalsy();
+        expect(dataresp.files).toBeDefined();
+        expect(dataresp.files?.length).toBeDefined();
+
+        expect(dataresp.files).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: testDirMain, type: FileType.Directory }),
+            ])
+        );
     });
 
     test('Get file list - directory', async () => {
 
         let new_File = "patate"
         let fileNum = 1
-        tu.createFile(new_File + fileNum++, dir, "File data, file data file data")
-        tu.createFile(new_File + fileNum++, dir, "File data, file data file data")
-        tu.createFile(new_File + fileNum++, dir, "File data, file data file data")
+        let f1 = new_File + fileNum++
+        let f2 = new_File + fileNum++
+        let f3 = new_File + fileNum++
+        tu.createFile(f1, dir, "File data, file data file data")
+        tu.createFile(f2, dir, "File data, file data file data")
+        tu.createFile(f3, dir, "File data, file data file data")
 
         let new_Dir = "new_dir"
         tu.createDir(dir, new_Dir)
@@ -113,6 +133,15 @@ describe('File list - App root', () => {
                 expect(a.size).toBeGreaterThanOrEqual(0)
             }
         })
+
+        expect(dataresp.files).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: f1, type: FileType.File }),
+                expect.objectContaining({ name: f2, type: FileType.File }),
+                expect.objectContaining({ name: f3, type: FileType.File }),
+                expect.objectContaining({ name: new_Dir, type: FileType.Directory }),
+            ])
+        );
     });
 
     test('Get file list - from a file', async () => {
@@ -141,4 +170,5 @@ describe('File list - App root', () => {
 
         expect(dataresp.error).toBeTruthy();
     });
+
 })
