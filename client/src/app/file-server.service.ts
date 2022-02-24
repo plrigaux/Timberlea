@@ -80,7 +80,7 @@ export class FileServerService {
   }
 
   cd(relPath: string, remoteDirectory: string | null = null, returnList = true): void {
-
+    this.waiting.next(true)
     let newRemoteDirectory: ChangeDir_Request = {
       remoteDirectory: remoteDirectory ? remoteDirectory : this.remoteDirectory,
       newPath: relPath,
@@ -99,11 +99,13 @@ export class FileServerService {
       {
         next: (data: ChangeDir_Response) => {
           let files: FileDetails[] = data.files ? data.files : []
+          this.waiting.next(false)
           this.newList.next(files)
         },
         error: (e: any) => {
           console.error(e)
           this.newList.error(e)
+          this.waiting.next(false)
         }
       })
   }
@@ -123,17 +125,19 @@ export class FileServerService {
       tap((data: FileList_Response) => {
         this.setRemoteDirectory(data)
       }),
-      retry(2),
+      //retry(2),
       catchError((e) => this.handleError(e as HttpErrorResponse))
 
     ).subscribe(
       {
         next: (data: FileList_Response) => {
           this.newList.next(data.files ?? [])
+          this.waiting.next(false)
         },
         error: e => {
           console.error(e)
           this.newList.error(e)
+          this.waiting.next(false)
         }
       })
   }

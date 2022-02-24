@@ -135,6 +135,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private updateDataSource2(filelist: FileDetails[]) {
+    console.log("updateDataSource2", filelist)
     this.dataSource = new MatTableDataSource(filelist)
     this.dataSource.sort = this.sort
     this.table.renderRows()

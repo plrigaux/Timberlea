@@ -248,7 +248,7 @@ function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
         }).catch((error) => {
             switch (error.code) {
                 case FSErrorCode.ENOENT:
-                    resp.message =  FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST
+                    resp.message = FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST
                     statusCode = HttpStatusCode.NOT_FOUND
                     break;
                 case FSErrorCode.EACCES:
@@ -282,14 +282,11 @@ fileServer.put(endpoints.CD,
             let resp: FS_Response = {
                 error: true,
                 message: FSErrorMsg.BAD_REQUEST,
-                suplemental : JSON.stringify(errors.array())
+                suplemental: JSON.stringify(errors.array())
             }
             res.status(HttpStatusCode.BAD_REQUEST).send(resp)
             return
         }
-
-        //let newPath = path.join(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
-        //newPath = path.resolve(newPath);
 
         let newPath = Resolver.instance.resolve(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
 
@@ -305,13 +302,15 @@ fileServer.put(endpoints.CD,
     })
 
 fileServer.get(endpoints.DOWNLOAD + '/:path', (req: Request, res: Response) => {
-
-
     let filePath = req.params.path
 
-    console.log(`filePath`, filePath)
+    let filePathResolved = Resolver.instance.resolve(filePath)
+    //console.log(`filePath`, filePath, filePathResolved)
 
-    res.download(filePath);
-    //res.send("OK: " + fileDir + " " + fileName)
+    if (filePathResolved) {
+        res.download(filePathResolved?.getPathServer());
+        return
+    }
+
+    res.status(HttpStatusCode.NOT_FOUND).send("File not found: " + filePath)
 })
-
