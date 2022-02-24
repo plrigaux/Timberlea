@@ -62,5 +62,6 @@ export enum FSErrorCode {
     EEXIST = "EEXIST",
     EPERM = "EPERM",
     ENOTDIR = "ENOTDIR", //** Not directoro */
-    EINVAL = "EINVAL"
+    EINVAL = "EINVAL",
+    EISDIR = "EISDIR"
 }

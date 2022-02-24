@@ -23,7 +23,7 @@ fileServerCopy.put(endpoints.ROOT, (req: Request, res: Response) => {
         oldFileName: data.fileName,
         newFileName: path.basename(newPath)
     }
-    
+
     let statusCode: number = HttpStatusCode.INTERNAL_SERVER
 
     let mode = data.overwrite ? 0 : fs.constants.COPYFILE_EXCL
@@ -49,6 +49,7 @@ fileServerCopy.put(endpoints.ROOT, (req: Request, res: Response) => {
                     statusCode = HttpStatusCode.CONFLICT
                     break;
                 case FSErrorCode.EPERM:
+                case FSErrorCode.EISDIR:
                     resp.message = "Operation not permitted"
                     statusCode = HttpStatusCode.FORBIDDEN
                     break;

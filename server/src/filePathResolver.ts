@@ -1,6 +1,7 @@
 import config from 'config'
 import { env } from 'process';
 import path from 'path'
+import os from 'os'
 
 
 export const HOME = ""
@@ -58,20 +59,20 @@ export class ResolverPath {
     }
 
     add(...extention: string[]): ResolverPath | null {
-/*
-        if (isRoot(this.key)) {
-            if (extention.length == 0) {
-                return HOME_ResolverPath
-            }
-
-            let key = extention[0]
-            extention = extention.slice(1)
-
-            let newPath = Resolver.instance.createResolverPath(key, ...extention)
-            return newPath ? newPath : HOME_ResolverPath
-        }
-*/
+        /*
+                if (isRoot(this.key)) {
+                    if (extention.length == 0) {
+                        return HOME_ResolverPath
+                    }
         
+                    let key = extention[0]
+                    extention = extention.slice(1)
+        
+                    let newPath = Resolver.instance.createResolverPath(key, ...extention)
+                    return newPath ? newPath : HOME_ResolverPath
+                }
+        */
+
 
         if (this.isHomeRoot()) {
             return Resolver.instance.resolve(extention.join("/"))
@@ -104,14 +105,25 @@ export class Resolver {
         console.log(configFilePaths)
 
 
-        configFilePaths.forEach(fpc => {
+        configFilePaths.forEach(filePathConfig => {
             let keyPath
 
-            if (fpc.env || fpc.path) {
-                if (fpc.env) {
-                    keyPath = env[fpc.env]
+            if (filePathConfig.env || filePathConfig.path) {
+                if (filePathConfig.env) {
+                    keyPath = env[filePathConfig.env]
+                    if (!keyPath) {
+                        console.warn(`Env "${filePathConfig.env}" not defined`)
+                        switch (filePathConfig.env) {
+                            case "TEMP":
+                                keyPath = os.tmpdir()
+                                break;
+                            case "HOME":
+                                keyPath = os.homedir()
+                                break;
+                        }
+                    }
                 } else {
-                    keyPath = fpc.path
+                    keyPath = filePathConfig.path
                 }
             } else {
                 console.error("Bad Config - No path or env")
@@ -126,7 +138,7 @@ export class Resolver {
             keyPath = path.normalize(keyPath)
 
             let fp: FilePath = {
-                name: fpc.label,
+                name: filePathConfig.label,
                 path: keyPath
             }
 
