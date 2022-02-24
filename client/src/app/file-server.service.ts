@@ -93,7 +93,7 @@ export class FileServerService {
       tap((data: ChangeDir_Response) => {
         this.setRemoteDirectory(data)
       }),
-      retry(2),
+      //retry(2),
       catchError((e) => this.handleError(e as HttpErrorResponse))
     ).subscribe(
       {
@@ -110,9 +110,16 @@ export class FileServerService {
 
   list(path: string | null = null): void {
     this.waiting.next(true)
-    let remoteDirectory = encodeURIComponent(path ? path : this.remoteDirectory);
 
-    this.http.get<FileList_Response>(this.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory).pipe(
+    if (path === null) {
+      path = this.remoteDirectory
+    } 
+
+    let remoteDirectory = encodeURIComponent(path);
+
+    const url = this.serverUrl + endpoints.FS_LIST + "/" + remoteDirectory
+
+    this.http.get<FileList_Response>(url).pipe(
       tap((data: FileList_Response) => {
         this.setRemoteDirectory(data)
       }),

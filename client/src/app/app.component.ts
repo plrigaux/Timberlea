@@ -1,12 +1,7 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { ChangeDir_Response, FileDetails, FileList_Response, FileType } from '../../../server/src/common/interfaces';
-import { endpoints } from '../../../server/src/common/constants';
 import { environment } from '../../../client/src/environments/environment';
-import { MatSort, Sort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { FileServerService } from './file-server.service';
-import { MatChip } from '@angular/material/chips';
 
 
 interface PathChip {
@@ -27,7 +22,7 @@ export class AppComponent implements OnInit {
   //remoteFiles: FileDetails[] = []
   serverUrl: string
   pathChip: PathChip[] = []
-  re = /[\/\\]/
+  private re = /[\/]/
 
   constructor(
     private fileServerService: FileServerService) {
@@ -42,22 +37,32 @@ export class AppComponent implements OnInit {
         this.pathChip = []
 
         let pc: PathChip = {
-          name: "HOME",
+          name: "🏠",
           path: ""
         }
         this.pathChip.push(pc)
+
+        if (remoteDirectory === "") {
+          return
+        }
         
         let path = ""
-        remoteDirectory.split(this.re).forEach(s => {
+        let splittedRemoteDir = remoteDirectory.split(this.re)
+        //console.log("splittedRemoteDir", remoteDirectory, splittedRemoteDir)
+
+        splittedRemoteDir.forEach(s => {
           if (path.length > 0) {
-            path = path + "/"
+            path += "/" + s
+          } else {
+            path = s
           }
 
-          path = path + s
-          let pc: PathChip = {
-            name: s,
-            path: path
-          }
+          let pc: PathChip 
+            pc = {
+              name: s,
+              path: path
+            }
+
           this.pathChip.push(pc)
         })
 
@@ -96,10 +101,8 @@ export class AppComponent implements OnInit {
   }
 
   clickChip(chip: PathChip) {
-    console.log(chip)
+    console.log("chip", chip)
 
     this.fileServerService.list(chip.path)
   }
-
-
 }
