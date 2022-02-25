@@ -24,7 +24,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LongPressDirective } from './long-press.directive';
 import { MatChipsModule } from '@angular/material/chips';
 import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/controls.component';
-
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -56,8 +56,8 @@ import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/
     MatDialogModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    ReactiveFormsModule
-
+    ReactiveFormsModule,
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

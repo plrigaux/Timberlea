@@ -4,7 +4,7 @@ import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, 
 import { environment } from '../../../client/src/environments/environment';
 import { endpoints } from '../../../server/src/common/constants';
 import { catchError, Observable, Observer, of, retry, Subject, Subscription, tap, throwError, throwIfEmpty } from 'rxjs';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Injectable({
   providedIn: 'root'
 })
@@ -18,7 +18,7 @@ export class FileServerService {
     return this.rd
   }
 
-  private set remoteDirectory(rd : string) {
+  private set remoteDirectory(rd: string) {
     console.warn("rd", rd)
     this.rd = rd
   }
@@ -31,7 +31,7 @@ export class FileServerService {
   private modifSubjet = new Subject<MvFile_Response>()
   private newFileSubjet = new Subject<FileDetails>()
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private _snackBar: MatSnackBar) {
     this.serverUrl = environment.serverUrl
   }
 
@@ -99,13 +99,10 @@ export class FileServerService {
       {
         next: (data: ChangeDir_Response) => {
           let files: FileDetails[] = data.files ? data.files : []
-          this.waiting.next(false)
           this.newList.next(files)
         },
         error: (e: any) => {
-          console.error(e)
-          this.newList.error(e)
-          this.waiting.next(false)
+
         }
       })
   }
@@ -115,7 +112,7 @@ export class FileServerService {
 
     if (path === null) {
       path = this.remoteDirectory
-    } 
+    }
 
     let remoteDirectory = encodeURIComponent(path);
 
@@ -132,12 +129,9 @@ export class FileServerService {
       {
         next: (data: FileList_Response) => {
           this.newList.next(data.files ?? [])
-          this.waiting.next(false)
         },
         error: e => {
-          console.error(e)
-          this.newList.error(e)
-          this.waiting.next(false)
+
         }
       })
   }
@@ -147,6 +141,7 @@ export class FileServerService {
       this.remoteDirectory = data.parent
       this.newRemoteDirectory.next(this.remoteDirectory)
     }
+    this.waiting.next(false)
   }
 
   getRemoteDirectory(): string {
@@ -154,25 +149,23 @@ export class FileServerService {
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
+    let message = ""
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
-      console.error('An error occurred:', error.error);
+      message = 'An error occurred:', error.error
     } else {
       // The backend returned an unsuccessful response code.
       // The response body may contain clues as to what went wrong.
-      console.error(
-        `Backend returned code ${error.status}, body was: `, error.error);
+      message =
+        `${error.status} - ${error.statusText}},\n body was: ${JSON.stringify(error.error)}`
     }
 
-    /*
-    let fl: FS_Response = {
-      error: true,
-      message: 'Something bad happened; please try again later.'
-    }
-    return of(fl)
-    */
+    this._snackBar.open(message, "Close", {
+      duration: 10 * 1000,
+    })
+    this.waiting.next(false)
 
-    return throwError(() => new Error('Something bad happened; please try again later.'))
+    return throwError(() => new Error(message))
   }
 
   getFileHref(fileName: string): string {
@@ -185,7 +178,7 @@ export class FileServerService {
       return;
     }
 
-
+    this.waiting.next(true)
     let request: RemFile_Request = {
       parent: this.remoteDirectory,
       fileName: fileName,
@@ -212,7 +205,7 @@ export class FileServerService {
           this.deleteSub.next(fileName)
         },
         error: e => {
-          console.error(e)
+
         }
       })
   }
@@ -271,8 +264,7 @@ export class FileServerService {
           this.modifSubjet.next(data)
         },
         error: e => {
-          console.error(e)
-          this.modifSubjet.error(e)
+
         }
       })
   }

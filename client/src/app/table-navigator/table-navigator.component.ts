@@ -25,6 +25,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   isLoadingResults: boolean = false
   dataSource: MatTableDataSource<FileDetails>;
   private subscriptions: Subscription[] = []
+  private waitCount = 0
 
   constructor(private fileServerService: FileServerService,
     private _liveAnnouncer: LiveAnnouncer,
@@ -50,6 +51,12 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
     this.subscriptions.push(this.fileServerService.subscribeWaiting({
       next: (wait: boolean) => {
         this.isLoadingResults = wait
+        if (wait) {
+          this.waitCount++;
+        } else {
+          this.waitCount--;
+        }
+        console.log("wait spinner: ", wait, this.waitCount)
       }
     }))
 
