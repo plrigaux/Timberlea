@@ -51,6 +51,10 @@ export class ResolverPath {
         return this.pathServer
     }
 
+    getFileName(): string {
+        return this.dirFiles.length ? this.dirFiles[-1] : ""
+    }
+
     getPathNetwork(): string {
         if (!this.pathNetwork) {
             this.pathNetwork = this.dirFiles.join("/")
