@@ -2,6 +2,11 @@
   <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
 </div>
 
+<mat-form-field appearance="standard" class="filter">
+  <mat-label>File name filter</mat-label>
+  <input matInput (keyup)="applyFilter($event)" placeholder="File name" #input>
+</mat-form-field>
+
 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort
   (matSortChange)="announceSortChange($event)">
   <!-- Name Column -->

@@ -91,11 +91,11 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
           this.updateDataSource2(remoteFiles);
         }
 
-        if(this.selectedRowIndex ==data.oldFileName ) {
+        if (this.selectedRowIndex == data.oldFileName) {
           this.selectedRowIndex = data.newFileName
         }
-        
-        if(this.selectedRowIndex2 ==data.oldFileName ) {
+
+        if (this.selectedRowIndex2 == data.oldFileName) {
           this.selectedRowIndex2 = data.newFileName
         }
       }
@@ -131,20 +131,28 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   private updateDataSource(filelist: FileDetails[]) {
 
-    let remoteFiles : FileDetails[]
+    let remoteFiles: FileDetails[]
     if (this.fileServerService.getRemoteDirectory() != "") {
-       remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
+      remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
     } else {
-       remoteFiles = filelist
+      remoteFiles = filelist
     }
-    
+
     this.updateDataSource2(remoteFiles);
   }
 
   private updateDataSource2(filelist: FileDetails[]) {
+
+
+
+
     console.log("updateDataSource2", filelist)
     this.dataSource = new MatTableDataSource(filelist)
     this.dataSource.sort = this.sort
+    this.dataSource.filterPredicate =
+      (data: FileDetails, filter: string) => {
+        return data.name.trim().toLowerCase().indexOf(filter) !== -1
+      };
     this.table.renderRows()
     this.isLoadingResults = false
   }
@@ -285,10 +293,17 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   onLongPressingRow(fileDetails: FileDetails) {
-    console.log("onLongPressing",fileDetails)
+    console.log("onLongPressing", fileDetails)
     if (this.selectedRowIndex != fileDetails.name) { //to limit the number of calls
       this.selectedRowIndex = fileDetails.name
       this.fileServerService.selectFile(fileDetails)
     }
+  }
+
+  applyFilter(event: Event) {
+    let filterValue = (event.target as HTMLInputElement).value;
+    filterValue = filterValue.trim(); // Remove whitespace
+    filterValue = filterValue.toLowerCase(); // MatTableDataSource defaults to lowercase matches
+    this.dataSource.filter = filterValue
   }
 }
