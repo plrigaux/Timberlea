@@ -53,7 +53,8 @@ export class ResolverPath {
     }
 
     getFileName(): string {
-        return this.dirFiles.length ? this.dirFiles[-1] : ""
+        let lh = this.dirFiles.length
+        return lh > 0 ? this.dirFiles[lh - 1] : ""
     }
 
     getPathNetwork(): string {
