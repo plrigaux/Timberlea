@@ -47,8 +47,18 @@ export interface MakeDirRequest {
     recursive: boolean
 }
 
+export interface MakeFileRequest {
+    dir: string
+    fileName: string
+    data: string
+}
+
 export interface MakeDirResponse extends FS_Response {
     directory: string
+}
+
+export interface MakeFileResponse extends FS_Response {
+    fileName: string
 }
 
 export interface RemFile_Request {
