@@ -25,6 +25,7 @@ import { LongPressDirective } from './long-press.directive';
 import { MatChipsModule } from '@angular/material/chips';
 import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/controls.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     LongPressDirective,
     ControlsComponent,
     DialogFileRename,
-    DialogFileInfo
+    DialogFileInfo,
+    BreadcrumbComponent
   ],
   imports: [
     BrowserModule,

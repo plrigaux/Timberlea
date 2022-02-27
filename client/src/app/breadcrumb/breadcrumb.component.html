@@ -1,0 +1,9 @@
+<mat-chip-list>
+    <mat-chip
+      cdkDrag
+      *ngFor="let chip of pathChip"
+      (click)="clickChip(chip)">
+      {{chip.name}}
+      <mat-icon>chevron_right</mat-icon>
+    </mat-chip>
+  </mat-chip-list>
