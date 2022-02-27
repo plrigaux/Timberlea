@@ -9,6 +9,7 @@ export namespace endpoints {
     export const DOWNLOAD = "/download"
     export const UPLOAD = "/upload"
     export const MKDIR = "/mkdir"
+    export const MKFILE = "/mkfile"
     export const REM = "/rem"
     export const MV = "/mv"
     export const DETAILS = "/details"
@@ -20,6 +21,7 @@ export namespace endpoints {
     export const FS_DOWNLOAD = FS + DOWNLOAD
     export const FS_UPLOAD = FS + UPLOAD
     export const FS_MKDIR = FS + MKDIR
+    export const FS_MKFILE = FS + MKFILE
     export const FS_REM = FS + REM
     export const FS_MV = FS + MV
     export const FS_DETAILS = FS + DETAILS
@@ -55,13 +57,15 @@ export enum HttpStatusCode {
 /**
  * This are error codes
  */
+
 export enum FSErrorCode {
     EACCES = "EACCES",
     /** No such file or directory */
     ENOENT = "ENOENT",
     EEXIST = "EEXIST",
     EPERM = "EPERM",
-    ENOTDIR = "ENOTDIR", //** Not directoro */
+    ENOTDIR = "ENOTDIR",
     EINVAL = "EINVAL",
-    EISDIR = "EISDIR"
+    EISDIR = "EISDIR",
+    KEY_UNRESOLVED = "KEY_UNRESOLVED"
 }

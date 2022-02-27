@@ -2,6 +2,8 @@ import config from 'config'
 import { env } from 'process';
 import path from 'path'
 import os from 'os'
+import { FileServerError } from './common/fileServerCommon';
+import { FSErrorCode } from './common/constants';
 
 
 export const HOME = ""
@@ -24,7 +26,6 @@ function isRoot(key: string): boolean {
 }
 
 export class ResolverPath {
-    //private key: string
     private prefix: string
     private dirFiles: string[]
     private pathServer: string | null = null
@@ -63,20 +64,6 @@ export class ResolverPath {
     }
 
     add(...extention: string[]): ResolverPath | null {
-        /*
-                if (isRoot(this.key)) {
-                    if (extention.length == 0) {
-                        return HOME_ResolverPath
-                    }
-        
-                    let key = extention[0]
-                    extention = extention.slice(1)
-        
-                    let newPath = Resolver.instance.createResolverPath(key, ...extention)
-                    return newPath ? newPath : HOME_ResolverPath
-                }
-        */
-
 
         if (this.isHomeRoot()) {
             return Resolver.instance.resolve(extention.join("/"))
@@ -158,7 +145,7 @@ export class Resolver {
         return this.filePaths.get(key)?.path
     }
 
-    resolve(pathToResolve: string | null | undefined, ...dirs: string[]): ResolverPath | null {
+    resolve(pathToResolve: string | null | undefined, ...dirs: string[]): ResolverPath | never {
         if (pathToResolve === null || pathToResolve === undefined) {
             pathToResolve = HOME
         }
@@ -189,7 +176,7 @@ export class Resolver {
 
         let newPathprefix = this.getKeyPath(key)
         if (!newPathprefix) {
-            return null
+            throw new FileServerError(`Key "${key}" unresoled`, FSErrorCode.KEY_UNRESOLVED)
         }
 
         let resolverPath = new ResolverPath(newPathprefix, array2)

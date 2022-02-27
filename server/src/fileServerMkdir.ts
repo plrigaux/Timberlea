@@ -1,54 +1,35 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
 import { MakeDirRequest, MakeDirResponse } from './common/interfaces';
+import { Resolver } from './filePathResolver';
 
 export const fileServerMkDir = express.Router()
 
 
-fileServerMkDir.post(endpoints.ROOT, (req: Request, res: Response) => {
+fileServerMkDir.post(endpoints.ROOT, (req: Request, res: Response, next: NextFunction) => {
 
     const data: MakeDirRequest = req.body
     console.log("Mkdir", data)
-    let dirPath = path.join(data.parent, data.dirName)
 
-    let resp: MakeDirResponse = {
-        error: true,
-        message: '',
-        directory: dirPath
-    }
 
-    let statusCode = -1
-    let notSent = true
+    let dirPath = Resolver.instance.resolve(data.parent, data.dirName)
+    let options = { recursive: data.recursive === true ? true : false }
 
-    let options = { recursive: data.recursive ? true : false }
-
-    fs.promises.mkdir(dirPath, options)
+    fs.promises.mkdir(dirPath.getPathServer(), options)
         .then(() => {
-            resp.error = false
-            resp.message = "OK"
-            statusCode = HttpStatusCode.CREATED
-        })
-        .catch((error) => {
-            switch (error.code) {
-                case FSErrorCode.ENOENT:
-                    resp.message = `Directory doesn't exist`
-                    statusCode = HttpStatusCode.NOT_FOUND
-                    break;
-                case FSErrorCode.EEXIST:
-                    resp.message = "File already exists"
-                    statusCode = HttpStatusCode.CONFLICT
-                    break;
-                default:
-                    console.error(error);
-                    resp.message = `Unknown error`
-                    statusCode = HttpStatusCode.INTERNAL_SERVER
+
+            let resp: MakeDirResponse = {
+                error: false,
+                message: "OK",
+                directory: dirPath.getPathNetwork()
             }
-        })
-        .finally(() => {
+
+            let statusCode = HttpStatusCode.CREATED
             res.status(statusCode).send(resp);
         })
+        .catch(next)
 })
 
 

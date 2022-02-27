@@ -1,11 +1,10 @@
 
 
 import request from 'supertest'
-import { Express } from 'express-serve-static-core'
-
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
 import { ChangeDir_Response } from '../common/interfaces'
+
 
 
 describe('GET test', () => {
