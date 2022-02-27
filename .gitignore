@@ -16,6 +16,7 @@ client/node_modules
 server/node_modules
 server/files
 server/client/*
+server/test-report.html
 
 # profiling files
 chrome-profiler-events*.json
@@ -51,3 +52,5 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+
