@@ -44,9 +44,12 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     message: error.message,
   }
 
-  //console.log("roote", req.url)
-  let code: string = (error as FileServerError).code
+  console.log("roote", error)
+  const code: string = (error as FileServerError).code
   let statusCode = 0
+  if ((error as FileServerError).suplemental) {
+    resp.suplemental = (error as FileServerError).suplemental
+  }
 
   //console.log("code", code)
   switch (code) {

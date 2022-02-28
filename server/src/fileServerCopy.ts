@@ -12,6 +12,8 @@ import { fileServer } from "./fileServer";
 
 fileServer.put(endpoints.COPY, body('parent').exists().isString(),
     body('fileName').exists().isString(),
+    body('newFileName').optional().isString(),
+    body('newParent').optional().isString(),
     (req: Request, res: Response, next: NextFunction) => {
 
         const data: MvFile_Request = req.body
