@@ -33,7 +33,7 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
         let resp: FileList_Response = {
             parent: HOME_ResolverPath.getPathNetwork(),
             error: false,
-            message: "HOME",
+            message: FSErrorMsg.OK,
             files: [],
         }
 
@@ -86,7 +86,7 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
                     parent: folder.network,
                     files: [],
                     error: false,
-                    message: 'Ok'
+                    message: FSErrorMsg.OK
                 }
                 _files.forEach((f: void | FileDetails) => {
                     if (f) {

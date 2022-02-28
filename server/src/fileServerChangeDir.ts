@@ -33,22 +33,23 @@ fileServer.put(endpoints.CD,
 
         directoryValid(newPath)
             .then((isDirectory: boolean) => {
-                if (isDirectory) {
-                    if (newRemoteDirectory.returnList) {
-                        return returnList(newPath)
-                    } else {
-
-                        let resp: FileList_Response = {
-                            parent: newPath.network,
-                            error: false,
-                            message: FSErrorMsg.OK
-                        }
-
-                        return resp
-                    }
+                if (!isDirectory) {
+                    throw new FileServerError(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY, FSErrorCode.ENOTDIR)
                 }
-                throw new FileServerError(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY, FSErrorCode.ENOTDIR)
-            }).then((resp: FileList_Response) => {
+            })
+            .then(() => {
+                if (newRemoteDirectory.returnList) {
+                    return returnList(newPath)
+                } else {
+                    let resp: FileList_Response = {
+                        parent: newPath.network,
+                        error: false,
+                        message: FSErrorMsg.OK
+                    }
+                    return resp
+                }
+            }) 
+            .then((resp: FileList_Response) => {
                 res.status(HttpStatusCode.OK).send(resp)
             }).catch(next)
     })
