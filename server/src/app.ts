@@ -4,12 +4,13 @@ import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/con
 import { FileServerError } from "./common/fileServerCommon";
 import { FS_Response } from './common/interfaces';
 import { fileServer } from './fileServer';
-import { fileServerCopy } from './fileServerCopy';
-import { fileServerMkDir } from './fileServerMkdir';
-import { fileServerMkFile } from './fileServerMkFile';
-import { fileServerMv } from './fileServerMv';
-import { fileServerRem } from './fileServerRem';
-import { fileServerUpload } from './fileServerUpload';
+import './fileServerCopy';
+import './fileServerMkdir';
+import './fileServerMkFile';
+import './fileServerMv';
+import './fileServerRem';
+import './fileServerUpload';
+import './fileServerDownload';
 
 export const app = express();
 
@@ -34,25 +35,17 @@ app.get(endpoints.ROOT, (req: Request, res: Response) => {
   res.redirect('/client/index.html');
 });
 
-
-
-app.use(endpoints.FS_UPLOAD, fileServerUpload)
-app.use(endpoints.FS_COPY, fileServerCopy)
-app.use(endpoints.FS_MV, fileServerMv)
-app.use(endpoints.FS_REM, fileServerRem)
-app.use(endpoints.FS_MKDIR, fileServerMkDir)
-app.use(endpoints.FS_MKFILE, fileServerMkFile)
 app.use(endpoints.FS, fileServer)
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-  
+
   let resp: FS_Response = {
     error: true,
     message: error.message,
   }
 
   //console.log("roote", req.url)
-  let code : string  = (error as FileServerError).code
+  let code: string = (error as FileServerError).code
   let statusCode = 0
 
   switch (code) {
@@ -65,6 +58,10 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
       resp.message = FSErrorMsg.FILE_ALREADY_EXIST
       statusCode = HttpStatusCode.CONFLICT
       break;
+    case FSErrorCode.EBADRQC:
+      resp.message = FSErrorMsg.BAD_REQUEST
+      statusCode = HttpStatusCode.BAD_REQUEST
+      break;
     default:
       console.error(error, error.stack)
       resp.message = `Unknown error code ${code}`
@@ -74,6 +71,6 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   if (res.headersSent) {
     return next(error)
   }
-  
+
   res.status(statusCode).send(resp)
 })

@@ -278,14 +278,7 @@ fileServer.put(endpoints.CD,
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             //console.error("Bad request", errors.array())
-
-            let resp: FS_Response = {
-                error: true,
-                message: FSErrorMsg.BAD_REQUEST,
-                suplemental: JSON.stringify(errors.array())
-            }
-            res.status(HttpStatusCode.BAD_REQUEST).send(resp)
-            return
+            throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADRQC, JSON.stringify(errors.array()))
         }
 
         let newPath = Resolver.instance.resolve(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
@@ -301,28 +294,3 @@ fileServer.put(endpoints.CD,
         })
     })
 
-fileServer.get(endpoints.DOWNLOAD + '/:path', (req: Request, res: Response) => {
-    let filePath = req.params.path
-
-    let filePathResolved = Resolver.instance.resolve(filePath)
-    //console.log(`filePath`, filePath, filePathResolved)
-
-    if (filePathResolved) {
-
-        let options = { dotfiles : "allow" }
-
-        res.download(filePathResolved.getPathServer(), filePathResolved.getFileName(), options, (err: Error) => {
-            if (err) {
-                console.error("download error", filePath, filePathResolved?.getPathServer(), JSON.stringify(err))
-                if (!res.headersSent) {
-                    res.status(HttpStatusCode.NOT_FOUND).send("File not found: " + filePath) //TODO set an error handler
-                }
-            } else {
-                // decrement a download credit, etc.
-            }
-        });
-        return
-    }
-
-    res.status(HttpStatusCode.NOT_FOUND).send("File not found: " + filePath)
-})

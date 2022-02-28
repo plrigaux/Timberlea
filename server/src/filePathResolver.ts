@@ -64,7 +64,7 @@ export class ResolverPath {
         return this.pathNetwork
     }
 
-    add(...extention: string[]): ResolverPath | null {
+    add(...extention: string[]): ResolverPath | never {
 
         if (this.isHomeRoot()) {
             return Resolver.instance.resolve(extention.join("/"))

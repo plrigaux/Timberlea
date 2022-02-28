@@ -1,12 +1,11 @@
-import express, { Request } from 'express';
+import express, { Request, Response } from 'express';
 import fs from 'fs';
 import multer from 'multer';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode, uploadFile } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { FileUpload_Response } from './common/interfaces';
 import { Resolver } from './filePathResolver';
-
-export const fileServerUpload = express.Router()
+import { fileServer } from "./fileServer";
 
 const storage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -70,9 +69,9 @@ const storage = multer.diskStorage({
         if (!df) {
             throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
         }
-       
+
         let filePath = df.getPathServer()
-        
+
         console.log("filePath", filePath)
         fs.promises.stat(filePath)
             .then(stat => {
@@ -93,8 +92,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage }).any();
 
-fileServerUpload.post(endpoints.ROOT, (req, res) => {
-    
+fileServer.post(endpoints.UPLOAD, (req: Request, res: Response) => {
+
     upload(req, res, (error) => {
         console.warn("Upload File !!!")
         console.log(error)

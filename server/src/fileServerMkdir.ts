@@ -4,11 +4,9 @@ import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
 import { MakeDirRequest, MakeDirResponse } from './common/interfaces';
 import { Resolver } from './filePathResolver';
+import { fileServer } from "./fileServer";
 
-export const fileServerMkDir = express.Router()
-
-
-fileServerMkDir.post(endpoints.ROOT, (req: Request, res: Response, next: NextFunction) => {
+fileServer.post(endpoints.MKDIR, (req: Request, res: Response, next: NextFunction) => {
 
     const data: MakeDirRequest = req.body
     console.log("Mkdir", data)

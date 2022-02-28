@@ -3,11 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
+import { fileServer } from "./fileServer";
 
-
-export const fileServerCopy = express.Router()
-
-fileServerCopy.put(endpoints.ROOT, (req: Request, res: Response) => {
+fileServer.put(endpoints.COPY, (req: Request, res: Response) => {
 
     const data: MvFile_Request = req.body
     console.log("COPY", data)

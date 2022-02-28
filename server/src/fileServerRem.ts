@@ -1,14 +1,11 @@
-import express, { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
-import path from 'path';
-import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
+import { endpoints, HttpStatusCode } from './common/constants';
 import { RemFile_Request, RemFile_Response } from './common/interfaces';
 import { Resolver } from './filePathResolver';
+import { fileServer } from "./fileServer";
 
-export const fileServerRem = express.Router()
-
-
-fileServerRem.delete(endpoints.ROOT, (req: Request, res: Response, next: NextFunction) => {
+fileServer.delete(endpoints.REM, (req: Request, res: Response, next: NextFunction) => {
 
     const data: RemFile_Request = req.body
     console.log("Delete", data)

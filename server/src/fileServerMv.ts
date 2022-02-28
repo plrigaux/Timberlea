@@ -2,16 +2,11 @@ import express, { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
+import { FileServerError } from './common/fileServerCommon';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
+import { fileServer } from "./fileServer";
 
-export const fileServerMv = express.Router()
-
-
-class FileError extends Error {
-    code: string | undefined;
-}
-
-fileServerMv.put(endpoints.ROOT, (req: Request, res: Response) => {
+fileServer.put(endpoints.MV, (req: Request, res: Response) => {
 
     const data: MvFile_Request = req.body
     console.log("MV", data)
@@ -43,9 +38,8 @@ fileServerMv.put(endpoints.ROOT, (req: Request, res: Response) => {
 
     fileExistCheck.then((targetExist) => {
         if (targetExist) {
-            let e = new FileError("file already exist ...")
-            e.code = FSErrorCode.EEXIST
-            throw e
+            throw new FileServerError
+                ("file already exist ...", FSErrorCode.EEXIST)
         }
         return fs.promises.rename(oldPath, newPath)
     }).then(() => {

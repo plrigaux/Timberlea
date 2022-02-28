@@ -3,10 +3,9 @@ import fs from 'fs';
 import { endpoints, HttpStatusCode } from './common/constants';
 import { MakeDirResponse, MakeFileRequest, MakeFileResponse } from './common/interfaces';
 import { Resolver } from './filePathResolver';
+import { fileServer } from "./fileServer";
 
-export const fileServerMkFile = express.Router()
-
-fileServerMkFile.post(endpoints.ROOT, (req: Request, res: Response, next: NextFunction) => {
+fileServer.post(endpoints.MKFILE, (req: Request, res: Response, next: NextFunction) => {
 
     const data: MakeFileRequest = req.body
     console.log("Mkfile", data)
