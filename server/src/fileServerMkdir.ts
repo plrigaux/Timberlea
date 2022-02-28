@@ -1,7 +1,6 @@
-import express, { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
-import path from 'path';
-import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
+import { endpoints, HttpStatusCode } from './common/constants';
 import { MakeDirRequest, MakeDirResponse } from './common/interfaces';
 import { Resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";

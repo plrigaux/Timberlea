@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import fs, { Dirent } from 'fs';
 import path from 'path';
@@ -26,26 +26,12 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
     res.send(newRemoteDirectory)
 });
 
-interface Bob { statusCode: number; resp: FileList_Response }
+export interface Bob { statusCode: number; resp: FileList_Response }
 
-function returnList(folder: ResolverPath | null): Promise<Bob> {
+export function returnList(folder: ResolverPath): Promise<Bob> {
     console.log(`folder ${folder}`)
 
-    if (!folder) {
-        let resp: FileList_Response = {
-            parent: "",
-            error: true,
-            message: "NOT found"
-        }
-
-        let statusCode = HttpStatusCode.NOT_FOUND
-
-        let ret: Promise<Bob> = new Promise((resolve, reject) => {
-            resolve({ statusCode, resp })
-        });
-
-        return ret;
-    } else if (folder == HOME_ResolverPath) {
+    if (folder == HOME_ResolverPath) {
         let resp: FileList_Response = {
             parent: HOME_ResolverPath.getPathNetwork(),
             error: false,
@@ -118,65 +104,34 @@ function returnList(folder: ResolverPath | null): Promise<Bob> {
                     return { statusCode, resp }
                 }
             )
-        }).catch((error) => {
-            console.log(error)
-            let resp: FileList_Response = {
-                parent: folder.getPathServer(),
-                error: true,
-                message: ''
-            }
-            let statusCode = HttpStatusCode.INTERNAL_SERVER
-            switch (error.code) {
-                case FSErrorCode.ENOENT:
-                    resp.message = FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST
-                    statusCode = HttpStatusCode.NOT_FOUND;
-                    break;
-                case FSErrorCode.EACCES:
-                    resp.message = FSErrorMsg.DESTINATION_FOLDER_NOT_ACCESSIBLE
-                    statusCode = HttpStatusCode.FORBIDDEN
-                    break;
-                case FSErrorCode.ENOTDIR:
-                    resp.message = FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY
-                    statusCode = HttpStatusCode.CONFLICT
-                    break;
-                default:
-                    console.error(error);
-                    resp.message = FSErrorMsg.UNKNOWN_ERROR
-                    statusCode = HttpStatusCode.INTERNAL_SERVER
-            }
-            return { statusCode, resp }
-        });
+        })
 }
 
-function getList(req: Request, res: Response) {
+function getList(req: Request, res: Response, next: NextFunction) {
     let paramPath = req.params.path
-    let folder: ResolverPath | null = Resolver.instance.resolve(paramPath)
+    let folder: ResolverPath = Resolver.instance.resolve(paramPath)
     returnList(folder).then((b: Bob) => {
         res.status(b.statusCode).send(b.resp)
-    })
+    }).catch(next)
 }
 
 //List without path
-fileServer.get(endpoints.LIST, (req: Request, res: Response) => {
-    getList(req, res)
+fileServer.get(endpoints.LIST, (req: Request, res: Response, next: NextFunction) => {
+    getList(req, res, next)
 })
 
-fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response) => {
-    getList(req, res)
+fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response, next: NextFunction) => {
+    getList(req, res, next)
 })
 
-fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
+fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response, next: NextFunction) => {
+
     const file: string = req.params.path
-
-    let resp: FileDetail_Response = {
-        error: true,
-        message: ''
-    }
 
     let statusCode = -1
     fs.promises.stat(file)
         .then(stat => {
-            resp = {
+            let resp: FileDetail_Response = {
                 file: {
                     name: path.basename(file),
                     type: stat.isFile() ? FileType.File : stat.isDirectory() ? FileType.Directory : FileType.Other,
@@ -185,54 +140,24 @@ fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response) => {
                     birthtime: stat.birthtime.toISOString()
                 },
                 error: false,
-                message: 'OK'
+                message: FSErrorMsg.OK
             }
             statusCode = HttpStatusCode.OK
-        })
-        .catch((error) => {
-            let statusCode = HttpStatusCode.INTERNAL_SERVER
-
-            switch (error.code) {
-                case FSErrorCode.ENOENT:
-                    resp.message = FSErrorMsg.FILE_DOESNT_EXIST
-                    statusCode = HttpStatusCode.NOT_FOUND
-                    break;
-                case FSErrorCode.EACCES:
-                    resp.message = FSErrorMsg.FILE_NOT_ACCESSIBLE
-                    statusCode = HttpStatusCode.FORBIDDEN
-                    break;
-                default:
-                    console.warn(error)
-                    resp.message = error.message
-                    statusCode = HttpStatusCode.INTERNAL_SERVER
-            }
-
-        }).finally(() => {
             res.status(statusCode).send(resp)
         })
+        .catch(next)
 })
 
-
-
-
-function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
+export function directoryValid(dirpath: ResolverPath): Promise<Bob> {
 
     let resp: FileList_Response = {
-        parent: dirpath?.getPathNetwork() || "",
+        parent: dirpath.network,
         error: true,
         message: ''
     }
     let statusCode = 0
 
-    return Promise.resolve(dirpath)
-        .then(dp => {
-            if (!dp) {
-                throw new FileServerError('path not resoled', FSErrorCode.ENOENT)
-            }
-
-            let pathServer = dp.getPathServer()
-            return fs.promises.stat(pathServer)
-        })
+    return fs.promises.stat(dirpath.server)
         .then((stat: fs.Stats) => {
             const isDirectory = stat.isDirectory()
             if (isDirectory) {
@@ -264,33 +189,4 @@ function directoryValid(dirpath: ResolverPath | null): Promise<Bob> {
         })
 }
 
-fileServer.put(endpoints.CD,
-    body('remoteDirectory').exists().isString(),
-    body('newPath').exists().isString(),
-    body('returnList').toBoolean()
-    , (req: Request, res: Response) => {
-        console.log("cdpath: " + req.body)
-        console.log("remoteDirectory: " + req.body.remoteDirectory)
-        console.log("newPath: " + req.body.newPath)
-
-        let newRemoteDirectory: ChangeDir_Request = req.body
-
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            //console.error("Bad request", errors.array())
-            throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
-        }
-
-        let newPath = Resolver.instance.resolve(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
-
-        directoryValid(newPath).then((valid: Bob) => {
-            if (newRemoteDirectory.returnList && !valid.resp.error) {
-                return returnList(newPath)
-            } else {
-                return valid
-            }
-        }).then((valid: Bob) => {
-            res.status(valid.statusCode).send(valid.resp)
-        })
-    })
 

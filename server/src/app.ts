@@ -11,6 +11,7 @@ import './fileServerMv';
 import './fileServerRem';
 import './fileServerUpload';
 import './fileServerDownload';
+import './fileServerChangeDir';
 
 export const app = express();
 
