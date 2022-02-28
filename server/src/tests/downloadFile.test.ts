@@ -40,7 +40,7 @@ describe('Downaload', () => {
 
         let fileName = "poutpout.txt"
 
-        fs.writeFileSync(path.join(directoryRes.getPathServer(), fileName), 'Learn Node FS module')
+        fs.writeFileSync(path.join(directoryRes.server, fileName), 'Learn Node FS module')
 
         let remoteDirectory = encodeURIComponent(directoryRes.add(fileName).getPathNetwork());
         const url = path.join(endpoints.FS_DOWNLOAD, remoteDirectory)
@@ -61,6 +61,22 @@ describe('Downaload', () => {
             .get(url)
             .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /text\/html/);
+
+    });
+
+    test('Downaload a single Linux hidden file', async () => {
+
+        let fileName = ".hidden"
+
+        fs.writeFileSync(path.join(directoryRes.server, fileName), 'hidden file')
+
+        let remoteDirectory = encodeURIComponent(directoryRes.add(fileName).network);
+        const url = path.join(endpoints.FS_DOWNLOAD, remoteDirectory)
+
+        const resp = await request(app)
+            .get(url)
+            .expect(HttpStatusCode.OK)
+            //.expect("Content-Type", /text\/plain/);
 
     });
 })
