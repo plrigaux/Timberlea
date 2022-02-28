@@ -1,64 +1,34 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
+import { Resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
 
-fileServer.put(endpoints.COPY, (req: Request, res: Response) => {
+fileServer.put(endpoints.COPY, (req: Request, res: Response, next: NextFunction) => {
 
     const data: MvFile_Request = req.body
     console.log("COPY", data)
 
-    const oldPath = path.join(data.parent, data.fileName)
+    const oldPath = Resolver.instance.resolve(data.parent, data.fileName)
 
-    const newPath = path.join(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
-
-    let resp: MvFile_Response = {
-        error: true,
-        message: ``,
-        parent: path.dirname(newPath),
-        oldFileName: data.fileName,
-        newFileName: path.basename(newPath)
-    }
-
-    let statusCode: number = HttpStatusCode.INTERNAL_SERVER
+    const newPath = Resolver.instance.resolve(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
 
     let mode = data.overwrite ? 0 : fs.constants.COPYFILE_EXCL
 
-    fs.promises.copyFile(oldPath, newPath, mode)
+    fs.promises.copyFile(oldPath.server, newPath.server, mode)
         .then(() => {
-            resp.error = false
-            resp.message = "OK"
-            statusCode = HttpStatusCode.OK
-        })
-        .catch((error) => {
-            switch (error.code) {
-                case FSErrorCode.ENOENT:
-                    resp.message = `Directory doesn't exist`
-                    statusCode = HttpStatusCode.NOT_FOUND
-                    break;
-                case FSErrorCode.EACCES:
-                    resp.message = `Directory is not accessible`
-                    statusCode = HttpStatusCode.FORBIDDEN
-                    break;
-                case FSErrorCode.EEXIST:
-                    resp.message = "File already exists"
-                    statusCode = HttpStatusCode.CONFLICT
-                    break;
-                case FSErrorCode.EPERM:
-                case FSErrorCode.EISDIR:
-                    resp.message = "Operation not permitted"
-                    statusCode = HttpStatusCode.FORBIDDEN
-                    break;
-                default:
-                    console.error(error);
-                    resp.message = `Unknown error`
-                    statusCode = HttpStatusCode.INTERNAL_SERVER
+            let resp: MvFile_Response = {
+                error: false,
+                message: "OK",
+                parent: newPath.dirnameNetwork,
+                oldFileName: data.fileName,
+                newFileName: newPath.basename
             }
+
+            res.status(HttpStatusCode.OK).send(resp);
         })
-        .finally(() => {
-            res.status(statusCode).send(resp);
-        })
+        .catch(next)
 })
 

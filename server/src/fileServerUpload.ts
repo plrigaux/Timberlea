@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import fs from 'fs';
 import multer from 'multer';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode, uploadFile } from './common/constants';

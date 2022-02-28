@@ -59,13 +59,19 @@ export enum HttpStatusCode {
  */
 
 export enum FSErrorCode {
+    /** Permission is denied. */
     EACCES = "EACCES",
-    /** No such file or directory */
+    /** There is no such file or directory exists */
     ENOENT = "ENOENT",
+    /** File already exists */
     EEXIST = "EEXIST",
+    /** operation is not permitted */
     EPERM = "EPERM",
+    /** not a directory */
     ENOTDIR = "ENOTDIR",
+    /** there is an invalid argument */
     EINVAL = "EINVAL",
+
     EISDIR = "EISDIR",
     KEY_UNRESOLVED = "KEY_UNRESOLVED",
     EBADRQC = "EBADRQC"

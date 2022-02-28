@@ -48,6 +48,7 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   let code: string = (error as FileServerError).code
   let statusCode = 0
 
+  //console.log("code", code)
   switch (code) {
     case FSErrorCode.KEY_UNRESOLVED:
     case FSErrorCode.ENOENT:
@@ -62,6 +63,16 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
       resp.message = FSErrorMsg.BAD_REQUEST
       statusCode = HttpStatusCode.BAD_REQUEST
       break;
+    case FSErrorCode.EACCES:
+      resp.message = FSErrorMsg.DESTINATION_FOLDER_NOT_ACCESSIBLE
+      statusCode = HttpStatusCode.FORBIDDEN
+      break;
+    case FSErrorCode.EPERM:
+    case FSErrorCode.EISDIR:
+      resp.message = "Operation not permitted"
+      statusCode = HttpStatusCode.FORBIDDEN
+      break;
+
     default:
       console.error(error, error.stack)
       resp.message = `Unknown error code ${code}`

@@ -5,14 +5,17 @@ import path from 'path'
 import request from 'supertest'
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
-import { MvFile_Request, MvFile_Response } from '../common/interfaces'
+import { FS_Response, MvFile_Request, MvFile_Response } from '../common/interfaces'
+import { Resolver, ResolverPath } from '../filePathResolver'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "copy file dir"
-const dir = path.join(os.tmpdir(), testDirMain, testDir)
+//const dir = path.join(os.tmpdir(), testDirMain, testDir)
+const directoryRes = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
+    let dir = directoryRes.server
     console.log(dir);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -37,10 +40,10 @@ describe('Copy file', () => {
 
         let oldFileName = "poutpout.txt"
         let newFileName = 'robert.txt'
-        tu.createFile(oldFileName, dir, "File data, file data file data")
+        tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: directoryRes.getPathNetwork(),
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -56,7 +59,7 @@ describe('Copy file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
+        expect(dataresp.parent).toEqual(directoryRes.getPathNetwork())
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -64,15 +67,15 @@ describe('Copy file', () => {
 
         let oldFileName = "poutpoutttt.txt"
 
-        tu.createFile(oldFileName, dir, "File data, file data file data")
+        tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
 
-        let dirPath = path.join(dir, "outDir")
-        fs.mkdirSync(dirPath);
+        let dirPath = directoryRes.add("outDir")
+        fs.mkdirSync(dirPath.server);
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: directoryRes.getPathNetwork(),
             fileName: oldFileName,
-            newParent: dirPath
+            newParent: dirPath.getPathNetwork()
         }
 
         const resp = await request(app)
@@ -86,7 +89,7 @@ describe('Copy file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(oldFileName)
-        expect(dataresp.parent).toEqual(dirPath)
+        expect(dataresp.parent).toEqual(dirPath.getPathNetwork())
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -97,7 +100,7 @@ describe('Copy file', () => {
         //tu.createFile(oldFileName, dir, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: directoryRes.getPathNetwork(),
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -108,13 +111,10 @@ describe('Copy file', () => {
             .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /json/);
 
-        let dataresp: MvFile_Response = resp.body
+        let dataresp: FS_Response = resp.body
         console.log(dataresp)
 
         expect(dataresp.error).toBeTruthy();
-        expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
-        //expect(dataresp.message).toMatch(/^File/)
     });
 
     test('Copy a single file - target exist', async () => {
@@ -122,11 +122,11 @@ describe('Copy file', () => {
         let oldFileName = "poutpout3.txt"
         let newFileName = 'robert4.txt'
 
-        tu.createFile(oldFileName, dir, "File data, file data file data")
-        tu.createFile(newFileName, dir, "File data, file data file data")
+        tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
+        tu.createFile(newFileName, directoryRes.server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: directoryRes.getPathNetwork(),
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -141,8 +141,6 @@ describe('Copy file', () => {
         console.log(dataresp)
 
         expect(dataresp.error).toBeTruthy();
-        expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
     });
 
     test('Copy a single file - target exist - overwrite target', async () => {
@@ -150,11 +148,11 @@ describe('Copy file', () => {
         let oldFileName = "poutpout8.txt"
         let newFileName = 'robert8.txt'
 
-        tu.createFile(oldFileName, dir, "File data, file data file data")
-        tu.createFile(newFileName, dir, "File data, file data file data")
+        tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
+        tu.createFile(newFileName, directoryRes.server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: directoryRes.getPathNetwork(),
             fileName: oldFileName,
             newFileName: newFileName,
             overwrite: true
@@ -171,7 +169,7 @@ describe('Copy file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
+        expect(dataresp.parent).toEqual(directoryRes.getPathNetwork())
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -179,12 +177,12 @@ describe('Copy file', () => {
 
         let oldFileName = "directory dir"
         let newFileName = 'directory bear'
-        fs.mkdirSync(path.join(dir, oldFileName))
+        fs.mkdirSync(path.join(directoryRes.server, oldFileName))
 
-        tu.createFile("snusnuf.txt", path.join(dir, oldFileName), "File data, file data file data")
+        tu.createFile("snusnuf.txt", path.join(directoryRes.server, oldFileName), "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: directoryRes.getPathNetwork(),
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -195,11 +193,9 @@ describe('Copy file', () => {
             .expect(HttpStatusCode.FORBIDDEN)
             .expect("Content-Type", /json/);
 
-        let dataresp: MvFile_Response = resp.body
+        let dataresp: FS_Response = resp.body
         console.log(dataresp)
 
         expect(dataresp.error).toBeTruthy();
-        expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
     });
 })

@@ -57,11 +57,27 @@ export class ResolverPath {
         return lh > 0 ? this.dirFiles[lh - 1] : ""
     }
 
+    get basename() {
+        return this.getFileName()
+    }
+
+    get dirnameNetwork() {
+        return this.dirFiles.slice(0, -1).join("/")
+    }
+
     getPathNetwork(): string {
         if (!this.pathNetwork) {
             this.pathNetwork = this.dirFiles.join("/")
         }
         return this.pathNetwork
+    }
+
+    get network() {
+        return this.getPathNetwork()
+    }
+
+    get server() {
+        return this.getPathServer()
     }
 
     add(...extention: string[]): ResolverPath | never {
