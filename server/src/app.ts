@@ -62,7 +62,7 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
       resp.message = FSErrorMsg.FILE_ALREADY_EXIST
       statusCode = HttpStatusCode.CONFLICT
       break;
-    case FSErrorCode.EBADRQC:
+    case FSErrorCode.EBADR:
       resp.message = FSErrorMsg.BAD_REQUEST
       statusCode = HttpStatusCode.BAD_REQUEST
       break;
@@ -72,10 +72,13 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
       break;
     case FSErrorCode.EPERM:
     case FSErrorCode.EISDIR:
-      resp.message = "Operation not permitted"
+      resp.message = FSErrorMsg.OPERATION_NOT_PERMITTED
       statusCode = HttpStatusCode.FORBIDDEN
       break;
-
+    case FSErrorCode.ENOTDIR:
+      resp.message = FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY
+      statusCode = HttpStatusCode.CONFLICT
+      break;
     default:
       console.error(error, error.stack)
       resp.message = `Unknown error code ${code}`

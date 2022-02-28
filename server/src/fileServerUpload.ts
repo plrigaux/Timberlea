@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import multer from 'multer';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode, uploadFile } from './common/constants';
@@ -9,8 +9,6 @@ import { fileServer } from "./fileServer";
 
 const storage = multer.diskStorage({
     destination: function (req, file, callback) {
-
-
         let dsError: Error | null = null
         let cbDestinationFolder = ""
 
@@ -92,56 +90,23 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage }).any();
 
-fileServer.post(endpoints.UPLOAD, (req: Request, res: Response) => {
+fileServer.post(endpoints.UPLOAD, (req: Request, res: Response, next: NextFunction) => {
 
     upload(req, res, (error) => {
-        console.warn("Upload File !!!")
-        console.log(error)
-
-        let response: FileUpload_Response = {
-            parent: req.body[uploadFile.DESTINATION_FOLDER],
-            error: false,
-            message: '',
-            files: []
-        }
+        console.log("Upload File !!!")
 
         let statusCode = -1
         if (error) {
-            response.error = true
-            //TODO test if can write a file
-            switch (error.code) {
-
-                case FSErrorCode.EINVAL:
-                    response.message = FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED
-                    statusCode = HttpStatusCode.BAD_REQUEST
-                    break;
-
-                case FSErrorCode.EEXIST:
-                    response.message = FSErrorMsg.FILE_ALREADY_EXIST
-                    statusCode = HttpStatusCode.CONFLICT
-                    break;
-
-                case FSErrorCode.ENOENT:
-                    response.message = FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST
-                    statusCode = HttpStatusCode.NOT_FOUND
-                    break;
-
-                case FSErrorCode.ENOTDIR:
-                    response.message = FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY
-                    statusCode = HttpStatusCode.CONFLICT
-                    break;
-
-                case FSErrorCode.EACCES:
-                    response.message = FSErrorMsg.DESTINATION_FOLDER_NOT_ACCESSIBLE
-                    statusCode = HttpStatusCode.FORBIDDEN
-                    break;
-
-                default:
-                    statusCode = HttpStatusCode.INTERNAL_SERVER
-            }
+            next(error)
         } else {
             statusCode = HttpStatusCode.OK
-            response.message = "OK"
+
+            let response: FileUpload_Response = {
+                parent: req.body[uploadFile.DESTINATION_FOLDER],
+                error: false,
+                message: FSErrorMsg.OK,
+                files: []
+            }
 
             if (req.file) {
                 let f = req.file
@@ -157,7 +122,7 @@ fileServer.post(endpoints.UPLOAD, (req: Request, res: Response) => {
                     })
                 }
             }
+            res.status(statusCode).send(response);
         }
-        res.status(statusCode).send(response);
     });
 });

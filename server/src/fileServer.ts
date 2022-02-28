@@ -278,7 +278,7 @@ fileServer.put(endpoints.CD,
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             //console.error("Bad request", errors.array())
-            throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADRQC, JSON.stringify(errors.array()))
+            throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
         }
 
         let newPath = Resolver.instance.resolve(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)

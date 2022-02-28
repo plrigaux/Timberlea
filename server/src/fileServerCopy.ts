@@ -1,7 +1,6 @@
-import express, { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import fs from 'fs';
-import path from 'path';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
@@ -22,7 +21,7 @@ fileServer.put(endpoints.COPY, body('parent').exists().isString(),
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             //console.error("Bad request", errors.array())
-            throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADRQC, JSON.stringify(errors.array()))
+            throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
         }
 
         const oldPath = Resolver.instance.resolve(data.parent, data.fileName)

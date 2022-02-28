@@ -32,6 +32,7 @@ export namespace uploadFile {
     export const DESTINATION_FOLDER = "destinationFolder"
 }
 
+
 export enum FSErrorMsg {
     NO_DESTINATION_FOLDER_SUPPLIED = "NO DESTINATION FOLDER SUPPLIED",
     FILE_ALREADY_EXIST = "FILE ALREADY EXIST",
@@ -42,22 +43,28 @@ export enum FSErrorMsg {
     DESTINATION_FOLDER_NOT_ACCESSIBLE = "DESTINATION FOLDER NOT ACCESSIBLE",
     BAD_REQUEST = "BAD_REQUEST",
     UNKNOWN_ERROR = "UNKNOWN_ERROR",
+    OPERATION_NOT_PERMITTED = "OPERATION_NOT_PERMITTED",
+    OK = "OK"
 }
 
 export enum HttpStatusCode {
     OK = 200,
     CREATED = 201,
+    /** Bad Request. */
     BAD_REQUEST = 400,
+    /** Access to that resource is forbidden. */
     FORBIDDEN = 403,
+    /** The requested resource was not found. */
     NOT_FOUND = 404,
+    /** Conflict */
     CONFLICT = 409,
+    /** There was an error on the server and the request could not be completed. */
     INTERNAL_SERVER = 500,
 }
 
 /**
  * This are error codes
  */
-
 export enum FSErrorCode {
     /** Permission is denied. */
     EACCES = "EACCES",
@@ -71,8 +78,10 @@ export enum FSErrorCode {
     ENOTDIR = "ENOTDIR",
     /** there is an invalid argument */
     EINVAL = "EINVAL",
-
+    /** illegal operation on a directory */
     EISDIR = "EISDIR",
+    /** Directory mapping key not resolved */
     KEY_UNRESOLVED = "KEY_UNRESOLVED",
-    EBADRQC = "EBADRQC"
+    /** Invalid request descriptor */
+    EBADR = "EBADR"
 }
