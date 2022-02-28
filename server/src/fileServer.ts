@@ -114,29 +114,3 @@ fileServer.get(endpoints.LIST, (req: Request, res: Response, next: NextFunction)
 fileServer.get(endpoints.LIST + "/:path", (req: Request, res: Response, next: NextFunction) => {
     getList(req, res, next)
 })
-
-fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response, next: NextFunction) => {
-
-    const file: string = req.params.path
-
-    let statusCode = -1
-    fs.promises.stat(file)
-        .then(stat => {
-            let resp: FileDetail_Response = {
-                file: {
-                    name: path.basename(file),
-                    type: stat.isFile() ? FileType.File : stat.isDirectory() ? FileType.Directory : FileType.Other,
-                    size: stat.size,
-                    parentDirectory: path.dirname(file),
-                    birthtime: stat.birthtime.toISOString()
-                },
-                error: false,
-                message: FSErrorMsg.OK
-            }
-            statusCode = HttpStatusCode.OK
-            res.status(statusCode).send(resp)
-        })
-        .catch(next)
-})
-
-

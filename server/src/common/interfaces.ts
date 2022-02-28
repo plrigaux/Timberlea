@@ -28,7 +28,7 @@ export interface FileList_Response extends FS_Response {
 }
 
 export interface FileDetail_Response extends FS_Response {
-    file?: FileDetailsEnhanced
+    file: FileDetailsEnhanced
 }
 
 export interface ChangeDir_Request {

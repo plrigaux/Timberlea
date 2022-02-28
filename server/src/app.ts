@@ -12,6 +12,7 @@ import './fileServerRem';
 import './fileServerUpload';
 import './fileServerDownload';
 import './fileServerChangeDir';
+import './fileServerFileDetails';
 
 export const app = express();
 

@@ -68,7 +68,7 @@ describe('Create File', () => {
             data: "no data"
         }
 
-        fs.writeFileSync(path.join(directoryRes.getPathServer(), data.fileName), 'Learn Node FS module')
+        fs.writeFileSync(path.join(directoryRes.server, data.fileName), 'Learn Node FS module')
 
         const resp = await request(app)
             .post(endpoints.FS_MKFILE)
