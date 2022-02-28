@@ -198,4 +198,21 @@ describe('Copy file', () => {
 
         expect(dataresp.error).toBeTruthy();
     });
+
+    test('Copy - malformed Request', async () => {
+        const data: MvFile_Request = {
+           
+        } as MvFile_Request
+
+        const resp = await request(app)
+            .put(endpoints.FS_COPY)
+            .send(data)
+            .expect(HttpStatusCode.BAD_REQUEST)
+            .expect("Content-Type", /json/);
+
+        let dataresp: FS_Response = resp.body
+        console.log(dataresp)
+
+        expect(dataresp.error).toBeTruthy();
+    });
 })
