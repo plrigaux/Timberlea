@@ -1,33 +1,33 @@
+import { A11yModule } from '@angular/cdk/a11y';
+import { CdkTableModule } from '@angular/cdk/table';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HttpClientModule } from '@angular/common/http';
-import { MatButtonModule } from '@angular/material/button';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { CdkTableModule } from '@angular/cdk/table';
-import { FileUploadComponent } from './file-upload/file-upload.component';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSortModule } from "@angular/material/sort"
-import { A11yModule } from '@angular/cdk/a11y';
-import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
-import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.component';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { LongPressDirective } from './long-press.directive';
-import { MatChipsModule } from '@angular/material/chips';
-import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/controls.component';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
-import { MatMenuModule } from '@angular/material/menu';
-import { MenuComponent } from './menu/menu.component';
+import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/controls.component';
+import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.component';
+import { FileUploadComponent } from './file-upload/file-upload.component';
+import { LongPressDirective } from './long-press.directive';
+import { MenuComponent, DialogDirectoryCreate } from './menu/menu.component';
+import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
+
 
 @NgModule({
   declarations: [
@@ -40,7 +40,8 @@ import { MenuComponent } from './menu/menu.component';
     DialogFileRename,
     DialogFileInfo,
     BreadcrumbComponent,
-    MenuComponent
+    MenuComponent,
+    DialogDirectoryCreate
   ],
   imports: [
     BrowserModule,

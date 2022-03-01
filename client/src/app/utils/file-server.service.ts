@@ -1,10 +1,17 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response, FS_Response, MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response } from '../../../server/src/common/interfaces';
-import { environment } from '../../../client/src/environments/environment';
-import { endpoints } from '../../../server/src/common/constants';
-import { catchError, Observable, Observer, of, retry, Subject, Subscription, tap, throwError, throwIfEmpty } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { catchError, Observable, Observer, retry, Subject, Subscription, tap, throwError } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { endpoints } from '../../../../server/src/common/constants';
+import {
+  ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response,
+  MakeDirRequest,
+  MakeDirResponse,
+  MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response
+} from '../../../../server/src/common/interfaces';
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -25,11 +32,12 @@ export class FileServerService {
 
   private newList = new Subject<FileDetails[]>()
   private newRemoteDirectory = new Subject<string>()
-  private waiting = new Subject<boolean>()
-  private deleteSub = new Subject<string>()
-  private selectFileSub = new Subject<FileDetailsPlus | null>()
-  private modifSubjet = new Subject<MvFile_Response>()
-  private newFileSubjet = new Subject<FileDetails>()
+  private waitingSubject = new Subject<boolean>()
+  private deleteSubject = new Subject<string>()
+  private selectFileSubject = new Subject<FileDetailsPlus | null>()
+  private modifSubject = new Subject<MvFile_Response>()
+  private newFileSubject = new Subject<FileDetails>()
+  private newFolderSubject = new Subject<string>()
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) {
     this.serverUrl = environment.serverUrl
@@ -44,27 +52,27 @@ export class FileServerService {
   }
 
   subscribeWaiting(obs: Partial<Observer<boolean>>): Subscription {
-    return this.waiting.subscribe(obs)
+    return this.waitingSubject.subscribe(obs)
   }
 
   subscribeDelete(obs: Partial<Observer<string>>): Subscription {
-    return this.deleteSub.subscribe(obs)
+    return this.deleteSubject.subscribe(obs)
   }
 
   subscribeSelectFileSub(obs: Partial<Observer<FileDetailsPlus | null>>): Subscription {
-    return this.selectFileSub.subscribe(obs)
+    return this.selectFileSubject.subscribe(obs)
   }
 
   subscribeModif(obs: Partial<Observer<MvFile_Response>>): Subscription {
-    return this.modifSubjet.subscribe(obs)
+    return this.modifSubject.subscribe(obs)
   }
 
   subscribeNewFileSubjet(obs: Partial<Observer<FileDetails>>): Subscription {
-    return this.newFileSubjet.subscribe(obs)
+    return this.newFileSubject.subscribe(obs)
   }
 
   addNewFile(file: FileDetails): void {
-    this.newFileSubjet.next(file)
+    this.newFileSubject.next(file)
   }
 
   pwd(): void {
@@ -80,7 +88,7 @@ export class FileServerService {
   }
 
   cd(relPath: string, remoteDirectory: string | null = null, returnList = true): void {
-    this.waiting.next(true)
+    this.waitingSubject.next(true)
     let newRemoteDirectory: ChangeDir_Request = {
       remoteDirectory: remoteDirectory ? remoteDirectory : this.remoteDirectory,
       newPath: relPath,
@@ -108,7 +116,7 @@ export class FileServerService {
   }
 
   list(path: string | null = null): void {
-    this.waiting.next(true)
+    this.waitingSubject.next(true)
 
     if (path === null) {
       path = this.remoteDirectory
@@ -136,12 +144,12 @@ export class FileServerService {
       })
   }
 
-  private setRemoteDirectory(data: ChangeDir_Response) {
-    if (!data.error) {
+  private setRemoteDirectory(data: ChangeDir_Response | null) {
+    if (data && !data.error) {
       this.remoteDirectory = data.parent
       this.newRemoteDirectory.next(this.remoteDirectory)
     }
-    this.waiting.next(false)
+    this.waitingSubject.next(false)
   }
 
   getRemoteDirectory(): string {
@@ -163,7 +171,7 @@ export class FileServerService {
     this._snackBar.open(message, "Close", {
       duration: 10 * 1000,
     })
-    this.waiting.next(false)
+    this.waitingSubject.next(false)
 
     return throwError(() => new Error(message))
   }
@@ -178,7 +186,7 @@ export class FileServerService {
       return;
     }
 
-    this.waiting.next(true)
+    this.waitingSubject.next(true)
     let request: RemFile_Request = {
       parent: this.remoteDirectory,
       fileName: fileName,
@@ -202,7 +210,7 @@ export class FileServerService {
     ob.subscribe(
       {
         next: (data: RemFile_Response) => {
-          this.deleteSub.next(fileName)
+          this.deleteSubject.next(fileName)
         },
         error: e => {
 
@@ -215,7 +223,7 @@ export class FileServerService {
     if (file) {
       fdp.directory = this.remoteDirectory
     }
-    this.selectFileSub.next(fdp)
+    this.selectFileSubject.next(fdp)
   }
 
   copyPaste(copySelect: FileDetailsPlus) {
@@ -261,12 +269,49 @@ export class FileServerService {
     ob.subscribe(
       {
         next: (data: MvFile_Response) => {
-          this.modifSubjet.next(data)
+          this.modifSubject.next(data)
         },
         error: e => {
 
         }
       })
+  }
+
+
+  newFolder(directoryName: string | null | undefined) {
+    if (!directoryName) {
+      return;
+    }
+
+    this.waitingSubject.next(true)
+    let request: MakeDirRequest = {
+      parent: this.remoteDirectory,
+      dirName: directoryName,
+    }
+
+    const options = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      })
+    };
+
+    this.http.post<MakeDirResponse>(this.serverUrl + endpoints.FS_MKDIR, request, options).pipe(
+      tap((data: MakeDirResponse) => {
+        this.setRemoteDirectory(null)
+      }),
+      //retry(2),
+      catchError((e) => this.handleError(e as HttpErrorResponse))
+    ).subscribe({
+      next: (data: MakeDirResponse) => {
+
+        let arr = data.directory.split("/")
+        let dirName = arr[arr.length - 1]
+        this.newFolderSubject.next(dirName)
+      },
+      error: e => {
+
+      }
+    })
   }
 
 }

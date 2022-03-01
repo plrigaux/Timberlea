@@ -35,9 +35,7 @@ describe('Create directory', () => {
         const data: MakeDirRequest = {
             parent: directoryRes.getPathNetwork(),
             dirName: 'pout pout',
-            recursive: false
         }
-
 
         const resp = await request(app)
             .post(endpoints.FS_MKDIR)

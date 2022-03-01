@@ -163,6 +163,7 @@ export class Resolver {
     }
 
     resolve(pathToResolve: string | null | undefined, ...dirs: string[]): ResolverPath | never {
+        console.log("resolve", pathToResolve, dirs)
         if (pathToResolve === null || pathToResolve === undefined) {
             pathToResolve = HOME
         }

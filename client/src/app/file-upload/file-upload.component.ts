@@ -4,7 +4,7 @@ import { finalize, Subscription } from 'rxjs';
 import { endpoints, uploadFile } from '../../../../server/src/common/constants';
 import { FileDetails, FileType } from '../../../../server/src/common/interfaces';
 import { environment } from '../../environments/environment';
-import { FileServerService } from '../file-server.service';
+import { FileServerService } from '../utils/file-server.service';
 
 @Component({
   selector: 'app-file-upload',

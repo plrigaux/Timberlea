@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FileServerService } from '../file-server.service';
+import { FileServerService } from '../utils/file-server.service';
 
 @Component({
   selector: 'app-breadcrumb',
@@ -10,7 +10,6 @@ export class BreadcrumbComponent implements OnInit {
   private remoteDirectory = ""
   pathChip: PathChip[] = []
   private re = /\//
-
 
   constructor(private fileServerService: FileServerService) { }
 

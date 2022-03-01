@@ -1,10 +1,7 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { ChangeDir_Response, FileDetails, FileList_Response, FileType } from '../../../server/src/common/interfaces';
 import { environment } from '../../../client/src/environments/environment';
-import { FileServerService } from './file-server.service';
-
-
-
+import { FileServerService } from './utils/file-server.service';
 
 @Component({
   selector: 'app-root',

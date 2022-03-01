@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { FileDetails } from '../../../../server/src/common/interfaces';
-import { FileDetailsPlus, FileServerService } from '../file-server.service';
+import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
+import { DirtyErrorStateMatcher, forbiddenCharValidator } from '../utils/utils';
 
 @Component({
   selector: 'app-controls',
@@ -106,24 +106,6 @@ export class ControlsComponent implements OnInit, OnDestroy {
 })
 export class DialogFileInfo {
   constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) { }
-}
-
-
-export function forbiddenCharValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const forbidden = /[\/\\\<\>\"?\:\*]/.test(control.value);
-
-
-    return forbidden ? { forbiddenChar: { value: control.value } } : null;
-  };
-}
-
-
-
-export class DirtyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    return !!(control && control.invalid && (control.dirty || control.touched));
-  }
 }
 
 @Component({

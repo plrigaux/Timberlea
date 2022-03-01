@@ -6,7 +6,7 @@
       <mat-icon>text_snippet</mat-icon>
       <span>New file</span>
     </button>
-    <button mat-menu-item [disabled]="createFolderDisable">
+    <button mat-menu-item [disabled]="createFolderDisable" (click)="newFolder()">
       <mat-icon>folder</mat-icon>
       <span>New folder</span>
     </button>

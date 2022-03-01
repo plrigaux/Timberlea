@@ -6,7 +6,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 import { FileDetails, FileList_Response, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
-import { FileServerService } from '../file-server.service';
+import { FileServerService } from '../utils/file-server.service'; 
 
 @Component({
   selector: 'app-table-navigator',
