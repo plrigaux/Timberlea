@@ -122,7 +122,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe())
-    this.subscriptions.length = 0
+    this.subscriptions = []
   }
 
   list() {

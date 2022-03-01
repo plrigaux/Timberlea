@@ -1,7 +1,8 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
 import { FileDetails } from '../../../../server/src/common/interfaces';
 import { FileDetailsPlus, FileServerService } from '../file-server.service';
 
@@ -10,22 +11,30 @@ import { FileDetailsPlus, FileServerService } from '../file-server.service';
   templateUrl: './controls.component.html',
   styleUrls: ['./controls.component.scss']
 })
-export class ControlsComponent implements OnInit {
+export class ControlsComponent implements OnInit, OnDestroy {
 
   fileDetails: FileDetailsPlus | null = null
   cutCopyPaste = false
   cutSelect: FileDetailsPlus | null = null
   copySelect: FileDetailsPlus | null = null
+  private subscriptions: Subscription[] = []
 
   constructor(private fileServerService: FileServerService,
     private _dialog: MatDialog) { }
 
   ngOnInit(): void {
-    this.fileServerService.subscribeSelectFileSub({
-      next: (fileDetail: FileDetailsPlus | null) => {
-        this.fileDetails = fileDetail
-      }
-    })
+    this.subscriptions.push(
+      this.fileServerService.subscribeSelectFileSub({
+        next: (fileDetail: FileDetailsPlus | null) => {
+          this.fileDetails = fileDetail
+        }
+      })
+    )
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(s => s.unsubscribe())
+    this.subscriptions = []
   }
 
   showFileCommands(): boolean {
@@ -112,15 +121,15 @@ export function forbiddenCharValidator(): ValidatorFn {
 
 
 export class DirtyErrorStateMatcher implements ErrorStateMatcher {
-    isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-        return !!(control && control.invalid && (control.dirty || control.touched));
-    }
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
 }
 
 @Component({
   selector: 'dialog-file-rename',
   templateUrl: 'dialog-file-rename.html',
-  providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher}]
+  providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher }]
 })
 export class DialogFileRename implements AfterViewInit {
 
@@ -129,7 +138,7 @@ export class DialogFileRename implements AfterViewInit {
   @ViewChild('newFileInput', { static: true }) newFileInput!: ElementRef;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
-    this.newFileName = new FormControl(data.name,  { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change'});
+    this.newFileName = new FormControl(data.name, { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change' });
   }
 
 

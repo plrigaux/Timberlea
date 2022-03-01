@@ -27,6 +27,7 @@ import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { MatMenuModule } from '@angular/material/menu';
+import { MenuComponent } from './menu/menu.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { MatMenuModule } from '@angular/material/menu';
     ControlsComponent,
     DialogFileRename,
     DialogFileInfo,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    MenuComponent
   ],
   imports: [
     BrowserModule,

@@ -2,19 +2,7 @@
   <div class="header">
     <mat-toolbar>
       <mat-toolbar-row>
-        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item>
-            <mat-icon>text_snippet</mat-icon>
-            <span>New file</span>
-          </button>
-          <button mat-menu-item>
-            <mat-icon>folder</mat-icon>
-            <span>New folder</span>
-          </button>
-       </mat-menu>
+        <app-menu></app-menu>
         <app-file-upload></app-file-upload>
       </mat-toolbar-row>
       <mat-toolbar-row>
@@ -34,4 +22,3 @@
 <!-- div *ngFor="let message of messages | async">
   {{message.message}}
 </div-->
-

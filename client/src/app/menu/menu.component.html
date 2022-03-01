@@ -1,0 +1,13 @@
+<button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item [disabled]="createFileDisable">
+      <mat-icon>text_snippet</mat-icon>
+      <span>New file</span>
+    </button>
+    <button mat-menu-item [disabled]="createFolderDisable">
+      <mat-icon>folder</mat-icon>
+      <span>New folder</span>
+    </button>
+ </mat-menu>
