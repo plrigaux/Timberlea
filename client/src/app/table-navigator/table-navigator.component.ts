@@ -6,7 +6,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 import { FileDetails, FileList_Response, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
-import { FileServerService } from '../utils/file-server.service'; 
+import { FileServerService } from '../utils/file-server.service';
 
 @Component({
   selector: 'app-table-navigator',
@@ -108,6 +108,20 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
         let remoteFiles = this.dataSource.data
         remoteFiles.push(data)
 
+        this.updateDataSource2(remoteFiles);
+      }
+    }
+    ))
+
+    this.subscriptions.push(this.fileServerService.subscribeNewFolderSubject({
+      next: (newDirName: string) => {
+        let newDir: FileDetails = {
+          name: newDirName,
+          type: FileType.Directory
+        }
+
+        let remoteFiles = this.dataSource.data
+        remoteFiles.push(newDir)
         this.updateDataSource2(remoteFiles);
       }
     }

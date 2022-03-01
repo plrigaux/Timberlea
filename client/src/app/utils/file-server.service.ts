@@ -71,6 +71,10 @@ export class FileServerService {
     return this.newFileSubject.subscribe(obs)
   }
 
+  subscribeNewFolderSubject(obs: Partial<Observer<string>>): Subscription {
+    return this.newFolderSubject.subscribe(obs)
+  }
+
   addNewFile(file: FileDetails): void {
     this.newFileSubject.next(file)
   }
