@@ -26,6 +26,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/controls.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
     MatInputModule,
     MatFormFieldModule,
     FormsModule,
+    MatMenuModule,
     MatTableModule,
     CdkTableModule,
     MatIconModule,
