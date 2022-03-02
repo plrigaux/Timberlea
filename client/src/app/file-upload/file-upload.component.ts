@@ -73,14 +73,15 @@ export class FileUploadComponent implements OnInit {
     this.uploadSub = null;
 
     if (file) {
-
+      file.lastModified
       let fileDetails : FileDetails = {
         name: file.name,
-        type: FileType.File
+        type: FileType.File,
+        size: file.size,
+        mtime: new Date(file.lastModified).toISOString()
       }
 
       this.fileServerService.addNewFile(fileDetails)
     }
-    //this.fileServerService.list();
   }
 }

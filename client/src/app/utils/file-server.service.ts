@@ -5,9 +5,11 @@ import { catchError, Observable, Observer, retry, Subject, Subscription, tap, th
 import { environment } from 'src/environments/environment';
 import { endpoints } from '../../../../server/src/common/constants';
 import {
-  ChangeDir_Request, ChangeDir_Response, FileDetails, FileList_Response,
+  ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetail_Response, FileList_Response,
   MakeDirRequest,
   MakeDirResponse,
+  MakeFileRequest,
+  MakeFileResponse,
   MvFile_Request, MvFile_Response, RemFile_Request, RemFile_Response
 } from '../../../../server/src/common/interfaces';
 
@@ -263,14 +265,12 @@ export class FileServerService {
 
   private move(request: MvFile_Request) {
 
-    let ob = this.http.put<MvFile_Response>(this.serverUrl + endpoints.FS_MV, request).pipe(
+    this.http.put<MvFile_Response>(this.serverUrl + endpoints.FS_MV, request).pipe(
       tap((data: MvFile_Response) => {
         this.setRemoteDirectory(data)
       }),
       catchError((e) => this.handleError(e as HttpErrorResponse))
-    )
-
-    ob.subscribe(
+    ).subscribe(
       {
         next: (data: MvFile_Response) => {
           this.modifSubject.next(data)
@@ -311,6 +311,47 @@ export class FileServerService {
         let arr = data.directory.split("/")
         let dirName = arr[arr.length - 1]
         this.newFolderSubject.next(dirName)
+      },
+      error: e => {
+
+      }
+    })
+  }
+
+  newFile(fileName: string | null | undefined, fileContent: string | null | undefined) {
+    if (!fileName) {
+      return;
+    }
+
+    if (!fileContent) {
+      fileContent = "";
+    }
+
+    this.waitingSubject.next(true)
+    let request: MakeFileRequest = {
+      parent: this.remoteDirectory,
+      fileName: fileName,
+    }
+
+    if (fileContent) {
+      request.data = fileContent
+    }
+
+    const options = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      })
+    };
+
+    this.http.post<FileDetail_Response>(this.serverUrl + endpoints.FS_MKFILE, request, options).pipe(
+      tap((data: FileDetail_Response) => {
+        this.setRemoteDirectory(null)
+      }),
+      //retry(2),
+      catchError((e) => this.handleError(e as HttpErrorResponse))
+    ).subscribe({
+      next: (data: FileDetail_Response) => {
+        this.addNewFile(data.file)
       },
       error: e => {
 

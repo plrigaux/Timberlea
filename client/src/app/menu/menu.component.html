@@ -2,7 +2,7 @@
     <mat-icon>more_vert</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
-    <button mat-menu-item [disabled]="createFileDisable">
+    <button mat-menu-item [disabled]="createFileDisable" (click)="newFile()">
       <mat-icon>text_snippet</mat-icon>
       <span>New file</span>
     </button>

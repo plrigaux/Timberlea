@@ -48,9 +48,9 @@ export interface MakeDirRequest {
 }
 
 export interface MakeFileRequest {
-    dir: string
+    parent: string
     fileName: string
-    data: string
+    data?: string
 }
 
 export interface MakeDirResponse extends FS_Response {

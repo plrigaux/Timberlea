@@ -1,0 +1,24 @@
+<div mat-dialog-title>New File</div>
+
+<div mat-dialog-content>
+    <form >
+        <mat-form-field class="full-width">
+          <mat-label>New file name</mat-label>
+          <input matInput #newFileInput placeholder="New file name" [formControl]="newFileName" type="text" >
+          <mat-error *ngIf="newFileName.hasError('required')">
+            New file name is <strong>required</strong>
+          </mat-error>
+          <mat-error *ngIf="newFileName.hasError('forbiddenChar')">
+            Forbiden character
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="full-width" appearance="fill">
+          <mat-label>File content</mat-label>
+          <textarea matInput placeholder="Some text ..." [formControl]="fileContent"></textarea>
+        </mat-form-field>
+      </form>
+  </div>
+<div align="end">
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-button (click)="onOkClick()" [disabled]="newFileName.errors">Ok</button>
+</div>

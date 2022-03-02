@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
 
@@ -59,37 +59,79 @@ export class MenuComponent implements OnInit, OnDestroy {
       this.fileServerService.newFolder(result)
     });
   }
+
+  newFile() {
+    console.log('Info clicked');
+    const dialog = this._dialog.open(DialogFileCreate, {
+      width: '350px',
+      // Can be closed only by clicking the close button
+      disableClose: false,
+      data: null
+    });
+
+    dialog.afterClosed().subscribe((result: FileNameContent) => {
+      console.log('The dialog was closed', result);
+
+      this.fileServerService.newFile(result.fileName, result.fileContent)
+    });
+  }
 }
 
 @Component({
   selector: 'dialog-directory-create',
   templateUrl: 'dialog-directory-create.html',
+  styleUrls: ['./menu.component.scss'],
   providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher }]
 })
 export class DialogDirectoryCreate implements AfterViewInit {
 
   newFileName: FormControl
 
-  @ViewChild('newFileInput', { static: true }) newFileInput!: ElementRef;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
     this.newFileName = new FormControl("", { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change' });
   }
 
   ngAfterViewInit(): void {
-    console.log(this.newFileInput)
 
+  }
+}
 
-    setTimeout(() => {
+interface FileNameContent {
+  fileName: string
+  fileContent: string
 
-      let fileName: string = this.newFileName.value
+}
 
-      let lastPoint = fileName.lastIndexOf(".")
-      if (lastPoint > 0) {
-        this.newFileInput.nativeElement.setSelectionRange(0, lastPoint)
-      }
-      this.newFileInput.nativeElement.focus()
-    }, 0);
+@Component({
+  selector: 'dialog-file-create',
+  templateUrl: 'dialog-file-create.html',
+  styleUrls: ['./menu.component.scss'],
+  providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher }]
+})
+export class DialogFileCreate implements AfterViewInit {
+
+  newFileName: FormControl
+  fileContent: FormControl = new FormControl("")
+
+  constructor(private dialogRef: MatDialogRef<DialogFileCreate, FileNameContent>,) {
+    this.newFileName = new FormControl("", { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change' });
+  }
+
+  ngAfterViewInit(): void {
+
+  }
+
+  onCancelClick() {
+    this.dialogRef.close()
+  }
+
+  onOkClick() {
+    let output: FileNameContent = {
+      fileName: this.newFileName.value,
+      fileContent: this.fileContent.value
+    }
+    this.dialogRef.close(output)
   }
 
 }

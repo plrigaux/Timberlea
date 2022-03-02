@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
-import { FileDetails, FileList_Response, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
+import { FileDetails, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
 import { FileServerService } from '../utils/file-server.service';
 
@@ -156,10 +156,6 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private updateDataSource2(filelist: FileDetails[]) {
-
-
-
-
     console.log("updateDataSource2", filelist)
     this.dataSource = new MatTableDataSource(filelist)
     this.dataSource.sort = this.sort

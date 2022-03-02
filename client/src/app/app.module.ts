@@ -25,7 +25,7 @@ import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/
 import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { LongPressDirective } from './long-press.directive';
-import { MenuComponent, DialogDirectoryCreate } from './menu/menu.component';
+import { MenuComponent, DialogDirectoryCreate, DialogFileCreate } from './menu/menu.component';
 import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
 
 
@@ -41,7 +41,8 @@ import { TableNavigatorComponent } from './table-navigator/table-navigator.compo
     DialogFileInfo,
     BreadcrumbComponent,
     MenuComponent,
-    DialogDirectoryCreate
+    DialogDirectoryCreate,
+    DialogFileCreate
   ],
   imports: [
     BrowserModule,
