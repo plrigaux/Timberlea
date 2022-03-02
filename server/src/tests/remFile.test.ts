@@ -127,9 +127,29 @@ describe('Delete file or directory', () => {
             let dataresp : RemFile_Response = resp.body
             console.log(dataresp)
 
-            expect(dataresp.error).toBeFalsy;
+            expect(dataresp.error).toBeFalsy();
             expect(dataresp.file).toEqual(fileName)
-         
+    });
+
+
+    test('Delete a single directory - not permited', async () => {
+
+        let fileName = "poutpoutDir"
+        fs.mkdirSync(path.join(directoryRes.server, fileName))
+        
+        const data: RemFile_Request = {
+            parent: directoryRes.getPathNetwork(),
+            fileName: fileName,
+         }
+
+        const resp = await request(app)
+            .delete(endpoints.FS_REM)
+            .send(data)
+            .expect(HttpStatusCode.FORBIDDEN)
+            .expect("Content-Type", /json/);
+
+            let dataresp : RemFile_Response = resp.body
+            expect(dataresp.error).toBeTruthy();
     });
 
 })

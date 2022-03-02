@@ -74,6 +74,7 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
       break;
     case FSErrorCode.EPERM:
     case FSErrorCode.EISDIR:
+    case FSErrorCode.ERR_FS_EISDIR: //rem directory
       resp.message = FSErrorMsg.OPERATION_NOT_PERMITTED
       statusCode = HttpStatusCode.FORBIDDEN
       break;

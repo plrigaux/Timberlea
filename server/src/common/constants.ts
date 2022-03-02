@@ -65,23 +65,25 @@ export enum HttpStatusCode {
 /**
  * This are error codes
  */
+
 export enum FSErrorCode {
-    /** Permission is denied. */
-    EACCES = "EACCES",
-    /** There is no such file or directory exists */
-    ENOENT = "ENOENT",
-    /** File already exists */
-    EEXIST = "EEXIST",
-    /** operation is not permitted */
-    EPERM = "EPERM",
-    /** not a directory */
-    ENOTDIR = "ENOTDIR",
-    /** there is an invalid argument */
-    EINVAL = "EINVAL",
-    /** illegal operation on a directory */
-    EISDIR = "EISDIR",
-    /** Directory mapping key not resolved */
-    KEY_UNRESOLVED = "KEY_UNRESOLVED",
-    /** Invalid request descriptor */
-    EBADR = "EBADR"
+  /** Permission is denied. */
+  EACCES = "EACCES",
+  /** There is no such file or directory exists */
+  ENOENT = "ENOENT",
+  /** File already exists */
+  EEXIST = "EEXIST",
+  /** operation is not permitted */
+  EPERM = "EPERM",
+  /** not a directory */
+  ENOTDIR = "ENOTDIR",
+  /** there is an invalid argument */
+  EINVAL = "EINVAL",
+  /** illegal operation on a directory */
+  EISDIR = "EISDIR",
+  /** Directory mapping key not resolved */
+  KEY_UNRESOLVED = "KEY_UNRESOLVED",
+  /** Invalid request descriptor */
+  EBADR = "EBADR",
+  ERR_FS_EISDIR = "ERR_FS_EISDIR"
 }

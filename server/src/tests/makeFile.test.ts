@@ -4,7 +4,7 @@ import path from 'path'
 import request from 'supertest'
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
-import { MakeDirRequest, MakeDirResponse, MakeFileRequest, MakeFileResponse } from '../common/interfaces'
+import { FileDetail_Response, MakeDirRequest, MakeDirResponse, MakeFileRequest, MakeFileResponse } from '../common/interfaces'
 import { Resolver, ResolverPath } from '../filePathResolver'
 import { testUtils } from './testUtils'
 
@@ -33,7 +33,7 @@ describe('Create File', () => {
 
     test('Create a single file', async () => {
         const requestData: MakeFileRequest = {
-            dir: directoryRes.getPathNetwork(),
+            parent: directoryRes.getPathNetwork(),
             fileName: 'pout.txt',
             data: "no relevent data"
         }
@@ -48,10 +48,11 @@ describe('Create File', () => {
         let newFile = path.join(directoryRes.getPathServer(), requestData.fileName)
         expect(fs.existsSync(newFile)).toBeTruthy()
 
-        let response: MakeFileResponse = resp.body
+        let response: FileDetail_Response = resp.body
 
         expect(response.error).toBeFalsy()
-        expect(response.fileName).toEqual(requestData.fileName)
+        expect(response.file).not.toBeUndefined()
+        expect(response.file.name).toEqual(requestData.fileName)
 
         const buffer = fs.readFileSync(newFile);
 
@@ -63,7 +64,7 @@ describe('Create File', () => {
 
     test('Create a single file - file already exist', async () => {
         const data: MakeFileRequest = {
-            dir: directoryRes.getPathNetwork(),
+            parent: directoryRes.getPathNetwork(),
             fileName: 'pout2.txt',
             data: "no data"
         }
@@ -83,7 +84,7 @@ describe('Create File', () => {
 
 
         const data: MakeFileRequest = {
-            dir: directoryRes.getPathNetwork(),
+            parent: directoryRes.getPathNetwork(),
             fileName: 'pout3dir',
             data: "no data"
         }
@@ -101,7 +102,7 @@ describe('Create File', () => {
     test('Create a single file - Path key fail', async () => {
 
         const data: MakeFileRequest = {
-            dir: "NOTEXIST/" + directoryRes.getPathNetwork(),
+            parent: "NOTEXIST/" + directoryRes.getPathNetwork(),
             fileName: 'pout4.txt',
             data: "no relevent data"
         }
