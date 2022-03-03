@@ -44,8 +44,9 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 * Decompress
 * Bookmark
 * Storage analysis
-* Map FTP
 * Map network drive
+  * Map FTP
+  * Map smb
 * Documented api
 
 ## Installation
