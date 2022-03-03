@@ -3,6 +3,7 @@ import { FormControl, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { BehaviorService } from '../utils/behavior.service';
 import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
 
 import { DirtyErrorStateMatcher, forbiddenCharValidator } from '../utils/utils';
@@ -19,7 +20,8 @@ export class MenuComponent implements OnInit, OnDestroy {
   createFolderDisable: boolean = false
   createFileDisable: boolean = false
 
-  constructor(private fileServerService: FileServerService, private _dialog: MatDialog) {
+  constructor(private fileServerService: FileServerService, private _dialog: MatDialog,
+    private behavior: BehaviorService) {
 
   }
 
@@ -74,6 +76,10 @@ export class MenuComponent implements OnInit, OnDestroy {
 
       this.fileServerService.newFile(result.fileName, result.fileContent)
     });
+  }
+
+  onOpenBookmarks() {
+    this.behavior.openBookmaks()
   }
 }
 
@@ -133,5 +139,6 @@ export class DialogFileCreate implements AfterViewInit {
     }
     this.dialogRef.close(output)
   }
+
 
 }

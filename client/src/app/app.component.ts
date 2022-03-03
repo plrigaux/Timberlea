@@ -2,6 +2,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { ChangeDir_Response, FileDetails, FileList_Response, FileType } from '../../../server/src/common/interfaces';
 import { environment } from '../../../client/src/environments/environment';
 import { FileServerService } from './utils/file-server.service';
+import { BehaviorService } from './utils/behavior.service';
 
 @Component({
   selector: 'app-root',
@@ -15,14 +16,19 @@ export class AppComponent implements OnInit {
 
   //remoteFiles: FileDetails[] = []
   serverUrl: string
+  sidebar_open = true
 
   constructor(
-    private fileServerService: FileServerService) {
+    private fileServerService: FileServerService,
+    private behavior : BehaviorService) {
     this.serverUrl = environment.serverUrl
+ 
   }
 
   ngOnInit(): void {
-
+    this.behavior.bookMarkOpened.subscribe(() => {
+      this.sidebar_open = true
+    }) 
   }
 
   pwd() {

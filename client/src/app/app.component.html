@@ -1,5 +1,6 @@
 <div class="container">
-  <div class="header">
+
+  <header class="header">
     <mat-toolbar>
       <mat-toolbar-row>
         <app-menu></app-menu>
@@ -9,14 +10,23 @@
         <app-breadcrumb></app-breadcrumb>
       </mat-toolbar-row>
     </mat-toolbar>
-  </div>
-  <div class="content">
-    <app-table-navigator></app-table-navigator>
-  </div>
-  <div class="footer">
+  </header>
+  <main class="content">
+    <mat-drawer-container class="sidenav-container" [hasBackdrop]="true">
+      <mat-drawer #drawer [(opened)]="sidebar_open" class="sidenav-content" mode="side">
+        <app-bookmark></app-bookmark>
+      </mat-drawer>
+      <mat-drawer-content>
+        <app-table-navigator></app-table-navigator>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  </main>
+  <footer class="footer">
     <app-controls></app-controls>
-  </div>
+    footer footer footer footer
+  </footer>
 </div>
+
 
 
 <!-- div *ngFor="let message of messages | async">

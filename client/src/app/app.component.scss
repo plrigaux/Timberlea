@@ -8,9 +8,9 @@
 .header{
   flex-shrink: 0;
   flex-grow: 0;
-
   padding: 3px 5px;
 }
+
 .content{
   flex-shrink: 1;
   flex-grow: 1;
@@ -22,6 +22,16 @@
 .footer{
   flex-shrink: 0;
   flex-grow: 0;
-
   padding: 3px 15px;
+}
+
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav-content {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
 }

@@ -27,7 +27,8 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { LongPressDirective } from './long-press.directive';
 import { MenuComponent, DialogDirectoryCreate, DialogFileCreate } from './menu/menu.component';
 import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
-
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { BookmarkComponent } from './bookmark/bookmark.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { TableNavigatorComponent } from './table-navigator/table-navigator.compo
     BreadcrumbComponent,
     MenuComponent,
     DialogDirectoryCreate,
-    DialogFileCreate
+    DialogFileCreate,
+    BookmarkComponent
   ],
   imports: [
     BrowserModule,
@@ -65,7 +67,8 @@ import { TableNavigatorComponent } from './table-navigator/table-navigator.compo
     MatProgressSpinnerModule,
     MatChipsModule,
     ReactiveFormsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatSidenavModule
   ],
   providers: [],
   bootstrap: [AppComponent]
