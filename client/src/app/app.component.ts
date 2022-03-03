@@ -16,7 +16,7 @@ export class AppComponent implements OnInit {
 
   //remoteFiles: FileDetails[] = []
   serverUrl: string
-  sidebar_open = true
+  sidebar_open = false
 
   constructor(
     private fileServerService: FileServerService,
