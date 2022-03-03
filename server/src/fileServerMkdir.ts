@@ -30,7 +30,8 @@ fileServer.post(endpoints.MKDIR,
             let resp: MakeDirResponse = {
                 error: false,
                 message: "OK",
-                directory: dirPath.network
+                parent: dirPath.dirnameNetwork,
+                dirName: dirPath.basename
             }
 
             res.status(HttpStatusCode.CREATED).send(resp);

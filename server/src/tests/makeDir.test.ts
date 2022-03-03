@@ -50,7 +50,8 @@ describe('Create directory', () => {
             let response : MakeDirResponse = resp.body
             
             expect(response.error).toBeFalsy()
-            expect(response.directory).toEqual(directoryRes.getPathNetwork() + "/" + data.dirName)
+            expect(response.dirName).toEqual(data.dirName)
+            expect(response.parent).toEqual(data.parent)
     });
 
     test('Create a single directory - Directory already exist', async () => {
@@ -124,7 +125,27 @@ describe('Create directory', () => {
             let response : MakeDirResponse = resp.body
 
             expect(response.error).toBeFalsy()
-            expect(response.directory).toEqual(directoryRes.getPathNetwork() + "/" + data.dirName)
+            expect(response.dirName).not.toEqual(data.dirName)
+            expect(response.parent).not.toEqual(data.parent)
+            expect(response.parent + "/" + response.dirName).toEqual(data.parent + "/" + data.dirName)
+    });
+
+    test('Create directory - Bad request', async () => {
+        const data: MakeDirRequest = {
+            parent: 3456,
+            dirName: 1234,
+        } as unknown as MakeDirRequest
+
+        const resp = await request(app)
+            .post(endpoints.FS_MKDIR)
+            .send(data)
+            .expect(HttpStatusCode.BAD_REQUEST)
+            .expect("Content-Type", /json/)
+
+            let response : MakeDirResponse = resp.body
+
+            expect(response.error).toBeTruthy()
+        
     });
 
 })

@@ -307,10 +307,7 @@ export class FileServerService {
       catchError((e) => this.handleError(e as HttpErrorResponse))
     ).subscribe({
       next: (data: MakeDirResponse) => {
-
-        let arr = data.directory.split("/")
-        let dirName = arr[arr.length - 1]
-        this.newFolderSubject.next(dirName)
+        this.newFolderSubject.next(data.dirName)
       },
       error: e => {
 

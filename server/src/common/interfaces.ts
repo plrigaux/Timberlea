@@ -54,7 +54,8 @@ export interface MakeFileRequest {
 }
 
 export interface MakeDirResponse extends FS_Response {
-    directory: string
+    parent: string
+    dirName: string
 }
 
 export interface MakeFileResponse extends FS_Response {
