@@ -3,6 +3,7 @@ import { FormControl, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { BehaviorService } from '../utils/behavior.service';
 import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
 import { DirtyErrorStateMatcher, forbiddenCharValidator } from '../utils/utils';
 
@@ -20,7 +21,8 @@ export class ControlsComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = []
 
   constructor(private fileServerService: FileServerService,
-    private _dialog: MatDialog) { }
+    private _dialog: MatDialog,
+    private behavior: BehaviorService) { }
 
   ngOnInit(): void {
     this.subscriptions.push(
@@ -97,6 +99,12 @@ export class ControlsComponent implements OnInit, OnDestroy {
 
       this.fileServerService.renameFile(this.fileDetails?.name, result)
     });
+  }
+
+  bookmark() {
+    if (this.fileDetails) {
+      this.behavior.bookmark(this.fileDetails)
+    }
   }
 }
 

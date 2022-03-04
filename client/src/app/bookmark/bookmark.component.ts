@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FileDetails } from '../../../../server/src/common/interfaces';
 import { BehaviorService } from '../utils/behavior.service';
 
 @Component({
@@ -13,6 +14,9 @@ export class BookmarkComponent implements OnInit {
   constructor(private behavior : BehaviorService) { }
 
   ngOnInit(): void {
+  this.behavior.makeBookmark$.subscribe( (file : FileDetails) => {
+    
+  })
 
   }
 
