@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FileDetails } from '../../../../server/src/common/interfaces';
+import { FileDetails, FileDetailsEnhanced } from '../../../../server/src/common/interfaces';
 import { BehaviorService } from '../utils/behavior.service';
+import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
 
 @Component({
   selector: 'app-bookmark',
@@ -11,13 +12,46 @@ export class BookmarkComponent implements OnInit {
 
   hasBackdrop = true
 
-  constructor(private behavior : BehaviorService) { }
+  bookmarks: FileDetailsPlus[] = []
+
+  constructor(private behavior: BehaviorService, private fss: FileServerService) { }
 
   ngOnInit(): void {
-  this.behavior.makeBookmark$.subscribe( (file : FileDetails) => {
-    
-  })
+    this.behavior.makeBookmark$.subscribe((file: FileDetailsPlus) => {
 
+
+      let newFile: FileDetailsPlus = {
+        directory: file.directory,
+        name: file.name,
+        type: file.type
+      }
+
+      this.bookmarks.push(newFile)
+
+      let bkmString = JSON.stringify(this.bookmarks)
+      localStorage.setItem(FILE_BOOKMARKS, bkmString)
+    })
+
+    let bms = localStorage.getItem(FILE_BOOKMARKS)
+    if (bms) {
+      let storedBookmarks = JSON.parse(bms)
+      this.bookmarks = storedBookmarks
+    }
   }
 
+  onBookmarkClick(file: FileDetailsPlus) {
+    console.log("file", file)
+    this.fss.cd(file.name, file.directory)
+    this.behavior.openBookmaks(false)
+  }
+
+  remove(i : number) {
+
+    this.bookmarks.splice(i, 1)
+
+    let bkmString = JSON.stringify(this.bookmarks)
+    localStorage.setItem(FILE_BOOKMARKS, bkmString)
+  }
 }
+
+const FILE_BOOKMARKS = "FILE_BOOKMARKS"

@@ -26,8 +26,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.behavior.bookMarkOpened.subscribe(() => {
-      this.sidebar_open = true
+    this.behavior.bookMarkOpened.subscribe((open : boolean) => {
+      this.sidebar_open = open
     }) 
   }
 

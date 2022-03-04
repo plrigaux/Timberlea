@@ -9,19 +9,19 @@ import { FileDetailsPlus } from './file-server.service';
 export class BehaviorService {
 
 
-  private bookMarkOpen = new Subject<void>();
+  private bookMarkOpen = new Subject<boolean>();
 
   bookMarkOpened = this.bookMarkOpen.asObservable()
 
-  private makeBookmark = new Subject<FileDetails>();
+  private makeBookmark = new Subject<FileDetailsPlus>();
 
   makeBookmark$ = this.makeBookmark.asObservable()
 
 
   constructor() { }
 
-  openBookmaks() {
-    this.bookMarkOpen.next()
+  openBookmaks(open : boolean) {
+    this.bookMarkOpen.next(open)
   }
 
   bookmark(file: FileDetailsPlus) {

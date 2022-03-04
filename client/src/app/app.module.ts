@@ -29,7 +29,7 @@ import { MenuComponent, DialogDirectoryCreate, DialogFileCreate } from './menu/m
 import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { BookmarkComponent } from './bookmark/bookmark.component';
-
+import { MatTooltipModule } from '@angular/material/tooltip';
 @NgModule({
   declarations: [
     AppComponent,
@@ -68,7 +68,8 @@ import { BookmarkComponent } from './bookmark/bookmark.component';
     MatChipsModule,
     ReactiveFormsModule,
     MatSnackBarModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatTooltipModule
   ],
   providers: [],
   bootstrap: [AppComponent]

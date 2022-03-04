@@ -13,7 +13,7 @@ export interface FileDetails {
 
 export interface FileDetailsEnhanced extends FileDetails {
     parentDirectory: string
-    birthtime: string
+    birthtime?: string
 }
 
 export interface FS_Response {

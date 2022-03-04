@@ -79,7 +79,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   onOpenBookmarks() {
-    this.behavior.openBookmaks()
+    this.behavior.openBookmaks(true)
   }
 }
 
