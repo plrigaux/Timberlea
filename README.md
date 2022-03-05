@@ -1,6 +1,6 @@
 # Timberlea
 
-Timberlea is a web file manager. It supports various file management action.
+Timberlea is a web file manager. It supports various file management actions.
 
 It has been named Timberlea to reflect the importance of the forest and lumbering of its inception author.
 
