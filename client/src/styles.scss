@@ -1,4 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+
+.mat-drawer-inner-container::-webkit-scrollbar {
+    display: none; //to remove horisontal scrollbar of side nav but is overkill cauz it remove the vertical one as well
+}

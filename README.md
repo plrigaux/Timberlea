@@ -50,13 +50,27 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
   * Map smb
 * Documented api
 
+## Prerequisites
+
+To be able to run Timberlea you need the latest version of Node.js.
+
+_Note: Earlier LTS versions of Node.js migth work as well._
+
 ## Installation
 
-`npm i`
+To install and run Timberlea perform the following commands.
 
-## Running
+```bash
 
-`npm run serve`
+npm install
+
+npm run build
+
+npm run server
+
+```
+
+In devellopment mode, skip the build command and use `npm run serve` to run both the server and client on Node.
 
 ## Configuration
 

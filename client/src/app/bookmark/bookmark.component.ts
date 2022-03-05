@@ -50,6 +50,20 @@ export class BookmarkComponent implements OnInit {
     let bkmString = JSON.stringify(this.bookmarks)
     localStorage.setItem(FILE_BOOKMARKS, bkmString)
   }
+
+  displayTooltip(file: FileDetailsPlus) : string {
+    return file.directory + "/" + file.name
+  }
+
+  displayBookmark(file: FileDetailsPlus) : string {
+    const NBCHAR = 16
+
+    if (file.name.length > (NBCHAR + 3)) {
+      return file.name.slice(0, NBCHAR) + "..."
+    }
+    
+    return file.name
+  }
 }
 
 const FILE_BOOKMARKS = "FILE_BOOKMARKS"

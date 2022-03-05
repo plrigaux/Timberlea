@@ -9,5 +9,5 @@ const port = config.get<number>('server.port');
 const host = config.get<string>('server.host');
 
 app.listen(port, host, () => {
-  console.log(`⚡️[server]: Server is running at https://${host}:${port}`);
+  console.log(`⚡️[server]: Server is running at http://${host}:${port}`);
 });

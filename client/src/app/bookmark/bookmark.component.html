@@ -1,7 +1,8 @@
 <mat-chip-list class="mat-chip-list-stacked">
-    <mat-chip *ngFor="let chip of bookmarks; index as i" matTooltip="{{chip.directory}}" matTooltipPosition="right"
+    <mat-chip *ngFor="let chip of bookmarks; index as i" matTooltip="{{displayTooltip(chip)}}" matTooltipPosition="right"
     (click)="onBookmarkClick(chip)" (removed)="remove(i)">
-        {{chip.name}}
+        {{displayBookmark(chip)}}
+        <div class="filler"></div>
         <button matChipRemove>
             <mat-icon>cancel</mat-icon>
           </button>
