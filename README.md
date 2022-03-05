@@ -26,6 +26,7 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 * Create file
 * Create directory
 * Set up locations
+* Bookmark
 
 ## Upcoming features
 
@@ -42,7 +43,7 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 * Search
 * Compress
 * Decompress
-* Bookmark
+
 * Storage analysis
 * Map network drive
   * Map FTP
@@ -59,4 +60,40 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 
 ## Configuration
 
-Limited for now
+Timberlea uses node-config to manage its configurations.
+
+The configuration files are located in server/config directory.
+
+### Config parameters
+
+server filePaths
+
+#### Server parameters
+
+The server parameter are host and port.
+
+```json5
+ server: {
+    host: "localhost",
+    port: 3000
+  }
+```
+
+#### File paths
+
+To make Timberlea to work you have to set up at least one directory.
+
+The definition of a directtry contains a `label` and a `path` or an `env`
+
+`path` is for a filepath
+`env` uses the a value defined by an [environment variable](https://en.wikipedia.org/wiki/Environment_variable)
+
+_Special cases_: if environment variables **TEMP** and **HOME** aren't defined, the server uses the value returned by the Node API namely by `os.tmpdir()` and `os.homedir()` respectively.
+
+```json5
+  filePaths: [
+    { label: 'TEMP', env: 'TEMP' },
+    { label: 'HOME', env: 'HOME' },
+    { label: 'Storage', path: 'd:\\' }
+  ]
+```

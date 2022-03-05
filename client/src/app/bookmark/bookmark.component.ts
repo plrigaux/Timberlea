@@ -19,7 +19,6 @@ export class BookmarkComponent implements OnInit {
   ngOnInit(): void {
     this.behavior.makeBookmark$.subscribe((file: FileDetailsPlus) => {
 
-
       let newFile: FileDetailsPlus = {
         directory: file.directory,
         name: file.name,
@@ -46,7 +45,6 @@ export class BookmarkComponent implements OnInit {
   }
 
   remove(i : number) {
-
     this.bookmarks.splice(i, 1)
 
     let bkmString = JSON.stringify(this.bookmarks)
