@@ -9,7 +9,12 @@ body {
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-
+/*
 .mat-drawer-inner-container::-webkit-scrollbar {
     display: none; //to remove horisontal scrollbar of side nav but is overkill cauz it remove the vertical one as well
+}
+*/
+
+.mat-chip-list-wrapper {
+    margin: 0.5em !important
 }
