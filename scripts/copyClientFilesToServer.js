@@ -1,7 +1,5 @@
 const fsExtra = require('fs-extra')
 
-
-
 const source = "./client/dist/file-server"
 const dest = "./server/client"
 

@@ -17,6 +17,7 @@ server/node_modules
 server/files
 server/client/*
 server/test-report.html
+server/dist
 
 # profiling files
 chrome-profiler-events*.json

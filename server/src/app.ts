@@ -1,3 +1,5 @@
+console.log("NODE_ENV", process.env.NODE_ENV)
+
 import cors from "cors";
 import express, { NextFunction, Request, Response } from 'express';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
@@ -22,8 +24,9 @@ app.use(express.static('client'))
 app.use(express.json())
 app.use(express.text());
 
-
-app.use(cors());
+if (process.env.NODE_ENV !== "production") {
+  app.use(cors());
+}
 
 app.use(function (req: Request, res: Response, next: NextFunction) {
 

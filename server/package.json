@@ -5,22 +5,25 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "testOH": "jest --detectOpenHandles",
-    "serve": "ts-node-dev src/server.ts",
-    "promise": "ts-node-dev src/tests/promiseTest.ts"
+    "packagePrep" : "node scripts/packagePrep.js",
+    "packagePost" : "node scripts/packagePost.js",
+    "compileTS" : "tsc",
+    "build": "npm run packagePrep && npm run compileTS && npm run packagePost",
+    "timberDev": "cross-env NODE_ENV=development ts-node-dev src/server.ts",
+    "timber": "cross-env NODE_ENV=production node dist/server.js"
   },
   "author": "PLR",
   "license": "ISC",
   "dependencies": {
     "config": "^3.3.7",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "eslint": "^8.3.0",
     "express": "^4.17.1",
     "express-validator": "^6.14.0",
     "fs-extra": "^10.0.0",
     "multer": "^1.4.4",
     "ts-node": "^10.4.0",
-    "ts-node-dev": "^1.1.8",
     "typescript": "^4.5.2"
   },
   "devDependencies": {
@@ -35,6 +38,7 @@
     "jest-html-reporter": "^3.4.2",
     "jest-html-reporters": "^3.0.5",
     "supertest": "^6.1.6",
-    "ts-jest": "^27.1.1"
+    "ts-jest": "^27.1.1",
+    "ts-node-dev": "^1.1.8"
   }
 }
