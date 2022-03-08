@@ -105,7 +105,7 @@ The definition of a directtry contains a `label` and a `path` or an `env`
 _Special cases_: if environment variables **TEMP** and **HOME** aren't defined, the server uses the value returned by the Node API namely by `os.tmpdir()` and `os.homedir()` respectively.
 
 ```json5
-  filePaths: [
+  directories: [
     { label: 'TEMP', env: 'TEMP' },
     { label: 'HOME', env: 'HOME' },
     { label: 'Storage', path: 'd:\\' }

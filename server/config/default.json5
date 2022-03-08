@@ -3,7 +3,7 @@
     host: "localhost",
     port: 3000
   },
-  filePaths: [
+  directories: [
     { label: 'TEMP', env: 'TEMP' },
     { label: 'HOME', env: 'HOME' },
     { label: 'Storage', path: 'd:\\' }

@@ -109,7 +109,7 @@ export class Resolver {
     private rootKeys: string[]
 
     private constructor() {
-        const configFilePaths = config.get<FilePathConfig[]>('filePaths');
+        const configFilePaths = config.get<FilePathConfig[]>('directories');
         console.log(configFilePaths)
 
 
@@ -120,7 +120,7 @@ export class Resolver {
                 if (filePathConfig.env) {
                     keyPath = env[filePathConfig.env]
                     if (!keyPath) {
-                        console.warn(`Env "${filePathConfig.env}" not defined`)
+                        console.log(`Env "${filePathConfig.env}" not defined`)
                         switch (filePathConfig.env) {
                             case "TEMP":
                                 keyPath = os.tmpdir()
