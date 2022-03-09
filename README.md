@@ -43,7 +43,6 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 * Search
 * Compress
 * Decompress
-
 * Storage analysis
 * Map network drive
   * Map FTP
@@ -74,17 +73,15 @@ In devellopment mode, skip the build command and use `npm run serve` to run both
 
 ## Configuration
 
-Timberlea uses node-config to manage its configurations.
+Timberlea uses [config](https://www.npmjs.com/package/config) to manage its configurations. It lets you define a set of default parameters, and extend them for different deployment environments (development, qa, staging, production, etc.).
 
-The configuration files are located in server/config directory.
+By default, the configuration files are located in ./server/config directory, but this can be easily overlaoded. More o that please refer to [config](https://www.npmjs.com/package/config) documentation.
 
-### Config parameters
 
-server filePaths
 
-#### Server parameters
+### Server parameters
 
-The server parameter are host and port.
+The server config parameters are host and port.
 
 ```json5
  server: {
@@ -97,17 +94,16 @@ The server parameter are host and port.
 
 To make Timberlea to work you have to set up at least one directory.
 
-The definition of a directtry contains a `label` and a `path` or an `env`
+The definition of a directtry contains a `label` and a `path`.
 
-`path` is for a filepath
-`env` uses the a value defined by an [environment variable](https://en.wikipedia.org/wiki/Environment_variable)
+`path` is for a given filepath on server or a defined [environment variable](https://en.wikipedia.org/wiki/Environment_variable)
 
 _Special cases_: if environment variables **TEMP** and **HOME** aren't defined, the server uses the value returned by the Node API namely by `os.tmpdir()` and `os.homedir()` respectively.
 
 ```json5
   directories: [
-    { label: 'TEMP', env: 'TEMP' },
-    { label: 'HOME', env: 'HOME' },
+    { label: 'TEMP', path: 'TEMP' },
+    { label: 'HOME', path: 'HOME' },
     { label: 'Storage', path: 'd:\\' }
   ]
 ```

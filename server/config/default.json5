@@ -4,8 +4,8 @@
     port: 3000
   },
   directories: [
-    { label: 'TEMP', env: 'TEMP' },
-    { label: 'HOME', env: 'HOME' },
+    { label: 'TEMP', path: 'TEMP' },
+    { label: 'HOME', path: 'HOME' },
     { label: 'Storage', path: 'd:\\' }
   ]
 }

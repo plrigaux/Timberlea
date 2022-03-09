@@ -1,5 +1,5 @@
 import config from 'config'
-import { env } from 'process';
+//import { env } from 'process';
 import path from 'path'
 import os from 'os'
 import { FileServerError } from './common/fileServerCommon';
@@ -9,15 +9,11 @@ import { FSErrorCode } from './common/constants';
 export const HOME = ""
 export const PATH_UP = ".."
 const SEPARATOR = /[\/\\]/
+const HOME_DIR = "HOME"
+const TEMP_DIR = "TEMP"
 
 interface FilePathConfig {
     label: string
-    env?: string
-    path?: string
-}
-
-interface FilePath {
-    name: string
     path: string
 }
 
@@ -105,7 +101,7 @@ export class Resolver {
         return this._instance || (this._instance = new this());
     }
 
-    private filePaths = new Map<string, FilePath>()
+    private filePaths = new Map<string, FilePathConfig>()
     private rootKeys: string[]
 
     private constructor() {
@@ -114,48 +110,49 @@ export class Resolver {
 
 
         configFilePaths.forEach(filePathConfig => {
-            let keyPath
 
-            if (filePathConfig.env || filePathConfig.path) {
-                if (filePathConfig.env) {
-                    keyPath = env[filePathConfig.env]
-                    if (!keyPath) {
-                        console.log(`Env "${filePathConfig.env}" not defined`)
-                        switch (filePathConfig.env) {
-                            case "TEMP":
-                                keyPath = os.tmpdir()
-                                break;
-                            case "HOME":
-                                keyPath = os.homedir()
-                                break;
-                        }
-                    }
-                } else {
-                    keyPath = filePathConfig.path
-                }
-            } else {
-                console.error("Bad Config - No path or env")
+            let resolvedPath
+
+            switch (filePathConfig.path) {
+                case TEMP_DIR:
+                    resolvedPath = Resolver.homeTempSetter(filePathConfig, HOME_DIR, os.tmpdir())
+                    break;
+                case HOME_DIR:
+                    resolvedPath = Resolver.homeTempSetter(filePathConfig, HOME_DIR, os.homedir())
+                    break;
+                default:
+                    let val = config.util.getEnv(filePathConfig.path)
+                    resolvedPath = val || filePathConfig.path
+            }
+
+            if (!resolvedPath) {
+                console.error(`Bad Config - Path resolve error for label ${filePathConfig.label}`)
                 return
             }
 
-            if (!keyPath) {
-                console.error("Bad Config - Path resolve error")
-                return
+            let fp: FilePathConfig = {
+                label: filePathConfig.label,
+                path: path.normalize(resolvedPath)
             }
 
-            keyPath = path.normalize(keyPath)
-
-            let fp: FilePath = {
-                name: filePathConfig.label,
-                path: keyPath
-            }
-
-            this.filePaths.set(fp.name, fp)
+            this.filePaths.set(fp.label, fp)
         })
 
         console.log(this.filePaths)
 
         this.rootKeys = [...this.filePaths.keys()]
+    }
+
+    private static homeTempSetter(filePathConfig: FilePathConfig, key: string, defaultPath: string) : string {
+
+        let envVal = config.util.getEnv(key)
+        if (envVal) {
+            console.log(`${key} path was set to env value ${envVal}`)
+            return envVal
+        }
+
+        console.log(`${key} path was set to default ${defaultPath}`)
+        return defaultPath
     }
 
     getPath(key: string): string | undefined {
