@@ -15,7 +15,7 @@ const testDir = "dowanload dir"
 const directoryRes = Resolver.instance.resolve(testUtils.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
-    let dir = directoryRes.getPathServer()
+    let dir = directoryRes.server
     console.log(dir);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -42,7 +42,7 @@ describe('Downaload', () => {
 
         fs.writeFileSync(path.join(directoryRes.server, fileName), 'Learn Node FS module')
 
-        let remoteDirectory = encodeURIComponent(directoryRes.add(fileName).getPathNetwork());
+        let remoteDirectory = encodeURIComponent(directoryRes.add(fileName).network);
         const url = path.join(endpoints.FS_DOWNLOAD, remoteDirectory)
 
         const resp = await request(app)
@@ -54,7 +54,7 @@ describe('Downaload', () => {
 
     test('Downaload a single file - Not found', async () => {
 
-        let remoteDirectory = encodeURIComponent(directoryRes.add("Nota file.txt").getPathNetwork());
+        let remoteDirectory = encodeURIComponent(directoryRes.add("Nota file.txt").network);
         const url = path.join(endpoints.FS_DOWNLOAD, remoteDirectory)
 
         const resp = await request(app)

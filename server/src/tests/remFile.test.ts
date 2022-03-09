@@ -15,7 +15,7 @@ const testDir = "rem dir"
 const directoryRes = Resolver.instance.resolve(testUtils.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
-    let dir = directoryRes.getPathServer()
+    let dir = directoryRes.server
     console.log(dir);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -39,10 +39,10 @@ describe('Delete file or directory', () => {
     test('Delete a single file', async () => {
 
         let fileName = "poutpout.txt"
-        fs.writeFileSync(path.join(directoryRes.getPathServer(), fileName), 'Learn Node FS module')
+        fs.writeFileSync(path.join(directoryRes.server, fileName), 'Learn Node FS module')
 
         const data: RemFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: fileName,
         }
 
@@ -62,11 +62,11 @@ describe('Delete file or directory', () => {
     test('Delete a single file - recusive', async () => {
 
         let fileName = "poutpout2.txt"
-        fs.writeFileSync(path.join(directoryRes.getPathServer(), fileName), 'Learn Node FS module')
+        fs.writeFileSync(path.join(directoryRes.server, fileName), 'Learn Node FS module')
 
          
         const data: RemFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: fileName,
             recursive : true
         }
@@ -89,7 +89,7 @@ describe('Delete file or directory', () => {
         let fileName = "poutpout3.txt"
         
         const data: RemFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: fileName,
             recursive : false
         }
@@ -110,10 +110,10 @@ describe('Delete file or directory', () => {
     test('Delete a single directory', async () => {
 
         let fileName = "poutpoutDir"
-        fs.mkdirSync(path.join(directoryRes.getPathServer(), fileName))
+        fs.mkdirSync(path.join(directoryRes.server, fileName))
         
         const data: RemFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: fileName,
             recursive : true
         }
@@ -138,7 +138,7 @@ describe('Delete file or directory', () => {
         fs.mkdirSync(path.join(directoryRes.server, fileName))
         
         const data: RemFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: fileName,
          }
 

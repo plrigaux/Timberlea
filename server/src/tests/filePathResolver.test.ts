@@ -40,7 +40,7 @@ describe('FileResolver', () => {
         const ext = "some_dir/and other dir"
         let pathTest = "TEMP/" + ext
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved?.getPathServer()).toEqual(path.join(os.tmpdir(), ext))
+        expect(pathResolved?.server).toEqual(path.join(os.tmpdir(), ext))
     });
 
 
@@ -52,28 +52,24 @@ describe('FileResolver', () => {
         expect(() => {
             Resolver.instance.resolve(pathTest)
         }).toThrow(new FileServerError(`Key "${key}" unresoled`, FSErrorCode.KEY_UNRESOLVED))
-
-
     });
-
-
 
     test('resolve a PATH - Key only', () => {
         let pathTest = "TEMP"
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved?.getPathServer()).toEqual(path.join(os.tmpdir()))
+        expect(pathResolved?.server).toEqual(path.join(os.tmpdir()))
     });
 
     test('resolve a PATH - Key only /', () => {
         let pathTest = "TEMP/"
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved?.getPathServer()).toEqual(path.join(os.tmpdir()))
+        expect(pathResolved?.server).toEqual(path.join(os.tmpdir()))
     });
 
     test('resolve a PATH - Key only \\', () => {
         let pathTest = "TEMP\\"
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved?.getPathServer()).toEqual(path.join(os.tmpdir()))
+        expect(pathResolved?.server).toEqual(path.join(os.tmpdir()))
     });
 
 
@@ -88,7 +84,7 @@ describe('FileResolver', () => {
         const ext = "test/.."
         let pathTest = tu.TEMP + "/" + ext
         let pathResolved = Resolver.instance.resolve(pathTest)
-        expect(pathResolved?.getPathServer()).toEqual(path.join(os.tmpdir()))
+        expect(pathResolved?.server).toEqual(path.join(os.tmpdir()))
     });
 })
 

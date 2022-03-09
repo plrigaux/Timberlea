@@ -34,7 +34,7 @@ describe('Upload file', () => {
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.getPathNetwork())
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.network)
             .attach(fileName, file)
             .expect(HttpStatusCode.OK)
             .expect("Content-Type", /json/);
@@ -54,7 +54,7 @@ describe('Upload file', () => {
 
         const fileName = `bob${path.parse(file).ext}`
 
-        let created_file = tu.createFile(fileName, uploadDirectoryRes.getPathServer(), "File data, file data file data")
+        let created_file = tu.createFile(fileName, uploadDirectoryRes.server, "File data, file data file data")
 
         console.log("created_file", created_file)
         console.log("fileName", fileName)
@@ -62,7 +62,7 @@ describe('Upload file', () => {
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.getPathNetwork())
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.network)
             .attach(fileName, file)
             .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
@@ -87,7 +87,7 @@ describe('Upload file', () => {
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.getPathNetwork() + "/noexitsFolder")
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.network + "/noexitsFolder")
             .attach(fileName, file)
             .expect(HttpStatusCode.NOT_FOUND)
             .expect("Content-Type", /json/);
@@ -114,7 +114,7 @@ describe('Upload file', () => {
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.getPathNetwork() + "/baba")
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.network + "/baba")
             .attach(fileName, file)
             .expect(HttpStatusCode.CONFLICT)
             .expect("Content-Type", /json/);
@@ -148,7 +148,7 @@ describe('Upload file', () => {
         const resp = await request(app)
             .post(endpoints.FS_UPLOAD)
             .field("companyName", "supertest")
-            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.getPathNetwork())
+            .field(uploadFile.DESTINATION_FOLDER, uploadDirectoryRes.network)
             .attach(fileName1, file1)
             .attach(fileName2, file2)
             .expect(HttpStatusCode.OK)

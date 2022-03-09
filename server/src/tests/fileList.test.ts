@@ -109,7 +109,7 @@ describe('File list - App root', () => {
         let new_Dir = "new_dir"
         tu.createDir(dir, new_Dir)
 
-        let remoteDirectory = encodeURIComponent(dirToSend.getPathNetwork());
+        let remoteDirectory = encodeURIComponent(dirToSend.network);
         console.warn(remoteDirectory)
         const url = path.join(endpoints.FS_LIST, remoteDirectory)
         const resp = await request(app)
@@ -122,7 +122,7 @@ describe('File list - App root', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.files?.length).toEqual(4)
-        expect(dataresp.parent).toEqual(dirToSend.getPathNetwork())
+        expect(dataresp.parent).toEqual(dirToSend.network)
 
         dataresp.files?.forEach(a => {
             if (a.name == new_Dir) {

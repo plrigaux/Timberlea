@@ -8,9 +8,9 @@ import { FSErrorCode } from './common/constants';
 
 export const HOME = ""
 export const PATH_UP = ".."
-const SEPARATOR = /[\/\\]/
 const HOME_DIR = "HOME"
 const TEMP_DIR = "TEMP"
+const SEPARATOR = "/"
 
 interface FilePathConfig {
     label: string
@@ -18,7 +18,7 @@ interface FilePathConfig {
 }
 
 function isRoot(key: string): boolean {
-    return key === "" || key === "/"
+    return key === "" || key === SEPARATOR
 }
 
 export class ResolverPath {
@@ -41,13 +41,6 @@ export class ResolverPath {
         return this.dirFiles.length === 0 ? "" : this.dirFiles[0]
     }
 
-    getPathServer(): string {
-        if (!this.pathServer) {
-            this.pathServer = path.join(this.prefix, ...this.dirFiles.slice(1))
-        }
-        return this.pathServer
-    }
-
     getFileName(): string {
         let lh = this.dirFiles.length
         return lh > 0 ? this.dirFiles[lh - 1] : ""
@@ -58,28 +51,27 @@ export class ResolverPath {
     }
 
     get dirnameNetwork() {
-        return this.dirFiles.slice(0, -1).join("/")
+        return this.dirFiles.slice(0, -1).join(SEPARATOR)
     }
 
-    getPathNetwork(): string {
+    get network() {
         if (!this.pathNetwork) {
-            this.pathNetwork = this.dirFiles.join("/")
+            this.pathNetwork = this.dirFiles.join(SEPARATOR)
         }
         return this.pathNetwork
     }
 
-    get network() {
-        return this.getPathNetwork()
-    }
-
     get server() {
-        return this.getPathServer()
+        if (!this.pathServer) {
+            this.pathServer = path.join(this.prefix, ...this.dirFiles.slice(1))
+        }
+        return this.pathServer
     }
 
     add(...extention: string[]): ResolverPath | never {
 
         if (this.isHomeRoot()) {
-            return Resolver.instance.resolve(extention.join("/"))
+            return Resolver.instance.resolve(extention.join(SEPARATOR))
         }
 
         let array = [...this.dirFiles, ...extention]
@@ -143,7 +135,7 @@ export class Resolver {
         this.rootKeys = [...this.filePaths.keys()]
     }
 
-    private static homeTempSetter(filePathConfig: FilePathConfig, key: string, defaultPath: string) : string {
+    private static homeTempSetter(filePathConfig: FilePathConfig, key: string, defaultPath: string): string {
 
         let envVal = config.util.getEnv(key)
         if (envVal) {

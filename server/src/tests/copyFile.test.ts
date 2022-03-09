@@ -43,7 +43,7 @@ describe('Copy file', () => {
         tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -59,7 +59,7 @@ describe('Copy file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(directoryRes.getPathNetwork())
+        expect(dataresp.parent).toEqual(directoryRes.network)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -73,9 +73,9 @@ describe('Copy file', () => {
         fs.mkdirSync(dirPath.server);
 
         const data: MvFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: oldFileName,
-            newParent: dirPath.getPathNetwork()
+            newParent: dirPath.network
         }
 
         const resp = await request(app)
@@ -89,7 +89,7 @@ describe('Copy file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(oldFileName)
-        expect(dataresp.parent).toEqual(dirPath.getPathNetwork())
+        expect(dataresp.parent).toEqual(dirPath.network)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -100,7 +100,7 @@ describe('Copy file', () => {
         //tu.createFile(oldFileName, dir, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -126,7 +126,7 @@ describe('Copy file', () => {
         tu.createFile(newFileName, directoryRes.server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -152,7 +152,7 @@ describe('Copy file', () => {
         tu.createFile(newFileName, directoryRes.server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: oldFileName,
             newFileName: newFileName,
             overwrite: true
@@ -169,7 +169,7 @@ describe('Copy file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(directoryRes.getPathNetwork())
+        expect(dataresp.parent).toEqual(directoryRes.network)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -182,7 +182,7 @@ describe('Copy file', () => {
         tu.createFile("snusnuf.txt", path.join(directoryRes.server, oldFileName), "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             fileName: oldFileName,
             newFileName: newFileName
         }

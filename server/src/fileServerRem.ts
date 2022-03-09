@@ -19,7 +19,7 @@ fileServer.delete(endpoints.REM, (req: Request, res: Response, next: NextFunctio
 
     let status = 0
 
-    fs.promises.rm(filePathResolved.getPathServer(), options).then(() => {
+    fs.promises.rm(filePathResolved.server, options).then(() => {
         let responseData: RemFile_Response = {
             error: false,
             message: "File deleted",

@@ -31,7 +31,7 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
 
     if (folder == HOME_ResolverPath) {
         let resp: FileList_Response = {
-            parent: HOME_ResolverPath.getPathNetwork(),
+            parent: HOME_ResolverPath.network,
             error: false,
             message: FSErrorMsg.OK,
             files: [],
@@ -53,7 +53,7 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
         return ret;
     }
 
-    return fs.promises.readdir(folder.getPathServer(), { withFileTypes: true })
+    return fs.promises.readdir(folder.server, { withFileTypes: true })
         .then((files: Dirent[]) => {
             return files.map((file: Dirent) => {
                 let fd: FileDetails = {
@@ -67,7 +67,7 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
             let promiseList: (Promise<void | FileDetails> | FileDetails)[] = []
             fileDetails.forEach((file: FileDetails) => {
 
-                let prom = fs.promises.stat(path.join(folder.getPathServer(), file.name))
+                let prom = fs.promises.stat(path.join(folder.server, file.name))
                     .then(stats => {
                         if (file.type === FileType.File) {
                             file.size = stats.size

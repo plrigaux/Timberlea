@@ -14,18 +14,18 @@ const testDir = "make dir"
 const directoryRes = Resolver.instance.resolve(testUtils.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
-    if (!fs.existsSync(directoryRes.getPathServer())) {
-        fs.mkdirSync(directoryRes.getPathServer(), { recursive: true });
+    if (!fs.existsSync(directoryRes.server)) {
+        fs.mkdirSync(directoryRes.server, { recursive: true });
     }
 });
 
 afterAll(() => {
     try {
         const options: RmOptions = { recursive: true, force: true }
-        fs.rmSync(directoryRes.getPathServer(), options)
-        console.log(`${directoryRes.getPathServer()} is deleted!`);
+        fs.rmSync(directoryRes.server, options)
+        console.log(`${directoryRes.server} is deleted!`);
     } catch (err) {
-        console.error(`Error while deleting ${directoryRes.getPathServer()}.`, err);
+        console.error(`Error while deleting ${directoryRes.server}.`, err);
     }
 });
 
@@ -33,7 +33,7 @@ describe('Create directory', () => {
 
     test('Create a single directory', async () => {
         const data: MakeDirRequest = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             dirName: 'pout pout',
         }
 
@@ -44,7 +44,7 @@ describe('Create directory', () => {
             .expect("Content-Type", /json/)
 
             
-            let newDir = path.join(directoryRes.getPathServer(), data.dirName)
+            let newDir = path.join(directoryRes.server, data.dirName)
             expect(fs.existsSync(newDir)).toBeTruthy()
 
             let response : MakeDirResponse = resp.body
@@ -56,7 +56,7 @@ describe('Create directory', () => {
 
     test('Create a single directory - Directory already exist', async () => {
         const data: MakeDirRequest = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             dirName: 'pout pout',
             recursive: false
         }
@@ -72,10 +72,10 @@ describe('Create directory', () => {
     test('Create a single directory - File already exist', async () => {
         const file = 'thisIsAfile'
 
-        fs.writeFileSync(path.join(directoryRes.getPathServer(), file), 'Learn Node FS module')
+        fs.writeFileSync(path.join(directoryRes.server, file), 'Learn Node FS module')
 
         const data: MakeDirRequest = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             dirName: file,
             recursive: false
         }
@@ -91,7 +91,7 @@ describe('Create directory', () => {
     test('Create a single directory - Path key fail', async () => {
 
         const data: MakeDirRequest = {
-            parent: "NOTEXIST/" + directoryRes.getPathNetwork(),
+            parent: "NOTEXIST/" + directoryRes.network,
             dirName: "new dir man",
             recursive: false
         }
@@ -107,7 +107,7 @@ describe('Create directory', () => {
 
     test('Create multiple directory', async () => {
         const data: MakeDirRequest = {
-            parent: directoryRes.getPathNetwork(),
+            parent: directoryRes.network,
             dirName: 'pout12/pout',
             recursive: true
         }
@@ -118,7 +118,7 @@ describe('Create directory', () => {
             .expect(HttpStatusCode.CREATED)
             .expect("Content-Type", /json/)
 
-            let newDir = path.join(directoryRes.getPathServer(), data.dirName)
+            let newDir = path.join(directoryRes.server, data.dirName)
             expect(fs.existsSync(newDir)).toBeTruthy()
 
 

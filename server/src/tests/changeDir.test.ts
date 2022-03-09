@@ -14,7 +14,7 @@ const testDir = "change dir"
 const directoryRes = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
-    const dir = directoryRes.getPathServer()
+    const dir = directoryRes.server
     console.log(dir);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -38,10 +38,10 @@ describe('Change Directory', () => {
     test('Change Directory - OK', async () => {
 
         let newDir = "patate"
-        tu.createDir(directoryRes.getPathServer(), newDir)
+        tu.createDir(directoryRes.server, newDir)
 
         let changeDir: ChangeDir_Request = {
-            remoteDirectory: directoryRes.getPathNetwork(),
+            remoteDirectory: directoryRes.network,
             newPath: newDir
         }
 
@@ -54,7 +54,7 @@ describe('Change Directory', () => {
         console.log(resp.body)
         let response: ChangeDir_Response = resp.body
 
-        let expectDir = directoryRes.add(newDir)?.getPathNetwork()
+        let expectDir = directoryRes.add(newDir)?.network
         expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(expectDir)
     });
@@ -62,10 +62,10 @@ describe('Change Directory', () => {
     test('Change Directory - ..', async () => {
 
         let newDir = "patate"
-        tu.createDir(directoryRes.getPathServer(), newDir)
+        tu.createDir(directoryRes.server, newDir)
         let newDirRes = directoryRes.add(newDir) as ResolverPath
         let changeDir: ChangeDir_Request = {
-            remoteDirectory: newDirRes.getPathNetwork(),
+            remoteDirectory: newDirRes.network,
             newPath: ".."
         }
 
@@ -77,7 +77,7 @@ describe('Change Directory', () => {
 
         let response: ChangeDir_Response = resp.body
 
-        let expectDir = directoryRes.getPathNetwork()
+        let expectDir = directoryRes.network
         expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(expectDir)
     });
@@ -125,7 +125,7 @@ describe('Change Directory', () => {
         let newDir = "patate2"
 
         let changeDir: ChangeDir_Request = {
-            remoteDirectory: directoryRes.getPathNetwork(),
+            remoteDirectory: directoryRes.network,
             newPath: newDir
         }
 
@@ -146,10 +146,10 @@ describe('Change Directory', () => {
     test('Change Directory - not a Directory', async () => {
 
         let newDir = "patate3"
-        tu.createFile(newDir, directoryRes.getPathServer(), "File data, file data file data")
+        tu.createFile(newDir, directoryRes.server, "File data, file data file data")
 
         let changeDir: ChangeDir_Request = {
-            remoteDirectory: directoryRes.getPathNetwork(),
+            remoteDirectory: directoryRes.network,
             newPath: newDir
         }
 

@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
             if (!df) {
                 throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
             }
-            cbDestinationFolder = df.getPathServer()
+            cbDestinationFolder = df.server
             return fs.promises.stat(cbDestinationFolder)
         }).then(stat => {
             if (!stat.isDirectory()) {
@@ -68,7 +68,7 @@ const storage = multer.diskStorage({
             throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
         }
 
-        let filePath = df.getPathServer()
+        let filePath = df.server
 
         console.log("filePath", filePath)
         fs.promises.stat(filePath)
