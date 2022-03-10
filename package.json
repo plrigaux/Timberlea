@@ -2,16 +2,16 @@
   "name": "file-server",
   "version": "0.0.0",
   "scripts": {
-    "client": "npm --prefix ./client/ start",
+    "timberClient": "npm --prefix ./client/ start",
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
     "build_client": "npm --prefix ./client/ run build",
     "build_server": "npm --prefix ./server/ run build",
     "copyClientFiles": "node scripts/copyClientFilesToServer.js",
     "build" : "npm run build_client && npm run build_server && npm run copyClientFiles",
-    "srvDev": "npm --prefix ./server/ run timberDev",
-    "timberDev": "concurrently \"npm:client\" \"npm:srvDev\"",
+    "timberSrvDev": "npm --prefix ./server/ run timberDev",
+    "timberDev": "concurrently \"npm:timberClient\" \"npm:timberSrvDev\"",
     "postinstall": "(cd server && npm install); (cd client && npm install)",
-    "serverTest": "npm --prefix ./server/ run test -- filePathResolver"
+    "timber": "npm --prefix ./server/ run timber"
   },
   "private": true,
   "dependencies": {

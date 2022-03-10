@@ -60,24 +60,52 @@ _Note: Earlier LTS versions of Node.js migth work as well._
 To install and run Timberlea perform the following commands.
 
 ```bash
-
 npm install
+```
 
 npm run build
 
-npm run server
+npm run timber
+
+## How to run Timberlea
+
+The two main ways to run Timberlea is in production and development mode
+
+### production mode
+
+Before using the production mode you need to package the application at least one time.
+
+```bash
+
+npm run build
 
 ```
 
-In devellopment mode, skip the build command and use `npm run serve` to run both the server and client on Node.
+Once done, now you can run Timberlea.
+
+```bash
+
+npm run timber
+
+```
+
+### development mode
+
+In devellopment mode, no needs to build the application. Just run the following command.
+
+```bash
+
+npm run timberDev
+
+```
+
+It will run both the server and client on localhost.
 
 ## Configuration
 
 Timberlea uses [config](https://www.npmjs.com/package/config) to manage its configurations. It lets you define a set of default parameters, and extend them for different deployment environments (development, qa, staging, production, etc.).
 
-By default, the configuration files are located in ./server/config directory, but this can be easily overlaoded. More o that please refer to [config](https://www.npmjs.com/package/config) documentation.
-
-
+By default, the configuration files are located in ./server/config directory, but this can be overlaoded easily. For more on that please refer to [config](https://www.npmjs.com/package/config) documentation.
 
 ### Server parameters
 
