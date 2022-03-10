@@ -4,7 +4,7 @@ import fs from 'fs';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { MakeDirRequest, MakeDirResponse } from './common/interfaces';
-import { Resolver } from './filePathResolver';
+import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
 
 fileServer.post(endpoints.MKDIR, 
@@ -21,7 +21,7 @@ fileServer.post(endpoints.MKDIR,
         throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
     }
 
-    let dirPath = Resolver.instance.resolve(data.parent, data.dirName)
+    let dirPath = resolver.resolve(data.parent, data.dirName)
     let options = { recursive: data.recursive === true ? true : false }
 
     fs.promises.mkdir(dirPath.server, options)

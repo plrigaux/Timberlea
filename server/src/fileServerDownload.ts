@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { endpoints, HttpStatusCode } from "./common/constants";
-import { Resolver } from "./filePathResolver";
+import { resolver } from "./filePathResolver";
 import { fileServer } from "./fileServer";
 
 fileServer.get(endpoints.DOWNLOAD + '/:path', (req: Request, res: Response) => {
     let filePath = req.params.path
 
-    let filePathResolved = Resolver.instance.resolve(filePath)
+    let filePathResolved = resolver.resolve(filePath)
     //console.log(`filePath`, filePath, filePathResolved)
 
     let options = { dotfiles: "allow" }

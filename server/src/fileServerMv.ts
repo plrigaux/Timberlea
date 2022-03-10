@@ -1,9 +1,9 @@
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import fs from 'fs';
-import path from 'path';
 import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
+import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
 
 fileServer.put(endpoints.MV, (req: Request, res: Response) => {
@@ -11,17 +11,18 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
     const data: MvFile_Request = req.body
     console.log("MV", data)
 
-    const oldPath = path.join(data.parent, data.fileName)
+    const oldPath =  resolver.resolve(data.parent, data.fileName)
 
-    const newPath = path.join(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
+    const newPath = resolver.resolve(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
 
     let resp: MvFile_Response = {
         error: true,
         message: `Unkown error`,
-        parent: path.dirname(newPath),
+        parent: newPath.dirnameNetwork,
         oldFileName: data.fileName,
-        newFileName: path.basename(newPath)
+        newFileName: newPath.basename
     }
+
     let statusCode: number = HttpStatusCode.INTERNAL_SERVER
 
     let fileExistCheck: Promise<boolean>
@@ -29,7 +30,7 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
     if (data.overwrite) {
         fileExistCheck = Promise.resolve(false)
     } else {
-        fileExistCheck = fs.promises.access(newPath).then(() => {
+        fileExistCheck = fs.promises.access(newPath.server).then(() => {
             return true
         }).catch(() => {
             return false
@@ -41,7 +42,7 @@ fileServer.put(endpoints.MV, (req: Request, res: Response) => {
             throw new FileServerError
                 ("file already exist ...", FSErrorCode.EEXIST)
         }
-        return fs.promises.rename(oldPath, newPath)
+        return fs.promises.rename(oldPath.server, newPath.server)
     }).then(() => {
         //console.warn("OK .. ")
         resp.error = false

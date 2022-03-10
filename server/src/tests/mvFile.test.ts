@@ -5,13 +5,17 @@ import request from 'supertest'
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
 import { MvFile_Request, MvFile_Response } from '../common/interfaces'
+import { resolver, ResolverPath } from '../filePathResolver'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "rename file dir"
-const dir = path.join(os.tmpdir(), testDirMain, testDir)
+//const dir = path.join(os.tmpdir(), testDirMain, testDir)
+const dirToSend = resolver.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
+    let dir = dirToSend.server
+
     console.log(dir);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -19,7 +23,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-    let dir = path.join(os.tmpdir(), testDirMain, testDir)
+    let dir = dirToSend.server
 
     try {
         const options: RmOptions = { recursive: true, force: true }
@@ -36,10 +40,12 @@ describe('Rename or move file', () => {
 
         let oldFileName = "poutpout.txt"
         let newFileName = 'robert.txt'
-        tu.createFile(oldFileName, dir, "File data, file data file data")
+
+        let dirToSendOld = dirToSend.add(oldFileName)
+        tu.createFilePR(dirToSendOld, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: dirToSend.network,
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -55,7 +61,7 @@ describe('Rename or move file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
+        expect(dataresp.parent).toEqual(dirToSend.network)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -66,7 +72,7 @@ describe('Rename or move file', () => {
         //tu.createFile(oldFileName, dir, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: dirToSend.network,
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -82,7 +88,7 @@ describe('Rename or move file', () => {
 
         expect(dataresp.error).toBeTruthy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
+        expect(dataresp.parent).toEqual(dirToSend.network)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -91,11 +97,11 @@ describe('Rename or move file', () => {
         let oldFileName = "poutpout3.txt"
         let newFileName = 'robert4.txt'
 
-        tu.createFile(oldFileName, dir, "File data, file data file data")
-        tu.createFile(newFileName, dir, "File data, file data file data")
+        tu.createFile(oldFileName, dirToSend.server, "File data, file data file data")
+        tu.createFile(newFileName, dirToSend.server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: dirToSend.network,
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -111,7 +117,7 @@ describe('Rename or move file', () => {
 
         expect(dataresp.error).toBeTruthy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
+        expect(dataresp.parent).toEqual(dirToSend.network)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -120,11 +126,11 @@ describe('Rename or move file', () => {
         let oldFileName = "poutpout3.txt"
         let newFileName = 'robert4.txt'
 
-        tu.createFile(oldFileName, dir, "File data, file data file data")
-        tu.createFile(newFileName, dir, "File data, file data file data")
+        tu.createFile(oldFileName, dirToSend.server, "File data, file data file data")
+        tu.createFile(newFileName, dirToSend.server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: dirToSend.network,
             fileName: oldFileName,
             newFileName: newFileName,
             overwrite : true
@@ -141,7 +147,7 @@ describe('Rename or move file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
+        expect(dataresp.parent).toEqual(dirToSend.network)
         //expect(dataresp.message).toMatch(/^File/)
     });
 
@@ -149,12 +155,12 @@ describe('Rename or move file', () => {
 
         let oldFileName = "directory dir"
         let newFileName = 'directory bear'
-        fs.mkdirSync(path.join(dir, oldFileName))
+        fs.mkdirSync(dirToSend.add(oldFileName).server)
 
-        tu.createFile("snusnuf.txt", path.join(dir, oldFileName), "File data, file data file data")
+        tu.createFile("snusnuf.txt", dirToSend.add(oldFileName).server, "File data, file data file data")
 
         const data: MvFile_Request = {
-            parent: dir,
+            parent: dirToSend.network,
             fileName: oldFileName,
             newFileName: newFileName
         }
@@ -170,6 +176,6 @@ describe('Rename or move file', () => {
 
         expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dir)
+        expect(dataresp.parent).toEqual(dirToSend.network)
     });
 })

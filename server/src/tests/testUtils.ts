@@ -1,6 +1,7 @@
 import { createDecipheriv } from 'crypto';
 import fs, { RmDirOptions, RmOptions } from 'fs'
 import path from 'path'
+import { ResolverPath } from '../filePathResolver';
 
 export namespace testUtils {
 
@@ -9,6 +10,13 @@ export namespace testUtils {
     export const HOME_ROOT = ""
     export const PATH_LEVEL_UP = ".."
 
+
+    export function createFilePR(filePath: ResolverPath, filecontent: string) : string {
+        let p = filePath.server
+        fs.writeFileSync(p, filecontent)
+        return p
+    }
+    
     export function createFile(fileName: string, parentDir: string, filecontent: string) : string {
         let p = path.join(parentDir, fileName)
         fs.writeFileSync(p, filecontent)

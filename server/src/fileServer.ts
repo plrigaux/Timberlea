@@ -5,7 +5,7 @@ import path from 'path';
 import { endpoints, FSErrorMsg, FSErrorCode, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetail_Response, FileList_Response, FileType, FS_Response } from './common/interfaces';
-import { HOME, HOME_ResolverPath, Resolver, ResolverPath } from './filePathResolver';
+import { HOME, HOME_ResolverPath,  resolver,  ResolverPath } from './filePathResolver';
 
 export const fileServer = express.Router()
 
@@ -37,7 +37,7 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
             files: [],
         }
 
-        Resolver.instance.root().forEach((key: string) => {
+        resolver.root().forEach((key: string) => {
 
             let fd: FileDetails = {
                 name: key,
@@ -100,7 +100,7 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
 
 function getList(req: Request, res: Response, next: NextFunction) {
     let paramPath = req.params.path
-    let folder: ResolverPath = Resolver.instance.resolve(paramPath)
+    let folder: ResolverPath = resolver.resolve(paramPath)
     returnList(folder).then((resp: FileList_Response) => {
         res.status(HttpStatusCode.OK).send(resp)
     }).catch(next)

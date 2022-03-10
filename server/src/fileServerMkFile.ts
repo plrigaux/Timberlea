@@ -1,18 +1,16 @@
-import express, { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import fs from 'fs';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
-import { FileDetail_Response, FileType, MakeDirResponse, MakeFileRequest, MakeFileResponse } from './common/interfaces';
-import { Resolver } from './filePathResolver';
+import { FileDetail_Response, FileType, MakeFileRequest } from './common/interfaces';
+import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
 
 fileServer.post(endpoints.MKFILE,
     body('parent').exists().isString(),
     body('fileName').exists().isString(),
     (req: Request, res: Response, next: NextFunction) => {
-
-
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -23,7 +21,7 @@ fileServer.post(endpoints.MKFILE,
         const requestData: MakeFileRequest = req.body
         console.log("Mkfile", requestData)
 
-        let fileRes = Resolver.instance.resolve(requestData.parent, requestData.fileName)
+        let fileRes = resolver.resolve(requestData.parent, requestData.fileName)
         let options = { flag: "wx" }
 
         fs.promises.writeFile(fileRes.server, requestData.data || "", options)
@@ -45,5 +43,3 @@ fileServer.post(endpoints.MKFILE,
             })
             .catch(next)
     })
-
-

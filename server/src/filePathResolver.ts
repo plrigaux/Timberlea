@@ -17,7 +17,7 @@ interface FilePathConfig {
     path: string
 }
 
-function isRoot(key: string): boolean {
+let isRoot = (key: string): boolean => {
     return key === "" || key === SEPARATOR
 }
 
@@ -71,7 +71,7 @@ export class ResolverPath {
     add(...extention: string[]): ResolverPath | never {
 
         if (this.isHomeRoot()) {
-            return Resolver.instance.resolve(extention.join(SEPARATOR))
+            return resolver.resolve(extention.join(SEPARATOR))
         }
 
         let array = [...this.dirFiles, ...extention]
@@ -85,32 +85,26 @@ export class ResolverPath {
 
 export const HOME_ResolverPath = new ResolverPath("", [])
 
-export class Resolver {
+export namespace resolver {
 
-    private static _instance: Resolver;
+    let filePaths = new Map<string, FilePathConfig>()
+    let rootKeys: string[]
 
-    public static get instance(): Resolver {
-        return this._instance || (this._instance = new this());
-    }
-
-    private filePaths = new Map<string, FilePathConfig>()
-    private rootKeys: string[]
-
-    private constructor() {
+    let init = () => {
         const configFilePaths = config.get<FilePathConfig[]>('directories');
-        console.log(configFilePaths)
+        console.log("init directories", configFilePaths)
 
 
         configFilePaths.forEach(filePathConfig => {
 
-            let resolvedPath
+            let resolvedPath: string
 
             switch (filePathConfig.path) {
                 case TEMP_DIR:
-                    resolvedPath = Resolver.homeTempSetter(filePathConfig, HOME_DIR, os.tmpdir())
+                    resolvedPath = homeTempSetter(HOME_DIR, os.tmpdir())
                     break;
                 case HOME_DIR:
-                    resolvedPath = Resolver.homeTempSetter(filePathConfig, HOME_DIR, os.homedir())
+                    resolvedPath = homeTempSetter(HOME_DIR, os.homedir())
                     break;
                 default:
                     let val = config.util.getEnv(filePathConfig.path)
@@ -127,15 +121,15 @@ export class Resolver {
                 path: path.normalize(resolvedPath)
             }
 
-            this.filePaths.set(fp.label, fp)
+            filePaths.set(fp.label, fp)
         })
 
-        console.log(this.filePaths)
+        console.log("filePaths", filePaths)
 
-        this.rootKeys = [...this.filePaths.keys()]
+        rootKeys = [...filePaths.keys()]
     }
 
-    private static homeTempSetter(filePathConfig: FilePathConfig, key: string, defaultPath: string): string {
+    let homeTempSetter = (key: string, defaultPath: string): string => {
 
         let envVal = config.util.getEnv(key)
         if (envVal) {
@@ -147,11 +141,7 @@ export class Resolver {
         return defaultPath
     }
 
-    getPath(key: string): string | undefined {
-        return this.filePaths.get(key)?.path
-    }
-
-    resolve(pathToResolve: string | null | undefined, ...dirs: string[]): ResolverPath | never {
+    export let resolve = (pathToResolve: string | null | undefined, ...dirs: string[]): ResolverPath | never => {
         console.log("resolve", pathToResolve, dirs)
         if (pathToResolve === null || pathToResolve === undefined) {
             pathToResolve = HOME
@@ -181,7 +171,7 @@ export class Resolver {
 
         let key = array2[0]
 
-        let newPathprefix = this.getKeyPath(key)
+        let newPathprefix = filePaths.get(key)?.path
         if (!newPathprefix) {
             throw new FileServerError(`Key "${key}" unresoled`, FSErrorCode.KEY_UNRESOLVED)
         }
@@ -191,35 +181,9 @@ export class Resolver {
         return resolverPath
     }
 
-    private getKeyPath(key: string): string | null {
-        let newPathprefix = this.getPath(key)
-        if (!newPathprefix) {
-            if (isRoot(key)) {
-                return ""
-            }
-            console.warn(`Invalid key "${key}"`);
-            return null
-        }
-        return newPathprefix
+    export let root = (): string[] => {
+        return rootKeys
     }
 
-    root(): string[] {
-        return this.rootKeys
-    }
-
-    replaceWithKey(filePath: string): string | null {
-        let result = null
-        filePath = path.normalize(filePath)
-
-        for (const [key, value] of this.filePaths.entries()) {
-
-            let fp = value.path
-
-            if (filePath.startsWith(fp)) {
-                result = path.join(key, filePath.substring(fp.length))
-                break
-            }
-        }
-        return result
-    }
+    init()
 }

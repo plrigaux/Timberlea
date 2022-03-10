@@ -1,16 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
-import path from 'path';
 import { endpoints, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileDetail_Response, FileType } from './common/interfaces';
-import { Resolver } from './filePathResolver';
+import { resolver } from './filePathResolver';
 import { fileServer } from './fileServer';
-
 
 fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response, next: NextFunction) => {
 
     const file: string = req.params.path
-    const fileRes = Resolver.instance.resolve(req.params.path)
+    const fileRes = resolver.resolve(req.params.path)
 
     fs.promises.stat(fileRes.server)
         .then(stat => {

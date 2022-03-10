@@ -5,13 +5,13 @@ import request from 'supertest'
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
 import { FileDetail_Response, MakeDirRequest, MakeDirResponse, MakeFileRequest, MakeFileResponse } from '../common/interfaces'
-import { Resolver, ResolverPath } from '../filePathResolver'
+import { resolver, ResolverPath } from '../filePathResolver'
 import { testUtils } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "make dir"
 //const dir = path.join(os.tmpdir(), testDirMain, testDir)
-const directoryRes = Resolver.instance.resolve(testUtils.TEMP, testDirMain, testDir) as ResolverPath
+const directoryRes = resolver.resolve(testUtils.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     if (!fs.existsSync(directoryRes.server)) {

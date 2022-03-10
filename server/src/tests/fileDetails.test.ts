@@ -4,15 +4,15 @@ import path from 'path'
 import request from 'supertest'
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
-import { FileDetail_Response, FileList_Response, FileType } from '../common/interfaces'
-import { Resolver, ResolverPath } from '../filePathResolver'
+import { FileDetail_Response, FileType } from '../common/interfaces'
+import { resolver, ResolverPath } from '../filePathResolver'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "file details"
 const dir = path.join(os.tmpdir(), testDirMain, testDir)
 
-const dirToSend = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
+const dirToSend = resolver.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     console.log(dir);
@@ -99,6 +99,4 @@ describe('File details', () => {
         expect(dataresp.error).toBeTruthy();
 
     });
-
-
 })

@@ -6,13 +6,13 @@ import request from 'supertest'
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
 import { FS_Response, MvFile_Request, MvFile_Response } from '../common/interfaces'
-import { Resolver, ResolverPath } from '../filePathResolver'
+import { resolver, ResolverPath } from '../filePathResolver'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "copy file dir"
 //const dir = path.join(os.tmpdir(), testDirMain, testDir)
-const directoryRes = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
+const directoryRes = resolver.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     let dir = directoryRes.server

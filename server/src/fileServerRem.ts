@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import { endpoints, HttpStatusCode } from './common/constants';
 import { RemFile_Request, RemFile_Response } from './common/interfaces';
-import { Resolver } from './filePathResolver';
+import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
 
 fileServer.delete(endpoints.REM, (req: Request, res: Response, next: NextFunction) => {
@@ -10,7 +10,7 @@ fileServer.delete(endpoints.REM, (req: Request, res: Response, next: NextFunctio
     const data: RemFile_Request = req.body
     console.log("Delete", data)
 
-    let filePathResolved = Resolver.instance.resolve(data.parent, data.fileName)
+    let filePathResolved = resolver.resolve(data.parent, data.fileName)
 
     let options: fs.RmOptions = {
         force: data.force === true ? true : false,

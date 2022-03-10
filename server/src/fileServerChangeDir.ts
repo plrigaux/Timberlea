@@ -4,7 +4,7 @@ import fs from 'fs';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { ChangeDir_Request, FileList_Response } from './common/interfaces';
-import { Resolver, ResolverPath } from './filePathResolver';
+import { resolver, ResolverPath } from './filePathResolver';
 import { fileServer, returnList } from "./fileServer";
 
 
@@ -29,7 +29,7 @@ fileServer.put(endpoints.CD,
             throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
         }
 
-        let newPath = Resolver.instance.resolve(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
+        let newPath = resolver.resolve(newRemoteDirectory.remoteDirectory, newRemoteDirectory.newPath)
 
         directoryValid(newPath)
             .then((isDirectory: boolean) => {

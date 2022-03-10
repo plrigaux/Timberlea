@@ -5,19 +5,19 @@ import request from 'supertest'
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
 import { FileList_Response, FileType } from '../common/interfaces'
-import { Resolver, ResolverPath } from '../filePathResolver'
+import { resolver, ResolverPath } from '../filePathResolver'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "file list"
-const dir = path.join(os.tmpdir(), testDirMain, testDir)
+//const dir = path.join(os.tmpdir(), testDirMain, testDir)
 
-const dirToSend = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
+const dirToSend = resolver.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
-    console.log(dir);
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+    console.log(dirToSend.server);
+    if (!fs.existsSync(dirToSend.server)) {
+        fs.mkdirSync(dirToSend.server, { recursive: true });
     }
 });
 
@@ -102,12 +102,12 @@ describe('File list - App root', () => {
         let f1 = new_File + fileNum++
         let f2 = new_File + fileNum++
         let f3 = new_File + fileNum++
-        tu.createFile(f1, dir, "File data, file data file data")
-        tu.createFile(f2, dir, "File data, file data file data")
-        tu.createFile(f3, dir, "File data, file data file data")
+        tu.createFile(f1, dirToSend.server, "File data, file data file data")
+        tu.createFile(f2, dirToSend.server, "File data, file data file data")
+        tu.createFile(f3, dirToSend.server, "File data, file data file data")
 
         let new_Dir = "new_dir"
-        tu.createDir(dir, new_Dir)
+        tu.createDir(dirToSend.server, new_Dir)
 
         let remoteDirectory = encodeURIComponent(dirToSend.network);
         console.warn(remoteDirectory)
@@ -148,17 +148,13 @@ describe('File list - App root', () => {
 
         let new_File = "tomato.txt"
 
-        let p: string = tu.createFile(new_File, dir, "File data, file data file data")
+        let p: string = tu.createFile(new_File, dirToSend.server, "File data, file data file data")
 
-        let p1 = Resolver.instance.replaceWithKey(p)
+        let p1 = dirToSend.add(new_File)
 
         expect(p1).not.toBeNull()
 
-        if (!p1) {
-            return
-        }
-
-        let remoteDirectory = encodeURIComponent(p1);
+        let remoteDirectory = encodeURIComponent(p1.network);
         const url = path.join(endpoints.FS_LIST, remoteDirectory)
         const resp = await request(app)
             .get(url)

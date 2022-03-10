@@ -4,7 +4,7 @@ import multer from 'multer';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode, uploadFile } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { FileUpload_Response } from './common/interfaces';
-import { Resolver } from './filePathResolver';
+import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
 
 const storage = multer.diskStorage({
@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
                 resolve(destinationFolder)
             }
         }).then((destinationFolder: string) => {
-            let df = Resolver.instance.resolve(destinationFolder)
+            let df = resolver.resolve(destinationFolder)
             if (!df) {
                 throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
             }
@@ -63,7 +63,7 @@ const storage = multer.diskStorage({
         console.log("filename: info ", req.body, req.params)
         console.log("file", file)
 
-        let df = Resolver.instance.resolve(req.body.destinationFolder, newFileName)
+        let df = resolver.resolve(req.body.destinationFolder, newFileName)
         if (!df) {
             throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
         }

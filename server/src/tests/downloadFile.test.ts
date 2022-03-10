@@ -6,13 +6,13 @@ import request from 'supertest'
 import { app } from '../app'
 import { RemFile_Request, RemFile_Response } from '../common/interfaces'
 import { testUtils } from './testUtils'
-import { Resolver, ResolverPath } from '../filePathResolver'
+import { resolver, ResolverPath } from '../filePathResolver'
 
 
 const testDirMain = "fileServer"
 const testDir = "dowanload dir"
 //const dir = path.join(os.tmpdir(), testDirMain, testDir)
-const directoryRes = Resolver.instance.resolve(testUtils.TEMP, testDirMain, testDir) as ResolverPath
+const directoryRes = resolver.resolve(testUtils.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     let dir = directoryRes.server

@@ -4,10 +4,8 @@ import fs from 'fs';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
-import { Resolver } from './filePathResolver';
+import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
-
-
 
 fileServer.put(endpoints.COPY, body('parent').exists().isString(),
     body('fileName').exists().isString(),
@@ -24,9 +22,9 @@ fileServer.put(endpoints.COPY, body('parent').exists().isString(),
             throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
         }
 
-        const oldPath = Resolver.instance.resolve(data.parent, data.fileName)
+        const oldPath = resolver.resolve(data.parent, data.fileName)
 
-        const newPath = Resolver.instance.resolve(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
+        const newPath = resolver.resolve(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
 
         let mode = data.overwrite ? 0 : fs.constants.COPYFILE_EXCL
 

@@ -6,12 +6,12 @@ import request from 'supertest'
 import { app } from '../app'
 import { ChangeDir_Request, ChangeDir_Response, FileDetails } from '../common/interfaces'
 import { testUtils as tu } from './testUtils'
-import { Resolver, ResolverPath } from '../filePathResolver'
+import { resolver, ResolverPath } from '../filePathResolver'
 
 const testDirMain = "fileServer"
 const testDir = "change dir"
 
-const directoryRes = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
+const directoryRes = resolver.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     const dir = directoryRes.server

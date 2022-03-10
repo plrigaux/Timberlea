@@ -5,13 +5,13 @@ import request from 'supertest'
 import { app } from '../app'
 import { endpoints, FSErrorMsg, HttpStatusCode, uploadFile } from '../common/constants'
 import { FileUpload_Response } from '../common/interfaces'
-import { Resolver, ResolverPath } from '../filePathResolver'
+import { resolver, ResolverPath } from '../filePathResolver'
 import { testUtils as tu } from './testUtils'
 
 const testDirMain = "fileServer"
 const testDir = "upload file dir"
 const uploadDirectoryServe = path.join(os.tmpdir(), testDirMain, testDir)
-const uploadDirectoryRes = Resolver.instance.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
+const uploadDirectoryRes = resolver.resolve(tu.TEMP, testDirMain, testDir) as ResolverPath
 
 beforeAll(() => {
     tu.createDir(uploadDirectoryServe)
