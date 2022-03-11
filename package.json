@@ -1,13 +1,13 @@
 {
-  "name": "file-server",
-  "version": "0.0.0",
+  "name": "timberlea",
+  "version": "0.0.1",
   "scripts": {
     "timberClient": "npm --prefix ./client/ start",
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
     "build_client": "npm --prefix ./client/ run build",
     "build_server": "npm --prefix ./server/ run build",
     "copyClientFiles": "node scripts/copyClientFilesToServer.js",
-    "build" : "npm run build_client && npm run build_server && npm run copyClientFiles",
+    "build": "npm run build_client && npm run build_server && npm run copyClientFiles",
     "timberSrvDev": "npm --prefix ./server/ run timberDev",
     "timberDev": "concurrently \"npm:timberClient\" \"npm:timberSrvDev\"",
     "postinstall": "(cd server && npm install); (cd client && npm install)",
@@ -18,6 +18,8 @@
   },
   "devDependencies": {
     "concurrently": "^6.4.0",
-    "fs-extra": "^10.0.0"
-  }
+    "fs-extra": "^10.0.0",
+    "chalk": "^5.0.1"
+  },
+  "type": "module"
 }
