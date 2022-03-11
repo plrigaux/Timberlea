@@ -1,13 +1,13 @@
 {
   "name": "timberlea-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "packagePrep" : "node scripts/packagePrep.js",
-    "packagePost" : "node scripts/packagePost.js",
-    "compileTS" : "tsc",
+    "packagePrep": "node scripts/packagePrep.js",
+    "packagePost": "node scripts/packagePost.js",
+    "compileTS": "tsc",
     "build": "npm run packagePrep && npm run compileTS && npm run packagePost",
     "timberDev": "cross-env NODE_ENV=development ts-node-dev src/server.ts",
     "timber": "cross-env NODE_ENV=production node dist/server.js"

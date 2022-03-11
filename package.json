@@ -14,8 +14,7 @@
     "timber": "npm --prefix ./server/ run timber"
   },
   "private": true,
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "concurrently": "^6.4.0",
     "fs-extra": "^10.0.0",
