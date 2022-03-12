@@ -1,5 +1,5 @@
 import os from 'os'
-import fs, { RmDirOptions, RmOptions } from 'fs'
+import fs, { RmDirOptions, RmOptions } from 'fs-extra'
 import path from 'path'
 import { endpoints, HttpStatusCode } from '../common/constants'
 import request from 'supertest'
@@ -48,8 +48,36 @@ describe('Downaload', () => {
         const resp = await request(app)
             .get(url)
             .expect(HttpStatusCode.OK)
+            .expect("content-disposition", /attachment/)
+            .expect("content-disposition", /filename/)
             .expect("Content-Type", /text\/plain/);
+    });
 
+
+    test('Downaload a single file - non test', async () => {
+
+        let fileName = "agile.png"
+
+
+        try {
+            let testPath = './src/tests/datafiles/' + fileName
+            fs.copySync(testPath, directoryRes.add(fileName).server)
+            console.log('success!')
+        } catch (err) {
+            console.error(err)
+            expect(false).toBeTruthy()
+        }
+
+
+        let remoteDirectory = encodeURIComponent(directoryRes.add(fileName).network);
+        const url = path.join(endpoints.FS_DOWNLOAD, remoteDirectory)
+
+        const resp = await request(app)
+            .get(url)
+            .expect(HttpStatusCode.OK)
+            .expect("content-disposition", /attachment/)
+            .expect("content-disposition", /filename/)
+            .expect("Content-Type", /image\/png/);
     });
 
     test('Downaload a single file - Not found', async () => {
@@ -76,7 +104,7 @@ describe('Downaload', () => {
         const resp = await request(app)
             .get(url)
             .expect(HttpStatusCode.OK)
-            //.expect("Content-Type", /text\/plain/);
+        //.expect("Content-Type", /text\/plain/);
 
     });
 })
