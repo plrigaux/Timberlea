@@ -1,12 +1,13 @@
 export namespace endpoints {
 
     export const ROOT = "/"
-    export const FS = "/fs"
+    export const FS = "/timber"
 
     export const LIST = "/list"
     export const CD = "/cd"
     export const PWD = "/pwd"
     export const DOWNLOAD = "/download"
+    export const DOWNZIP = "/downzip"
     export const UPLOAD = "/upload"
     export const MKDIR = "/mkdir"
     export const MKFILE = "/mkfile"
@@ -19,6 +20,7 @@ export namespace endpoints {
     export const FS_CD = FS + CD
     export const FS_PWD = FS + PWD
     export const FS_DOWNLOAD = FS + DOWNLOAD
+    export const FS_DOWNZIP = FS + DOWNLOAD
     export const FS_UPLOAD = FS + UPLOAD
     export const FS_MKDIR = FS + MKDIR
     export const FS_MKFILE = FS + MKFILE

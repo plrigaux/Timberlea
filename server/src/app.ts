@@ -15,6 +15,7 @@ import './fileServerUpload';
 import './fileServerDownload';
 import './fileServerChangeDir';
 import './fileServerFileDetails';
+import './fileServerDownloadZip';
 
 export const app = express();
 
