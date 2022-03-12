@@ -46,8 +46,20 @@ export class ResolverPath {
         return lh > 0 ? this.dirFiles[lh - 1] : ""
     }
 
-    get basename() {
+    /**
+     *  returns the last portion of a path
+     */
+    get basename(): string {
         return this.getFileName()
+    }
+
+    get basenameNoExt() {
+        let fn = this.getFileName()
+        let idx = fn.lastIndexOf(".")
+        if (idx >= 0) {
+            return fn.slice(0, idx)
+        }
+        return fn
     }
 
     get dirnameNetwork() {

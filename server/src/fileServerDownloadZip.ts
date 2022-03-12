@@ -1,27 +1,40 @@
-import { Request, Response } from "express";
-import { endpoints, HttpStatusCode } from "./common/constants";
+import { NextFunction, Request, Response } from "express";
+import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from "./common/constants";
 import { resolver } from "./filePathResolver";
 import { fileServer } from "./fileServer";
 import archiver from "archiver";
+import fs from 'fs';
+import { FileServerError } from "./common/fileServerCommon";
 
-fileServer.get(endpoints.DOWNZIP + '/:path', (req: Request, res: Response) => {
+fileServer.get(endpoints.DOWNZIP + '/:path', (req: Request, res: Response, next: NextFunction) => {
     let filePath = req.params.path
-
     let filePathResolved = resolver.resolve(filePath)
 
-    const arch = archiver('zip')
-    arch.pipe(res);
+    const arch : archiver.Archiver = archiver('zip')
+   
+    let filePathRes = filePathResolved.server
+    fs.promises.stat(filePathRes).then((stat) => {
 
-    res.attachment(filePathResolved.basename + '.zip').type('zip');
-    arch.on('end', () => res.end()); // end response when archive stream ends
-    arch.on('error', function (err) {
-        throw err;
-    });
+        let fileName = ""
+        if (stat.isDirectory()) {
+            arch.directory(filePathResolved.server, false);
+            fileName = filePathResolved.basename + '.zip'
+        } else if (stat.isFile()) {
+            arch.file(filePathResolved.server, { name: filePathResolved.basename });
+            fileName = filePathResolved.basenameNoExt + '.zip'
+        } else {
+            throw new FileServerError(FSErrorMsg.UNKNOWN_ERROR, FSErrorCode.ENOENT)
+        }
 
-    arch.directory(filePathResolved.server, false);
+        arch.pipe(res);
+        arch.on('end', () => res.end()); // end response when archive stream ends
+        arch.on('error', function (err) {
+            next(err);
+        });
+        res.attachment(fileName).type('zip');
 
-    arch.append('abc', { name: 'abc.txt' });
-    arch.append('cdf', { name: 'cdf.txt' })
-
-    arch.finalize();
+    }).catch(next)
+    .finally(() => {
+        arch.finalize();
+    })
 })

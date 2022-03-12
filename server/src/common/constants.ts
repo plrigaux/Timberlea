@@ -20,7 +20,7 @@ export namespace endpoints {
     export const FS_CD = FS + CD
     export const FS_PWD = FS + PWD
     export const FS_DOWNLOAD = FS + DOWNLOAD
-    export const FS_DOWNZIP = FS + DOWNLOAD
+    export const FS_DOWNZIP = FS + DOWNZIP
     export const FS_UPLOAD = FS + UPLOAD
     export const FS_MKDIR = FS + MKDIR
     export const FS_MKFILE = FS + MKFILE

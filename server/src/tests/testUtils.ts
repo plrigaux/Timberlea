@@ -1,6 +1,5 @@
-import { createDecipheriv } from 'crypto';
-import fs, { RmDirOptions, RmOptions } from 'fs'
-import path from 'path'
+import fs, { RmOptions } from 'fs';
+import path from 'path';
 import { ResolverPath } from '../filePathResolver';
 
 export namespace testUtils {
