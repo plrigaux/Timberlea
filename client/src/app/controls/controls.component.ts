@@ -106,6 +106,13 @@ export class ControlsComponent implements OnInit, OnDestroy {
       this.behavior.bookmark(this.fileDetails)
     }
   }
+
+  downloadZip() {
+    let filename = this.fileDetails?.name
+    if (filename) {
+      this.fileServerService.downloadFileName(filename, true)
+    }
+  }
 }
 
 @Component({
@@ -147,5 +154,4 @@ export class DialogFileRename implements AfterViewInit {
       this.newFileInput.nativeElement.focus()
     }, 0);
   }
-
 }

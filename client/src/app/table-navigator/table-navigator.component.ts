@@ -229,15 +229,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   downloadFileName(fileName: string) {
-    const href = this.fileServerService.getFileHref(fileName);
-
-    const link = document.createElement('a');
-    link.setAttribute('target', '_blank');
-    link.setAttribute('href', href);
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    const href = this.fileServerService.downloadFileName(fileName);
   }
 
   displaySize(param: FileDetails): string {

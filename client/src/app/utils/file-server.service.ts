@@ -182,9 +182,22 @@ export class FileServerService {
     return throwError(() => new Error(message))
   }
 
-  getFileHref(fileName: string): string {
-    const href = environment.serverUrl + endpoints.FS_DOWNLOAD + "/" + encodeURIComponent(this.remoteDirectory + "/" + fileName);
+  private getFileHref(fileName: string, archive = false): string {
+    let endpoint = archive ? endpoints.FS_DOWNZIP : endpoints.FS_DOWNLOAD
+    const href = environment.serverUrl + endpoint + "/" + encodeURIComponent(this.remoteDirectory + "/" + fileName);
     return href
+  }
+
+  downloadFileName(fileName: string, archive = false) {
+    const href = this.getFileHref(fileName, archive);
+
+    const link = document.createElement('a');
+    link.setAttribute('target', '_blank');
+    link.setAttribute('href', href);
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   delete(fileName: string | null | undefined) {
