@@ -1,2 +1,0 @@
-
-GET http://localhost:3000/timber/downzip/HOME%2FDocuments%2Farchive HTTP/1.1
