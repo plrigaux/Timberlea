@@ -81,6 +81,10 @@ export class MenuComponent implements OnInit, OnDestroy {
   onOpenBookmarks() {
     this.behavior.openBookmaks(true)
   }
+
+  onOpenHistory() {
+    this.behavior.openHistory(true)
+  }
 }
 
 @Component({
@@ -139,6 +143,8 @@ export class DialogFileCreate implements AfterViewInit {
     }
     this.dialogRef.close(output)
   }
+
+
 
 
 }

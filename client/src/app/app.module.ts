@@ -31,6 +31,7 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { LongPressDirective } from './long-press.directive';
 import { DialogDirectoryCreate, DialogFileCreate, MenuComponent } from './menu/menu.component';
 import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
+import { HistoryComponent } from './history/history.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { TableNavigatorComponent } from './table-navigator/table-navigator.compo
     MenuComponent,
     DialogDirectoryCreate,
     DialogFileCreate,
-    BookmarkComponent
+    BookmarkComponent,
+    HistoryComponent
   ],
   imports: [
     BrowserModule,

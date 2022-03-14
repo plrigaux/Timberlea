@@ -40,9 +40,14 @@ export class FileServerService {
   private modifSubject = new Subject<MvFile_Response>()
   private newFileSubject = new Subject<FileDetails>()
   private newFolderSubject = new Subject<string>()
+  private downloadFileSubject = new Subject<DownloadFile>()
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) {
     this.serverUrl = environment.serverUrl
+  }
+
+  subscribeDownloadFile(obs: Partial<Observer<DownloadFile>>): Subscription {
+    return this.downloadFileSubject.subscribe(obs)
   }
 
   subscribeFileList(obs: Partial<Observer<FileDetails[]>>): Subscription {
@@ -69,7 +74,7 @@ export class FileServerService {
     return this.modifSubject.subscribe(obs)
   }
 
-  subscribeNewFileSubjet(obs: Partial<Observer<FileDetails>>): Subscription {
+  subscribeNewFile(obs: Partial<Observer<FileDetails>>): Subscription {
     return this.newFileSubject.subscribe(obs)
   }
 
@@ -182,22 +187,37 @@ export class FileServerService {
     return throwError(() => new Error(message))
   }
 
-  private getFileHref(fileName: string, archive = false): string {
+  private getFileHref(path: string, archive = false): string {
     let endpoint = archive ? endpoints.FS_DOWNZIP : endpoints.FS_DOWNLOAD
-    const href = environment.serverUrl + endpoint + "/" + encodeURIComponent(this.remoteDirectory + "/" + fileName);
+    const href = environment.serverUrl + endpoint + "/" + encodeURIComponent(path);
     return href
   }
 
   downloadFileName(fileName: string, archive = false) {
-    const href = this.getFileHref(fileName, archive);
+    let filePath = this.remoteDirectory + "/" + fileName;
+    this.downloadFilePath(filePath, archive)
+  }
+
+  private getLast(filePath: string) {
+    let idx = filePath.lastIndexOf("/")
+    return filePath.substring(idx)
+  }
+
+  downloadFilePath(filePath: string, archive = false) {
+    const href = this.getFileHref(filePath, archive);
 
     const link = document.createElement('a');
     link.setAttribute('target', '_blank');
     link.setAttribute('href', href);
-    link.setAttribute('download', fileName);
+    link.setAttribute('download', this.getLast(filePath));
     document.body.appendChild(link);
     link.click();
     link.remove();
+
+    this.downloadFileSubject.next({
+      path: filePath,
+      archive: archive
+    })
   }
 
   delete(fileName: string | null | undefined) {
@@ -373,4 +393,9 @@ export class FileServerService {
 
 export interface FileDetailsPlus extends FileDetails {
   directory: string
+}
+
+export interface DownloadFile {
+  path: string
+  archive: boolean
 }

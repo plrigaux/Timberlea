@@ -101,7 +101,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
       }
     }))
 
-    this.subscriptions.push(this.fileServerService.subscribeNewFileSubjet({
+    this.subscriptions.push(this.fileServerService.subscribeNewFile({
       next: (data: FileDetails) => {
         console.log("f upload", data)
 

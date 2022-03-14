@@ -1,0 +1,4 @@
+<p>History</p>
+<div *ngFor="let hist of historyItems.reverse()">
+    <button mat-button (click)="onHistoryClick(hist)">{{hist.action}} {{hist.data}}</button>
+</div>
