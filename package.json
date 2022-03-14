@@ -1,6 +1,6 @@
 {
   "name": "timberlea",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "timberClient": "npm --prefix ./client/ start",
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
@@ -11,14 +11,15 @@
     "timberSrvDev": "npm --prefix ./server/ run timberDev",
     "timberDev": "concurrently \"npm:timberClient\" \"npm:timberSrvDev\"",
     "postinstall": "(cd server && npm install); (cd client && npm install)",
-    "timber": "npm --prefix ./server/ run timber"
+    "timber": "npm --prefix ./server/ run timber",
+    "versioning": "npx ts-node ./scripts/versioning.ts"
   },
   "private": true,
   "dependencies": {},
   "devDependencies": {
-    "concurrently": "^6.4.0",
+    "@types/fs-extra": "^9.0.13",
     "fs-extra": "^10.0.0",
-    "chalk": "^5.0.1"
-  },
-  "type": "module"
+    "chalk": "^5.0.1",
+    "concurrently": "^6.4.0"
+  }
 }
