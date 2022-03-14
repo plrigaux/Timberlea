@@ -27,6 +27,7 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 * Create directory
 * Set up locations
 * Bookmark
+* Download compressed file 
 
 ## Upcoming features
 
@@ -41,8 +42,6 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 * Text editor
 * Open file
 * Search
-* Compress
-* Decompress
 * Storage analysis
 * Map network drive
   * Map FTP
