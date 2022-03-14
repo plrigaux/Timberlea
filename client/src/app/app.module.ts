@@ -12,24 +12,26 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { BookmarkComponent } from './bookmark/bookmark.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/controls.component';
 import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { LongPressDirective } from './long-press.directive';
-import { MenuComponent, DialogDirectoryCreate, DialogFileCreate } from './menu/menu.component';
+import { DialogDirectoryCreate, DialogFileCreate, MenuComponent } from './menu/menu.component';
 import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { BookmarkComponent } from './bookmark/bookmark.component';
-import { MatTooltipModule } from '@angular/material/tooltip';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -69,7 +71,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ReactiveFormsModule,
     MatSnackBarModule,
     MatSidenavModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
