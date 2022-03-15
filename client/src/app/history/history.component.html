@@ -1,6 +1,6 @@
 <p>History</p>
 <div *ngFor="let hist of historyItems.reverse()">
-    <button mat-button (click)="onHistoryClick(hist)" matTooltip="{{hist.data}}" [disabled]="isDisable(hist)" matTooltipClass="histTooltip">
+    <button mat-button (click)="onHistoryClick(hist)" matTooltip="{{getTooltipMsg(hist)}}" [disabled]="isDisable(hist)" matTooltipClass="histTooltip">
         <mat-icon>{{getIcon(hist)}}</mat-icon>
         {{getText(hist)}}
 

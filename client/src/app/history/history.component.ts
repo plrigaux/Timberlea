@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { FileDetails } from '../../../../server/src/common/interfaces';
+import { FileDetails, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { DownloadFile, FileServerService } from '../utils/file-server.service';
 
 @Component({
@@ -43,6 +43,40 @@ export class HistoryComponent implements OnInit, OnDestroy {
         let item: HistoryItem = {
           action: HistAction.UPLOAD,
           data: file.name
+        }
+
+        this.addItem(item)
+      }
+    }))
+
+    this.subscriptions.push(this.fileServerService.subscribeDelete({
+      next: (file: string) => {
+        let item: HistoryItem = {
+          action: HistAction.DELETE,
+          data: file
+        }
+
+        this.addItem(item)
+      }
+    }))
+
+
+    this.subscriptions.push(this.fileServerService.subscribeModif({
+      next: (resp: MvFile_Response) => {
+
+        let action: HistAction
+        let data: string
+        if (resp.newFileName === resp.oldFileName) {
+          action = HistAction.MOVE
+          data = `file  ${resp.newFileName} from ${resp.oldParent} to ${resp.parent}`
+        } else {
+          action = HistAction.RENAME
+          data = `${resp.oldFileName} --> ${resp.newFileName}`
+        }
+
+        let item: HistoryItem = {
+          action: action,
+          data: data
         }
 
         this.addItem(item)
@@ -162,6 +196,9 @@ export class HistoryComponent implements OnInit, OnDestroy {
     return true
   }
 
+  getTooltipMsg(item: HistoryItem): string {
+    return `${item.action} ${item.data}`
+  }
 }
 
 const LIMIT = 20
@@ -172,7 +209,11 @@ enum HistAction {
   LIST = "LIST",
   DOWNLOAD = "DOWNLOAD",
   ZIP = "ZIP",
-  UPLOAD = "UPLOAD"
+  UPLOAD = "UPLOAD",
+  DELETE = "DELETE",
+  RENAME = "RENAME",
+  MOVE = "MOVE",
+  COPY = "COPY"
 }
 
 interface HistoryItem {
@@ -188,18 +229,34 @@ interface HistActionCarac {
 const histAction = new Map<HistAction, HistActionCarac>([
   [HistAction.LIST, {
     disable: false,
-    icon: "history"
+    icon: "list"
   }],
   [HistAction.DOWNLOAD, {
     disable: false,
-    icon: "history"
+    icon: "file_download"
   }],
   [HistAction.ZIP, {
     disable: false,
-    icon: "history"
+    icon: "archive"
   }],
   [HistAction.UPLOAD, {
     disable: true,
-    icon: "history"
+    icon: "file_upload"
+  }],
+  [HistAction.DELETE, {
+    disable: true,
+    icon: "delete"
+  }],
+  [HistAction.RENAME, {
+    disable: true,
+    icon: "drive_file_rename_outline"
+  }],
+  [HistAction.MOVE, {
+    disable: true,
+    icon: "drive_file_move"
+  }],
+  [HistAction.COPY, {
+    disable: true,
+    icon: "content_copy"
   }]
 ]);
