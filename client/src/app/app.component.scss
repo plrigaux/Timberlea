@@ -24,3 +24,8 @@
   flex-grow: 0;
   padding: 3px 15px;
 }
+
+::ng-deep .navTabLabelClass {
+  //color: red;
+  min-width: 3em !important;
+}
