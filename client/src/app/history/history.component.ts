@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FileDetails } from '../../../../server/src/common/interfaces';
 import { DownloadFile, FileServerService } from '../utils/file-server.service';
@@ -6,8 +6,9 @@ import { DownloadFile, FileServerService } from '../utils/file-server.service';
 @Component({
   selector: 'app-history',
   templateUrl: './history.component.html',
-  styleUrls: ['./history.component.scss']
+  styleUrls: ['./history.component.scss'],
 })
+
 export class HistoryComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = []
   constructor(private fileServerService: FileServerService) { }
@@ -127,6 +128,40 @@ export class HistoryComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  getIcon(item: HistoryItem): string {
+    let caracteristic: HistActionCarac | undefined = histAction.get(item.action)
+
+    if (caracteristic) {
+      return caracteristic.icon
+    }
+
+    return "history"
+  }
+
+  getText(item: HistoryItem): string {
+    let text: string = "";
+    const lnt = 20
+
+    if (item.data.length > (lnt - 3)) {
+
+      text = `...${item.data.substring(item.data.length - (lnt - 3))}`
+    } else {
+      text = item.data
+    }
+
+    return text
+  }
+
+  isDisable(item: HistoryItem): boolean {
+    let caracteristic: HistActionCarac | undefined = histAction.get(item.action)
+
+    if (caracteristic) {
+      return caracteristic.disable
+    }
+
+    return true
+  }
+
 }
 
 const LIMIT = 20
@@ -144,3 +179,27 @@ interface HistoryItem {
   action: HistAction
   data: string
 }
+
+interface HistActionCarac {
+  disable: boolean
+  icon: string
+}
+
+const histAction = new Map<HistAction, HistActionCarac>([
+  [HistAction.LIST, {
+    disable: false,
+    icon: "history"
+  }],
+  [HistAction.DOWNLOAD, {
+    disable: false,
+    icon: "history"
+  }],
+  [HistAction.ZIP, {
+    disable: false,
+    icon: "history"
+  }],
+  [HistAction.UPLOAD, {
+    disable: true,
+    icon: "history"
+  }]
+]);
