@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
+import { endpoints } from '../../../../server/src/common/constants';
 import { FileDetails, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
 import { FileServerService } from '../utils/file-server.service';
@@ -78,26 +79,13 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.subscriptions.push(this.fileServerService.subscribeModif({
       next: (data: MvFile_Response) => {
-        data.newFileName
+        this.manageMoveOrCopy(data, endpoints.FS_MV)
+      }
+    }))
 
-        let fdIndex = this.dataSource.data.findIndex(fd => fd.name === data.oldFileName)
-        if (fdIndex >= 0) {
-          let fd = this.dataSource.data[fdIndex]
-          fd.name = data.newFileName
-        } else {
-          let remoteFiles = this.dataSource.data
-          remoteFiles.push({ name: data.newFileName, type: FileType.File })
-
-          this.updateDataSource2(remoteFiles);
-        }
-
-        if (this.selectedRowIndex == data.oldFileName) {
-          this.selectedRowIndex = data.newFileName
-        }
-
-        if (this.selectedRowIndex2 == data.oldFileName) {
-          this.selectedRowIndex2 = data.newFileName
-        }
+    this.subscriptions.push(this.fileServerService.subscribeCopy({
+      next: (data: MvFile_Response) => {
+        this.manageMoveOrCopy(data, endpoints.FS_COPY)
       }
     }))
 
@@ -308,4 +296,35 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
     filterValue = filterValue.toLowerCase(); // MatTableDataSource defaults to lowercase matches
     this.dataSource.filter = filterValue
   }
+
+
+  private manageMoveOrCopy(data: MvFile_Response, action: string) {
+
+    let fdIndex = -1
+    if (action === endpoints.FS_MV) {
+      fdIndex = this.dataSource.data.findIndex(fd => fd.name === data.oldFileName)
+    }
+
+    if (fdIndex >= 0) {
+      let fd = this.dataSource.data[fdIndex]
+      fd.name = data.newFileName
+    } else {
+      let remoteFiles = this.dataSource.data
+      remoteFiles.push({
+        name: data.newFileName,
+        type: FileType.File
+      })
+
+      this.updateDataSource2(remoteFiles);
+    }
+
+    if (this.selectedRowIndex == data.oldFileName) {
+      this.selectedRowIndex = data.newFileName
+    }
+
+    if (this.selectedRowIndex2 == data.oldFileName) {
+      this.selectedRowIndex2 = data.newFileName
+    }
+  }
+
 }

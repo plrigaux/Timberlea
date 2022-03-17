@@ -37,7 +37,8 @@ export class FileServerService {
   private waitingSubject = new Subject<boolean>()
   private deleteSubject = new Subject<string>()
   private selectFileSubject = new Subject<FileDetailsPlus | null>()
-  private modifSubject = new Subject<MvFile_Response>()
+  private moveSubject = new Subject<MvFile_Response>()
+  private copySubject = new Subject<MvFile_Response>()
   private newFileSubject = new Subject<FileDetails>()
   private newFolderSubject = new Subject<string>()
   private downloadFileSubject = new Subject<DownloadFile>()
@@ -71,7 +72,12 @@ export class FileServerService {
   }
 
   subscribeModif(obs: Partial<Observer<MvFile_Response>>): Subscription {
-    return this.modifSubject.subscribe(obs)
+    return this.moveSubject.subscribe(obs)
+  }
+
+
+  subscribeCopy(obs: Partial<Observer<MvFile_Response>>): Subscription {
+    return this.copySubject.subscribe(obs)
   }
 
   subscribeNewFile(obs: Partial<Observer<FileDetails>>): Subscription {
@@ -267,6 +273,13 @@ export class FileServerService {
 
   copyPaste(copySelect: FileDetailsPlus) {
     console.log(`COPY ${copySelect.name} from ${copySelect.directory} to ${this.remoteDirectory}`)
+
+    let request: MvFile_Request = {
+      parent: copySelect.directory,
+      fileName: copySelect.name,
+      newParent: this.remoteDirectory
+    }
+    this.copy(request)
   }
 
 
@@ -306,7 +319,7 @@ export class FileServerService {
     ).subscribe(
       {
         next: (data: MvFile_Response) => {
-          this.modifSubject.next(data)
+          this.moveSubject.next(data)
         },
         error: e => {
 
@@ -314,6 +327,23 @@ export class FileServerService {
       })
   }
 
+  private copy(request: MvFile_Request) {
+
+    this.http.put<MvFile_Response>(this.serverUrl + endpoints.FS_COPY, request).pipe(
+      tap((data: MvFile_Response) => {
+        this.setRemoteDirectory(data)
+      }),
+      catchError((e) => this.handleError(e as HttpErrorResponse))
+    ).subscribe(
+      {
+        next: (data: MvFile_Response) => {
+          this.copySubject.next(data)
+        },
+        error: e => {
+
+        }
+      })
+  }
 
   newFolder(directoryName: string | null | undefined) {
     if (!directoryName) {
