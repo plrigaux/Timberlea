@@ -87,9 +87,8 @@ describe('Rename or move file', () => {
         console.log(dataresp)
 
         expect(dataresp.error).toBeTruthy();
-        expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dirToSend.network)
-        //expect(dataresp.message).toMatch(/^File/)
+        expect(dataresp.message).toBeDefined()
+
     });
 
     test('Rename a single file - target exist', async () => {
@@ -116,9 +115,7 @@ describe('Rename or move file', () => {
         console.log(dataresp)
 
         expect(dataresp.error).toBeTruthy();
-        expect(dataresp.newFileName).toEqual(newFileName)
-        expect(dataresp.parent).toEqual(dirToSend.network)
-        //expect(dataresp.message).toMatch(/^File/)
+        expect(dataresp.message).toBeDefined()
     });
 
     test('Rename a single file - target exist - overwrite', async () => {
