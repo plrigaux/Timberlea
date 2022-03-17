@@ -42,7 +42,6 @@ describe('Upload file', () => {
 
         const responseBody: FileUpload_Response = resp.body
 
-        expect(responseBody.error).toBeFalsy()
         //console.log('body', resp.body)
     });
 
@@ -71,7 +70,6 @@ describe('Upload file', () => {
         const responseBody: FileUpload_Response = resp.body
 
         console.log('responseBody', responseBody)
-        expect(responseBody.error).toBeTruthy()
         expect(responseBody.message).toEqual(FSErrorMsg.FILE_ALREADY_EXIST)
  
     });
@@ -95,7 +93,6 @@ describe('Upload file', () => {
 
         const responseBody: FileUpload_Response = resp.body
 
-        expect(responseBody.error).toBeTruthy()
         expect(responseBody.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST)
         //console.log('body', resp.body)
     });
@@ -122,7 +119,6 @@ describe('Upload file', () => {
 
         const responseBody: FileUpload_Response = resp.body
 
-        expect(responseBody.error).toBeTruthy()
         expect(responseBody.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY)
         //console.log('body', resp.body)
     });
@@ -156,9 +152,6 @@ describe('Upload file', () => {
 
 
         const responseBody: FileUpload_Response = resp.body
-
-        expect(responseBody.error).toBeFalsy()
-
 
         console.log("path1, path2", path1, path2)
 

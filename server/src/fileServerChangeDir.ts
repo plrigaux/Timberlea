@@ -43,7 +43,6 @@ fileServer.put(endpoints.CD,
                 } else {
                     let resp: FileList_Response = {
                         parent: newPath.network,
-                        error: false,
                         message: FSErrorMsg.OK
                     }
                     return resp

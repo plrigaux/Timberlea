@@ -31,8 +31,7 @@ fileServer.put(endpoints.COPY, body('parent').exists().isString(),
         fs.promises.copyFile(oldPath.server, newPath.server, mode)
             .then(() => {
                 let resp: MvFile_Response = {
-                    error: false,
-                    message: "OK",
+                    message: FSErrorMsg.OK,
                     parent: newPath.dirnameNetwork,
                     oldFileName: data.fileName,
                     newFileName: newPath.basename

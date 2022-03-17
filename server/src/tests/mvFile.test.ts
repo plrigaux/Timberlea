@@ -1,6 +1,4 @@
 import fs, { RmOptions } from 'fs'
-import os from 'os'
-import path from 'path'
 import request from 'supertest'
 import { app } from '../app'
 import { endpoints, HttpStatusCode } from '../common/constants'
@@ -59,7 +57,6 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dirToSend.network)
         //expect(dataresp.message).toMatch(/^File/)
@@ -86,7 +83,6 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeTruthy();
         expect(dataresp.message).toBeDefined()
 
     });
@@ -114,7 +110,6 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeTruthy();
         expect(dataresp.message).toBeDefined()
     });
 
@@ -142,7 +137,6 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dirToSend.network)
         //expect(dataresp.message).toMatch(/^File/)
@@ -171,7 +165,6 @@ describe('Rename or move file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(dirToSend.network)
     });

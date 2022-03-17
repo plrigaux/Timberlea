@@ -1,11 +1,9 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
 import fs, { Dirent } from 'fs';
 import path from 'path';
-import { endpoints, FSErrorMsg, FSErrorCode, HttpStatusCode } from './common/constants';
-import { FileServerError } from './common/fileServerCommon';
-import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetail_Response, FileList_Response, FileType, FS_Response } from './common/interfaces';
-import { HOME, HOME_ResolverPath,  resolver,  ResolverPath } from './filePathResolver';
+import { endpoints, FSErrorMsg, HttpStatusCode } from './common/constants';
+import { ChangeDir_Response, FileDetails, FileList_Response, FileType } from './common/interfaces';
+import { HOME, HOME_ResolverPath, resolver, ResolverPath } from './filePathResolver';
 
 export const fileServer = express.Router()
 
@@ -20,7 +18,6 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
 
     let newRemoteDirectory: ChangeDir_Response = {
         parent: HOME,
-        error: false,
         message: 'OK'
     }
     res.send(newRemoteDirectory)
@@ -32,7 +29,6 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
     if (folder == HOME_ResolverPath) {
         let resp: FileList_Response = {
             parent: HOME_ResolverPath.network,
-            error: false,
             message: FSErrorMsg.OK,
             files: [],
         }
@@ -85,7 +81,6 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
                 let resp: FileList_Response = {
                     parent: folder.network,
                     files: [],
-                    error: false,
                     message: FSErrorMsg.OK
                 }
                 _files.forEach((f: void | FileDetails) => {

@@ -20,7 +20,6 @@ fileServer.get(endpoints.DETAILS + "/:path", (req: Request, res: Response, next:
                     parentDirectory: fileRes.dirnameNetwork,
                     birthtime: stat.birthtime.toISOString()
                 },
-                error: false,
                 message: FSErrorMsg.OK
             }
             res.status(HttpStatusCode.OK).send(resp)

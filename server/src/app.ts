@@ -46,7 +46,6 @@ app.use(endpoints.FS, fileServer)
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
 
   let resp: FS_Response = {
-    error: true,
     message: error.message,
   }
 

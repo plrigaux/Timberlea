@@ -103,7 +103,6 @@ fileServer.post(endpoints.UPLOAD, (req: Request, res: Response, next: NextFuncti
 
             let response: FileUpload_Response = {
                 parent: req.body[uploadFile.DESTINATION_FOLDER],
-                error: false,
                 message: FSErrorMsg.OK,
                 files: []
             }

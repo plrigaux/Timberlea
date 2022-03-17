@@ -28,7 +28,6 @@ fileServer.post(endpoints.MKDIR,
         .then(() => {
 
             let resp: MakeDirResponse = {
-                error: false,
                 message: "OK",
                 parent: dirPath.dirnameNetwork,
                 dirName: dirPath.basename

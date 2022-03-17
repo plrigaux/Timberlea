@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
-import { endpoints, HttpStatusCode } from './common/constants';
+import { endpoints, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { RemFile_Request, RemFile_Response } from './common/interfaces';
 import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
@@ -21,8 +21,7 @@ fileServer.delete(endpoints.REM, (req: Request, res: Response, next: NextFunctio
 
     fs.promises.rm(filePathResolved.server, options).then(() => {
         let responseData: RemFile_Response = {
-            error: false,
-            message: "File deleted",
+            message: FSErrorMsg.OK,
             parent: data.parent,
             file: data.fileName
         }

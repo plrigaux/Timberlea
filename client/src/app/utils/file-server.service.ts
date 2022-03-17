@@ -156,7 +156,7 @@ export class FileServerService {
   }
 
   private setRemoteDirectory(data: ChangeDir_Response | null) {
-    if (data && !data.error) {
+    if (data && data.parent) {
       this.remoteDirectory = data.parent
       this.newRemoteDirectory.next(this.remoteDirectory)
     }

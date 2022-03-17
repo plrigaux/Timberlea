@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
-import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
+import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
 import { resolver } from './filePathResolver';
@@ -36,7 +36,6 @@ fileServer.put(endpoints.MV, (req: Request, res: Response, next: NextFunction) =
         return fs.promises.rename(oldPath.server, newPath.server)
     }).then(() => {
         let resp: MvFile_Response = {
-            error: true,
             message: `Unkown error`,
             parent: newPath.dirnameNetwork,
             oldFileName: data.fileName,
@@ -47,8 +46,7 @@ fileServer.put(endpoints.MV, (req: Request, res: Response, next: NextFunction) =
             resp.oldParent = oldPath.dirnameNetwork
         }
     
-        resp.error = false
-        resp.message = "OK"
+        resp.message =  FSErrorMsg.OK
         let statusCode = HttpStatusCode.OK
 
         res.status(statusCode).send(resp);

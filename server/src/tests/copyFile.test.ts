@@ -57,7 +57,6 @@ describe('Copy file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(directoryRes.network)
         //expect(dataresp.message).toMatch(/^File/)
@@ -87,7 +86,6 @@ describe('Copy file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(oldFileName)
         expect(dataresp.parent).toEqual(dirPath.network)
         //expect(dataresp.message).toMatch(/^File/)
@@ -114,7 +112,6 @@ describe('Copy file', () => {
         let dataresp: FS_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeTruthy();
     });
 
     test('Copy a single file - target exist', async () => {
@@ -140,7 +137,6 @@ describe('Copy file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeTruthy();
     });
 
     test('Copy a single file - target exist - overwrite target', async () => {
@@ -167,7 +163,6 @@ describe('Copy file', () => {
         let dataresp: MvFile_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.newFileName).toEqual(newFileName)
         expect(dataresp.parent).toEqual(directoryRes.network)
         //expect(dataresp.message).toMatch(/^File/)
@@ -195,8 +190,6 @@ describe('Copy file', () => {
 
         let dataresp: FS_Response = resp.body
         console.log(dataresp)
-
-        expect(dataresp.error).toBeTruthy();
     });
 
     test('Copy - malformed Request', async () => {
@@ -213,6 +206,5 @@ describe('Copy file', () => {
         let dataresp: FS_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeTruthy();
     });
 })
