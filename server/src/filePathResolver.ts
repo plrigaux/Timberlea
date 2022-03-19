@@ -11,6 +11,7 @@ export const PATH_UP = ".."
 const HOME_DIR = "HOME"
 const TEMP_DIR = "TEMP"
 const SEPARATOR = "/"
+const copyIndiceRE = /(.*)\s\((\d+)\)/
 
 interface FilePathConfig {
     label: string
@@ -53,13 +54,33 @@ export class ResolverPath {
         return this.getFileName()
     }
 
-    get basenameNoExt() {
+    get basenameNoExt(): string {
         let fn = this.getFileName()
         let idx = fn.lastIndexOf(".")
         if (idx >= 0) {
             return fn.slice(0, idx)
         }
         return fn
+    }
+
+    get basenameNoExtNoIndice(): [string, number] {
+        let fn = this.basenameNoExt
+        
+        const match = fn.match(copyIndiceRE);
+        if (match) {
+            return [match[1], Number(match[2])]
+        }
+
+        return [fn, 0]
+    }
+
+    get ext() {
+        let fn = this.getFileName()
+        let idx = fn.lastIndexOf(".")
+        if (idx >= 0) {
+            return fn.slice(idx + 1)
+        }
+        return ""
     }
 
     get dirnameNetwork() {
@@ -83,10 +104,19 @@ export class ResolverPath {
     add(...extention: string[]): ResolverPath | never {
 
         if (this.isHomeRoot()) {
-            return resolver.resolve(extention.join(SEPARATOR))
+            return resolver.resolve(HOME, ...extention)
         }
 
-        let array = [...this.dirFiles, ...extention]
+        return resolver.resolve(null, ...this.dirFiles, ...extention)
+    }
+
+    replaceFile(...extention: string[]): ResolverPath | never {
+
+        if (this.isHomeRoot()) {
+            return resolver.resolve(HOME, ...extention)
+        }
+
+        let array = [...this.dirFiles.slice(0, -1), ...extention]
         return new ResolverPath(this.prefix, array)
     }
 

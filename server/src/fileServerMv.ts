@@ -8,17 +8,17 @@ import { fileServer } from "./fileServer";
 
 fileServer.put(endpoints.MV, (req: Request, res: Response, next: NextFunction) => {
 
-    const data: MvFile_Request = req.body
-    console.log("MV", data)
+    const reqData: MvFile_Request = req.body
+    console.log("MV", reqData)
 
-    const oldPath =  resolver.resolve(data.parent, data.fileName)
+    const oldPath = resolver.resolve(reqData.parent, reqData.fileName)
 
-    const newPath = resolver.resolve(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
+    let newPath = resolver.resolve(reqData.newParent ?? reqData.parent, reqData.newFileName ?? reqData.fileName)
 
 
     let fileExistCheck: Promise<boolean>
 
-    if (data.overwrite) {
+    if (reqData.overwrite) {
         fileExistCheck = Promise.resolve(false)
     } else {
         fileExistCheck = fs.promises.access(newPath.server).then(() => {
@@ -35,22 +35,19 @@ fileServer.put(endpoints.MV, (req: Request, res: Response, next: NextFunction) =
         }
         return fs.promises.rename(oldPath.server, newPath.server)
     }).then(() => {
-        let resp: MvFile_Response = {
-            message: `Unkown error`,
+        let respData: MvFile_Response = {
+            message: FSErrorMsg.OK,
             parent: newPath.dirnameNetwork,
-            oldFileName: data.fileName,
+            oldFileName: reqData.fileName,
             newFileName: newPath.basename,
         }
-    
-        if (data.newParent) {
-            resp.oldParent = oldPath.dirnameNetwork
-        }
-    
-        resp.message =  FSErrorMsg.OK
-        let statusCode = HttpStatusCode.OK
 
-        res.status(statusCode).send(resp);
+        if (reqData.newParent) {
+            respData.oldParent = oldPath.dirnameNetwork
+        }
+
+        res.status(HttpStatusCode.OK).send(respData);
     }).catch(next)
-    
+
 })
 

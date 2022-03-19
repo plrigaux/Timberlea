@@ -194,7 +194,7 @@ describe('Copy file', () => {
 
     test('Copy - malformed Request', async () => {
         const data: MvFile_Request = {
-           
+
         } as MvFile_Request
 
         const resp = await request(app)
@@ -207,4 +207,121 @@ describe('Copy file', () => {
         console.log(dataresp)
 
     });
+})
+
+describe('Copy file auto reanme', () => {
+
+    test('Copy a single file - target exist', async () => {
+
+        let oldFileName = "rename.txt"
+
+        tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
+
+
+        const data: MvFile_Request = {
+            parent: directoryRes.network,
+            fileName: oldFileName,
+            autoNaming: true
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_COPY)
+            .send(data)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        let dataresp: MvFile_Response = resp.body
+        console.log(dataresp)
+
+        expect(dataresp.newFileName).toEqual("rename (1).txt")
+        let rp = resolver.resolve(dataresp.parent, dataresp.newFileName)
+        expect(fs.existsSync(rp.server)).toBeTruthy()
+    });
+
+
+    test('Copy a single file - target exist skip', async () => {
+
+        let oldFileName = "rename.txt"
+
+        tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
+        tu.createFile("rename (1).txt", directoryRes.server, "File data, file data file data")
+
+        const data: MvFile_Request = {
+            parent: directoryRes.network,
+            fileName: oldFileName,
+            autoNaming: true
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_COPY)
+            .send(data)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        let dataresp: MvFile_Response = resp.body
+        console.log(dataresp)
+
+        expect(dataresp.newFileName).toEqual("rename (2).txt")
+        let rp = resolver.resolve(dataresp.parent, dataresp.newFileName)
+        expect(fs.existsSync(rp.server)).toBeTruthy()
+    });
+
+
+    test('Copy a single file - target exist skip', async () => {
+
+        let oldFileName = "renameTest (1).txt"
+
+        tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
+
+        const data: MvFile_Request = {
+            parent: directoryRes.network,
+            fileName: oldFileName,
+            autoNaming: true
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_COPY)
+            .send(data)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        let dataresp: MvFile_Response = resp.body
+        console.log(dataresp)
+
+        expect(dataresp.newFileName).toEqual("renameTest (2).txt")
+        let rp = resolver.resolve(dataresp.parent, dataresp.newFileName)
+        expect(fs.existsSync(rp.server)).toBeTruthy()
+    });
+
+
+
+    test('Copy a single file - target exist skip start later and skip few', async () => {
+
+        let oldFileName = "renameTest (4).txt"
+
+       
+        tu.createFile(oldFileName, directoryRes.server, "File data, file data file data")
+        tu.createFile("renameTest (5).txt", directoryRes.server, "File data, file data file data")
+        tu.createFile("renameTest (6).txt", directoryRes.server, "File data, file data file data")
+
+        const data: MvFile_Request = {
+            parent: directoryRes.network,
+            fileName: oldFileName,
+            autoNaming: true
+        }
+
+        const resp = await request(app)
+            .put(endpoints.FS_COPY)
+            .send(data)
+            .expect(HttpStatusCode.OK)
+            .expect("Content-Type", /json/);
+
+        let dataresp: MvFile_Response = resp.body
+        console.log(dataresp)
+
+        expect(dataresp.newFileName).toEqual("renameTest (7).txt")
+        let rp = resolver.resolve(dataresp.parent, dataresp.newFileName)
+        expect(fs.existsSync(rp.server)).toBeTruthy()
+    });
+
 })

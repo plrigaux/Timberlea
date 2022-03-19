@@ -79,6 +79,7 @@ export interface MvFile_Request {
     fileName: string
     newFileName?: string
     overwrite?: boolean
+    autoNaming?: boolean
 }
 
 export interface MvFile_Response extends FS_Response {

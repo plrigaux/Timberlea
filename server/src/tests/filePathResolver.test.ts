@@ -181,4 +181,84 @@ describe('Around Home Tests', () => {
         expect(rPath).toEqual(rPath2)
     });
 
+
+})
+
+describe('Modifications', () => {
+    test('Add a file', () => {
+        const ext = "some_dir/and other dir"
+        let key = "TEMP"
+        let pathTest = key + "/" + ext
+
+        let rPath = resolver.resolve(pathTest)
+
+        let add = "newFile.txt"
+        let rPath2 = rPath.add(add)
+
+        expect(rPath2.basename).toEqual("newFile.txt")
+        expect(rPath2.ext).toEqual("txt")
+        expect(rPath2.basenameNoExt).toEqual("newFile")
+        expect(rPath2.network).toEqual(pathTest + "/" + add)
+    });
+
+    test('Add file in dir', () => {
+        const ext = "some_dir/and other dir"
+        let key = "TEMP"
+        let pathTest = key + "/" + ext
+
+        let rPath = resolver.resolve(pathTest)
+
+        let add = "dir/newFile.txt"
+        let rPath2 = rPath.add(add)
+
+
+        expect(rPath2.basename).toEqual("newFile.txt")
+        expect(rPath2.ext).toEqual("txt")
+        expect(rPath2.basenameNoExt).toEqual("newFile")
+        expect(rPath2.network).toEqual(pathTest + "/" + add)
+    });
+
+    test('Add file in dir in a dir', () => {
+        const ext = "some_dir/and other dir"
+        let key = "TEMP"
+        let pathTest = key + "/" + ext
+
+        let rPath = resolver.resolve(pathTest)
+
+        let add = "dir/dir/dir/newFile.txt"
+        let rPath2 = rPath.add(add)
+
+        expect(rPath2.basename).toEqual("newFile.txt")
+        expect(rPath2.ext).toEqual("txt")
+        expect(rPath2.basenameNoExt).toEqual("newFile")
+        expect(rPath2.network).toEqual(pathTest + "/" + add)
+    });
+
+    test('Add file in dir in a dir with slash', () => {
+        const ext = "some_dir/and other dir"
+        let key = "TEMP"
+        let pathTest = key + "/" + ext
+
+        let rPath = resolver.resolve(pathTest)
+
+        let add = "/dir/dir/dir/newFile.txt"
+        let rPath2 = rPath.add(add)
+
+        expect(rPath2.basename).toEqual("newFile.txt")
+        expect(rPath2.ext).toEqual("txt")
+        expect(rPath2.basenameNoExt).toEqual("newFile")
+        expect(rPath2.network).toEqual(pathTest + add)
+    });
+
+    test('File withou ext', () => {
+        const ext = "some_dir/newFile"
+        let key = "TEMP"
+        let pathTest = key + "/" + ext
+
+        let rPath = resolver.resolve(pathTest)
+
+        expect(rPath.basename).toEqual("newFile")
+        expect(rPath.ext).toEqual("")
+        expect(rPath.basenameNoExt).toEqual("newFile")
+    });
 })
