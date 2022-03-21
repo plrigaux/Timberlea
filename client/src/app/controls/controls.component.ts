@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { BehaviorService } from '../utils/behavior.service';
 import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
 import { DirtyErrorStateMatcher, forbiddenCharValidator } from '../utils/utils';
+import { DialogFileRename } from './dialog-file-rename';
+import { DialogFileInfo } from './dialog-file-info';
 
 @Component({
   selector: 'app-controls',
@@ -115,43 +117,4 @@ export class ControlsComponent implements OnInit, OnDestroy {
   }
 }
 
-@Component({
-  selector: 'dialog-file-info',
-  templateUrl: 'dialog-file-info.html',
-})
-export class DialogFileInfo {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) { }
-}
 
-@Component({
-  selector: 'dialog-file-rename',
-  templateUrl: 'dialog-file-rename.html',
-  providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher }]
-})
-export class DialogFileRename implements AfterViewInit {
-
-  newFileName: FormControl
-
-  @ViewChild('newFileInput', { static: true }) newFileInput!: ElementRef;
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
-    this.newFileName = new FormControl(data.name, { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change' });
-  }
-
-
-  ngAfterViewInit(): void {
-    console.log(this.newFileInput)
-
-
-    setTimeout(() => {
-
-      let fileName: string = this.newFileName.value
-
-      let lastPoint = fileName.lastIndexOf(".")
-      if (lastPoint > 0) {
-        this.newFileInput.nativeElement.setSelectionRange(0, lastPoint)
-      }
-      this.newFileInput.nativeElement.focus()
-    }, 0);
-  }
-}

@@ -25,13 +25,17 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BookmarkComponent } from './bookmark/bookmark.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
-import { ControlsComponent, DialogFileInfo, DialogFileRename } from './controls/controls.component';
+import { ControlsComponent } from './controls/controls.component';
+import { DialogFileRename } from './controls/dialog-file-rename';
+import { DialogFileInfo } from './controls/dialog-file-info';
 import { FileDialogBoxComponent } from './file-dialog-box/file-dialog-box.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
-import { LongPressDirective } from './long-press.directive';
-import { DialogDirectoryCreate, DialogFileCreate, MenuComponent } from './menu/menu.component';
-import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
 import { HistoryComponent } from './history/history.component';
+import { LongPressDirective } from './long-press.directive';
+import { MenuComponent } from './menu/menu.component';
+import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
+import { DialogDirectoryCreate } from './menu/dialog-directory-create';
+import { DialogFileCreate } from './menu/dialog-file-create';
 
 @NgModule({
   declarations: [
