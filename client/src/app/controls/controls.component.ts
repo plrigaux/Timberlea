@@ -1,13 +1,10 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { ErrorStateMatcher } from '@angular/material/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { BehaviorService } from '../utils/behavior.service';
 import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
-import { DirtyErrorStateMatcher, forbiddenCharValidator } from '../utils/utils';
-import { DialogFileRename } from './dialog-file-rename';
 import { DialogFileInfo } from './dialog-file-info';
+import { DialogFileRename } from './dialog-file-rename';
 
 @Component({
   selector: 'app-controls',
@@ -16,7 +13,7 @@ import { DialogFileInfo } from './dialog-file-info';
 })
 export class ControlsComponent implements OnInit, OnDestroy {
 
-  fileDetails: FileDetailsPlus | null = null
+  private fileDetails: FileDetailsPlus | null = null
   cutCopyPaste = false
   cutSelect: FileDetailsPlus | null = null
   copySelect: FileDetailsPlus | null = null
@@ -116,5 +113,3 @@ export class ControlsComponent implements OnInit, OnDestroy {
     }
   }
 }
-
-

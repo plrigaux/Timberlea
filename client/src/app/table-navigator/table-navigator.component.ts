@@ -1,9 +1,12 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { TemplatePortal } from '@angular/cdk/portal';
+import { AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuTrigger } from '@angular/material/menu';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Subscription } from 'rxjs';
+import { filter, fromEvent, Subscription, take } from 'rxjs';
 import { endpoints } from '../../../../server/src/common/constants';
 import { FileDetails, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
@@ -30,7 +33,9 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   constructor(private fileServerService: FileServerService,
     private _liveAnnouncer: LiveAnnouncer,
-    private _dialog: MatDialog) {
+    private _dialog: MatDialog,
+    public overlay: Overlay,
+    public viewContainerRef: ViewContainerRef) {
 
     this.dataSource = new MatTableDataSource([] as FileDetails[]);
 
@@ -327,4 +332,41 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
     }
   }
 
+  contextMenuPosition = { x: '0px', y: '0px' };
+  //@ViewChild(MatMenuTrigger)
+  //contextMenu!: MatMenuTrigger;
+
+
+  @ViewChild('timberContextMenu') timberContextMenu!: TemplateRef<FileDetails>;
+  overlayRef: OverlayRef | null = null;
+  sub: Subscription | null = null;
+
+
+  onContextMenu(event: MouseEvent, fileDetails: FileDetails) {
+    event.preventDefault();
+    this.rightClickMenuPositionY = event.clientX;
+    this.rightClickMenuPositionY = event.clientY;
+
+
+    this.selectedRowIndex = fileDetails.name
+
+    // we open the menu 
+    this.matMenuTrigger.openMenu();
+
+    setTimeout(() => {
+      this.fileServerService.selectFile(fileDetails)
+    }, 100)
+  }
+
+  @ViewChild(MatMenuTrigger, { static: true }) matMenuTrigger!: MatMenuTrigger;
+  rightClickMenuPositionX = 0
+  rightClickMenuPositionY = 0
+
+  getRightClickMenuStyle() {
+    return {
+      position: 'fixed',
+      left: `${this.rightClickMenuPositionX}px`,
+      top: `${this.rightClickMenuPositionY}px`
+    }
+  }
 }
