@@ -58,9 +58,9 @@
 <!-- an hidden div is created to set the position of appearance of the menu--> 
 <div style="visibility: hidden; position: fixed;" 
 [ngStyle]="getRightClickMenuStyle()"
-[matMenuTriggerFor]="rightMenu"></div> 
+[matMenuTriggerFor]="fileContextMenu"></div> 
  
 <!-- standard material menu --> 
-<mat-menu #rightMenu="matMenu"> 
-  <app-controls></app-controls>
+<mat-menu #fileContextMenu="matMenu"> 
+  <app-controls controlAligment='VERTICAL'></app-controls>
 </mat-menu>

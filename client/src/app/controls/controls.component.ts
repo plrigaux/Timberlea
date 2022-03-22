@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { BehaviorService } from '../utils/behavior.service';
@@ -19,9 +19,14 @@ export class ControlsComponent implements OnInit, OnDestroy {
   copySelect: FileDetailsPlus | null = null
   private subscriptions: Subscription[] = []
 
+  @Input()
+  controlAligment: string = "HORIZONTAL"
+
   constructor(private fileServerService: FileServerService,
     private _dialog: MatDialog,
     private behavior: BehaviorService) { }
+
+
 
   ngOnInit(): void {
     this.subscriptions.push(
@@ -36,6 +41,14 @@ export class ControlsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe())
     this.subscriptions = []
+  }
+
+  getClass(): string {
+    console.warn("ASDF", this.controlAligment)
+    if (this.controlAligment === "VERTICAL") {
+      return "buttonVertical"
+    }
+    return ""
   }
 
   showFileCommands(): boolean {
@@ -111,5 +124,14 @@ export class ControlsComponent implements OnInit, OnDestroy {
     if (filename) {
       this.fileServerService.downloadFileName(filename, true)
     }
+  }
+
+  isDisabled(button: string): boolean {
+
+    if (this.fileServerService.isHome()) {
+      return true;
+    }
+
+    return false
   }
 }

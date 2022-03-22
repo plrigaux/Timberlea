@@ -139,7 +139,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   private updateDataSource(filelist: FileDetails[]) {
 
     let remoteFiles: FileDetails[]
-    if (this.fileServerService.getRemoteDirectory() != "") {
+    if (!this.fileServerService.isHome()) {
       remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
     } else {
       remoteFiles = filelist
@@ -344,9 +344,8 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   onContextMenu(event: MouseEvent, fileDetails: FileDetails) {
     event.preventDefault();
-    this.rightClickMenuPositionY = event.clientX;
+    this.rightClickMenuPositionX = event.clientX;
     this.rightClickMenuPositionY = event.clientY;
-
 
     this.selectedRowIndex = fileDetails.name
 
@@ -362,9 +361,8 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   rightClickMenuPositionX = 0
   rightClickMenuPositionY = 0
 
-  getRightClickMenuStyle() {
+  getRightClickMenuStyle() : object {
     return {
-      position: 'fixed',
       left: `${this.rightClickMenuPositionX}px`,
       top: `${this.rightClickMenuPositionY}px`
     }

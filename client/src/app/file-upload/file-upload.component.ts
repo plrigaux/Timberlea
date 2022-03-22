@@ -41,7 +41,7 @@ export class FileUploadComponent implements OnInit {
     console.warn("upload", file)
     this.fileName = file.name;
     const formData = new FormData();
-    formData.append(uploadFile.DESTINATION_FOLDER, this.fileServerService.getRemoteDirectory())
+    formData.append(uploadFile.DESTINATION_FOLDER, this.fileServerService.remoteDirectory)
     formData.append(this.fileName, file); //File needs to be last
 
 

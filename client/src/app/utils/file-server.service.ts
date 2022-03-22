@@ -169,8 +169,8 @@ export class FileServerService {
     this.waitingSubject.next(false)
   }
 
-  getRemoteDirectory(): string {
-    return this.remoteDirectory
+  isHome(): boolean {
+    return this.remoteDirectory === ""
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
