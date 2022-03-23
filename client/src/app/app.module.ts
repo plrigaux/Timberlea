@@ -36,6 +36,7 @@ import { MenuComponent } from './menu/menu.component';
 import { TableNavigatorComponent } from './table-navigator/table-navigator.component';
 import { DialogDirectoryCreate } from './menu/dialog-directory-create';
 import { DialogFileCreate } from './menu/dialog-file-create';
+import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { DialogFileCreate } from './menu/dialog-file-create';
     DialogDirectoryCreate,
     DialogFileCreate,
     BookmarkComponent,
-    HistoryComponent
+    HistoryComponent,
+    ImageViewerComponent
   ],
   imports: [
     BrowserModule,

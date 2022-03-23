@@ -199,6 +199,12 @@ export class FileServerService {
     return href
   }
 
+  getFileNameHref(fileName: string, archive = false): string {
+    let endpoint = archive ? endpoints.FS_DOWNZIP : endpoints.FS_DOWNLOAD
+    const href = environment.serverUrl + endpoint + "/" + encodeURIComponent(this.remoteDirectory + "/" + fileName);
+    return href
+  }
+
   downloadFileName(fileName: string, archive = false) {
     let filePath = this.remoteDirectory + "/" + fileName;
     this.downloadFilePath(filePath, archive)

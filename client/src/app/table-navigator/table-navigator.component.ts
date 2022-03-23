@@ -10,6 +10,7 @@ import { filter, fromEvent, Subscription, take } from 'rxjs';
 import { endpoints } from '../../../../server/src/common/constants';
 import { FileDetails, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
+import { ImageInfo, ImageViewerComponent } from '../image-viewer/image-viewer.component';
 import { FileDetailsPlus, FileServerService, SelectFileContext } from '../utils/file-server.service';
 
 @Component({
@@ -222,7 +223,25 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   downloadFileName(fileName: string) {
-    const href = this.fileServerService.downloadFileName(fileName);
+  
+
+    if (fileName.match(ImageViewerComponent.imageRE)) {
+      console.log("is image", fileName)
+
+      let imageInfo: ImageInfo = {
+        fileName: fileName,
+        list: this.dataSource.data
+      }
+      
+      const dialog = this._dialog.open(ImageViewerComponent, {
+        width: '98%',
+        height: '98%',
+        disableClose: false,
+        data: imageInfo
+      });
+    } else {
+      this.fileServerService.downloadFileName(fileName);
+    }
   }
 
   displaySize(param: FileDetails): string {

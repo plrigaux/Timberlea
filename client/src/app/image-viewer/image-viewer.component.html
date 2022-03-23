@@ -1,0 +1,15 @@
+<div class="container">
+    <h3 class="header">Image {{data.fileName}}</h3>
+    <div class="imageContainer">
+        <img [src]="getHref(data.fileName)" [ngClass]="imgClass" />
+    </div>
+    <div class="footer">
+
+        <button mat-button (click)="openInNewTab()">In new tab</button>
+        <button mat-button (click)="resize()">{{btnResize}}</button>
+        <button mat-button (click)="download()">Download</button>
+        <button mat-button (click)="previous()">Previous</button>
+        <button mat-button (click)="next()">Next</button>
+        <button mat-button [mat-dialog-close]="true">Close</button>
+    </div>
+</div>
