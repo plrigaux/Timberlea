@@ -10,7 +10,7 @@ import { filter, fromEvent, Subscription, take } from 'rxjs';
 import { endpoints } from '../../../../server/src/common/constants';
 import { FileDetails, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
-import { FileServerService } from '../utils/file-server.service';
+import { FileDetailsPlus, FileServerService, SelectFileContext } from '../utils/file-server.service';
 
 @Component({
   selector: 'app-table-navigator',
@@ -289,10 +289,15 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   onLongPressingRow(fileDetails: FileDetails) {
     console.log("onLongPressing", fileDetails)
-    if (this.selectedRowIndex != fileDetails.name) { //to limit the number of calls
-      this.selectedRowIndex = fileDetails.name
-      this.fileServerService.selectFile(fileDetails)
+
+    this.selectedRowIndex = fileDetails.name
+
+    let fileSelectContext: SelectFileContext = {
+      file: fileDetails as FileDetailsPlus,
+      controlID: "bottom"
     }
+    this.fileServerService.selectFile(fileSelectContext)
+
   }
 
   applyFilter(event: Event) {
@@ -301,7 +306,6 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
     filterValue = filterValue.toLowerCase(); // MatTableDataSource defaults to lowercase matches
     this.dataSource.filter = filterValue
   }
-
 
   private manageMoveOrCopy(data: MvFile_Response, action: string) {
 
@@ -333,14 +337,6 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   contextMenuPosition = { x: '0px', y: '0px' };
-  //@ViewChild(MatMenuTrigger)
-  //contextMenu!: MatMenuTrigger;
-
-
-  @ViewChild('timberContextMenu') timberContextMenu!: TemplateRef<FileDetails>;
-  overlayRef: OverlayRef | null = null;
-  sub: Subscription | null = null;
-
 
   onContextMenu(event: MouseEvent, fileDetails: FileDetails) {
     event.preventDefault();
@@ -352,8 +348,13 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
     // we open the menu 
     this.matMenuTrigger.openMenu();
 
+    let fileSelectContext: SelectFileContext = {
+      file: fileDetails as FileDetailsPlus,
+      controlID: "context"
+    }
+
     setTimeout(() => {
-      this.fileServerService.selectFile(fileDetails)
+      this.fileServerService.selectFile(fileSelectContext)
     }, 100)
   }
 
@@ -361,7 +362,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   rightClickMenuPositionX = 0
   rightClickMenuPositionY = 0
 
-  getRightClickMenuStyle() : object {
+  getRightClickMenuStyle(): object {
     return {
       left: `${this.rightClickMenuPositionX}px`,
       top: `${this.rightClickMenuPositionY}px`

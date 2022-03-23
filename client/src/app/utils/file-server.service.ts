@@ -36,7 +36,7 @@ export class FileServerService {
   private newRemoteDirectory = new Subject<string>()
   private waitingSubject = new Subject<boolean>()
   private deleteSubject = new Subject<string>()
-  private selectFileSubject = new Subject<FileDetailsPlus | null>()
+  private selectFileSubject = new Subject<SelectFileContext | null>()
   private moveSubject = new Subject<MvFile_Response>()
   private copySubject = new Subject<MvFile_Response>()
   private newFileSubject = new Subject<FileDetails>()
@@ -67,7 +67,7 @@ export class FileServerService {
     return this.deleteSubject.subscribe(obs)
   }
 
-  subscribeSelectFileSub(obs: Partial<Observer<FileDetailsPlus | null>>): Subscription {
+  subscribeSelectFileSub(obs: Partial<Observer<SelectFileContext | null>>): Subscription {
     return this.selectFileSubject.subscribe(obs)
   }
 
@@ -263,12 +263,11 @@ export class FileServerService {
       })
   }
 
-  selectFile(file: FileDetails | null) {
-    let fdp: FileDetailsPlus = file as FileDetailsPlus
-    if (file) {
-      fdp.directory = this.remoteDirectory
+  selectFile(fileContext: SelectFileContext | null) {
+    if (fileContext) {
+      fileContext.file.directory = this.remoteDirectory
     }
-    this.selectFileSubject.next(fdp)
+    this.selectFileSubject.next(fileContext)
   }
 
   copyPaste(copySelect: FileDetailsPlus) {
@@ -428,4 +427,9 @@ export interface FileDetailsPlus extends FileDetails {
 export interface DownloadFile {
   path: string
   archive: boolean
+}
+
+export interface SelectFileContext {
+  file : FileDetailsPlus
+  controlID : string
 }
