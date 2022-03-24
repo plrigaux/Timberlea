@@ -10,10 +10,16 @@ import { FileServerService } from '../utils/file-server.service';
 })
 export class ImageViewerComponent implements OnInit {
 
+
   constructor(public dialogRef: MatDialogRef<ImageViewerComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ImageInfo,
-    private fileServerService: FileServerService
-  ) { }
+    private fileServerService: FileServerService ) {
+ 
+  }
+
+  isPdf() :boolean{
+    return this.data.fileName.endsWith(".pdf")
+  }
 
   ngOnInit(): void {
   }
@@ -54,8 +60,8 @@ export class ImageViewerComponent implements OnInit {
     this.data.fileName = fileList[this.decIndex()]
   }
 
-  getHref(fileName: string): string {
-    return this.fileServerService.getFileNameHref(fileName)
+  getHref(): string {
+    return this.fileServerService.getFileNameHref(this.data.fileName)
   }
 
   incIndex(): number {
@@ -88,7 +94,7 @@ export class ImageViewerComponent implements OnInit {
 
   openInNewTab() {
     let image = new Image();
-    image.src = this.getHref(this.data.fileName)
+    image.src = this.getHref()
 
     let w = window.open("");
     if (w) {
