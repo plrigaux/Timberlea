@@ -24,6 +24,10 @@
         <mat-icon fontSet="material-icons-outlined">bookmark</mat-icon>
         Bookmark
     </button>
+    <button mat-button (click)="download()" [disabled]="isDisabled('download')">
+        <mat-icon fontSet="material-icons-outlined">download</mat-icon>
+        Download
+    </button>
     <button mat-button (click)="downloadZip()" [disabled]="isDisabled('downloadZip')">
         <mat-icon fontSet="material-icons-outlined">archive</mat-icon>
         Get archive

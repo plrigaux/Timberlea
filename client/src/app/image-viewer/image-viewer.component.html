@@ -7,9 +7,21 @@
 
         <button mat-button (click)="openInNewTab()">In new tab</button>
         <button mat-button (click)="resize()">{{btnResize}}</button>
-        <button mat-button (click)="download()">Download</button>
-        <button mat-button (click)="previous()">Previous</button>
-        <button mat-button (click)="next()">Next</button>
-        <button mat-button [mat-dialog-close]="true">Close</button>
+        <button mat-button (click)="download()">
+            <mat-icon>archive</mat-icon>
+            Download
+        </button>
+        <button mat-button (click)="previous()">
+            <mat-icon>chevron_left</mat-icon>
+            Previous
+        </button>
+        <button mat-button (click)="next()">
+            <mat-icon>chevron_right</mat-icon>
+            Next
+        </button>
+        <button mat-button [mat-dialog-close]="true">
+            <mat-icon>cancel</mat-icon>
+            Close
+        </button>
     </div>
 </div>

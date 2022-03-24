@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { FileType } from '../../../../server/src/common/interfaces';
 import { BehaviorService } from '../utils/behavior.service';
 import { FileDetailsPlus, FileServerService, SelectFileContext } from '../utils/file-server.service';
 import { DialogFileInfo } from './dialog-file-info';
@@ -131,10 +132,23 @@ export class ControlsComponent implements OnInit, OnDestroy {
     }
   }
 
+  download() {
+    let filename = this.fileDetails?.name
+    if (filename) {
+      this.fileServerService.downloadFileName(filename, false)
+    }
+  }
+
   isDisabled(button: string): boolean {
 
     if (this.fileServerService.isHome()) {
       return true;
+    }
+
+    switch (button) {
+      case "download":
+        return this.fileDetails?.type === FileType.Directory
+
     }
 
     return false
