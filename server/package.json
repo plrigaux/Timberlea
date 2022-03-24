@@ -2,7 +2,7 @@
   "name": "timberlea-server",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/server.ts",
   "scripts": {
     "test": "jest",
     "packagePrep": "node scripts/packagePrep.js",
