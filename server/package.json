@@ -1,7 +1,7 @@
 {
   "name": "timberlea-server",
   "version": "0.1.0",
-  "description": "",
+  "description": "A file manager server",
   "main": "./src/server.ts",
   "scripts": {
     "test": "jest",
@@ -13,7 +13,7 @@
     "timber": "cross-env NODE_ENV=production node dist/server.js"
   },
   "author": "PLR",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "archiver": "^5.3.0",
     "config": "^3.3.7",

@@ -1,6 +1,7 @@
 {
   "name": "timberlea",
   "version": "0.1.0",
+  "license": "MIT",
   "scripts": {
     "timberClient": "npm --prefix ./client/ start",
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
