@@ -12,7 +12,7 @@
     "timberDev": "concurrently \"npm:timberClient\" \"npm:timberSrvDev\"",
     "postinstall": "(cd server && npm install); (cd client && npm install)",
     "timber": "npm --prefix ./server/ run timber",
-    "versioning": "ts-node ./script/versioning.ts",
+    "versioning": "ts-node ./scripts/versioning.ts",
     "tsc": "tsc"
   },
   "private": true,
