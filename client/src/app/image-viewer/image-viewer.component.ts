@@ -103,23 +103,28 @@ export class ImageViewerComponent implements OnInit {
   }
 
   btnResize = ORIGINAL_SIZE_LABEL
+  btnResizeIcon = ORIGINAL_SIZE_LABEL
   imgClass = FIT_CLASS
 
   resize() {
     if (this.btnResize == ORIGINAL_SIZE_LABEL) {
       this.btnResize = FIT_SIZE_LABEL
+      this.btnResizeIcon = FIT_SIZE_ICON
       this.imgClass = ORIGINAL_CLASS
     } else {
       this.btnResize = ORIGINAL_SIZE_LABEL
+      this.btnResizeIcon = ORIGINAL_SIZE_ICON
       this.imgClass = FIT_CLASS
     }
   }
 }
 
 const ORIGINAL_SIZE_LABEL = "Original"
-const FIT_SIZE_LABEL = "Fit"
+const FIT_SIZE_LABEL = "Fit screen"
 const ORIGINAL_CLASS = ""
 const FIT_CLASS = "fit"
+const FIT_SIZE_ICON ="fit_screen"
+const ORIGINAL_SIZE_ICON = "crop_original"
 
 export interface ImageInfo {
   fileName: string

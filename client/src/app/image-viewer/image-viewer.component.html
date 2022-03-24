@@ -6,7 +6,10 @@
     <div class="footer">
 
         <button mat-button (click)="openInNewTab()">In new tab</button>
-        <button mat-button (click)="resize()">{{btnResize}}</button>
+        <button mat-button (click)="resize()">
+            <mat-icon>{{btnResizeIcon}}</mat-icon>
+            {{btnResize}}
+        </button>
         <button mat-button (click)="download()">
             <mat-icon>archive</mat-icon>
             Download
