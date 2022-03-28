@@ -8,46 +8,46 @@ import { resolver } from './filePathResolver';
 import { fileServer, isEntityExists } from "./fileServer";
 
 const storage = multer.diskStorage({
-    destination: function (req, file, callback) {
-        let dsError: Error | null = null
+    destination: async function (req, file, callback) {
+        let dsError: FileServerError | null = null
         let cbDestinationFolder = ""
+        try {
 
-        new Promise<string>((resolve, reject) => {
             let destinationFolder = req.body[uploadFile.DESTINATION_FOLDER]
             if (!destinationFolder) {
-                let newError = new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
-                reject(newError)
-            } else {
-                resolve(destinationFolder)
+                throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
             }
-        }).then((destinationFolder: string) => {
+
             let df = resolver.resolve(destinationFolder)
             if (!df) {
                 throw new FileServerError(FSErrorMsg.NO_DESTINATION_FOLDER_SUPPLIED, FSErrorCode.EINVAL)
             }
             cbDestinationFolder = df.server
-            return fs.promises.stat(cbDestinationFolder)
-        }).then(stat => {
+            let stat = await fs.promises.stat(cbDestinationFolder)
+
             if (!stat.isDirectory()) {
                 let newError = new FileServerError(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY, FSErrorCode.ENOTDIR)
                 dsError = newError
             } else {
                 return fs.promises.access(cbDestinationFolder, fs.constants.R_OK | fs.constants.W_OK);
             }
-        }).catch(error => {
-            dsError = error
-            if (error) {
-                if (error.code == FSErrorCode.ENOENT) {
+
+        }
+        catch (error) {
+            dsError = error as FileServerError
+            if (dsError) {
+                if (dsError.code == FSErrorCode.ENOENT) {
                     let newError = new FileServerError(FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST, FSErrorCode.ENOENT)
                     dsError = newError
-                } else if (error.code == FSErrorCode.EACCES) {
+                } else if (dsError.code == FSErrorCode.EACCES) {
                     let newError = new FileServerError(FSErrorMsg.DESTINATION_FOLDER_NOT_ACCESSIBLE, FSErrorCode.EACCES)
                     dsError = newError
                 }
             }
-        }).finally(() => {
+        }
+        finally {
             callback(dsError, cbDestinationFolder);
-        })
+        }
     },
 
     filename: async function (req: Request, file: Express.Multer.File, callback) {
