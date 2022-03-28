@@ -7,8 +7,8 @@ import { HOME, HOME_ResolverPath, resolver, ResolverPath } from './filePathResol
 
 export const fileServer = express.Router()
 
-export async function isEntityExists(path : string) : Promise<boolean> {
-    let targetExist : boolean
+export async function isEntityExists(path: string): Promise<boolean> {
+    let targetExist: boolean
     try {
         await fs.promises.access(path)
         targetExist = true
@@ -66,7 +66,13 @@ export async function returnList(folder: ResolverPath): Promise<FileList_Respons
         return fd
     })
 
-    let promiseList: (Promise<void | FileDetails> | FileDetails)[] = []
+    let resp: FileList_Response = {
+        parent: folder.network,
+        files: [],
+        message: FSErrorMsg.OK
+    }
+
+    let promiseList: (Promise<void>)[] = []
     fileDetails.forEach((file: FileDetails) => {
         let prom = fs.promises.stat(path.join(folder.server, file.name))
             .then(stats => {
@@ -74,27 +80,17 @@ export async function returnList(folder: ResolverPath): Promise<FileList_Respons
                     file.size = stats.size
                 }
                 file.mtime = stats.mtime.toISOString()
-                return file
+
+                resp.files!.push(file)
             }).catch((error) => {
                 console.log(error.code, error.message, file.name)
             });
+            
         promiseList.push(prom)
     })
 
-    let _files = await Promise.all(promiseList)
+    await Promise.all(promiseList)
 
-    let resp: FileList_Response = {
-        parent: folder.network,
-        files: [],
-        message: FSErrorMsg.OK
-    }
-
-    _files.forEach((f: void | FileDetails) => {
-        if (f) {
-            resp.files!.push(f)
-        }
-    })
-    
     return resp
 }
 
