@@ -5,30 +5,30 @@ import { RemFile_Request, RemFile_Response } from './common/interfaces';
 import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
 
-fileServer.delete(endpoints.REM, (req: Request, res: Response, next: NextFunction) => {
+fileServer.delete(endpoints.REM, async (req: Request, res: Response, next: NextFunction) => {
 
     const data: RemFile_Request = req.body
     console.log("Delete", data)
+    try {
+        let filePathResolved = resolver.resolve(data.parent, data.fileName)
 
-    let filePathResolved = resolver.resolve(data.parent, data.fileName)
+        let options: fs.RmOptions = {
+            force: data.force === true ? true : false,
+            recursive: data.recursive === true ? true : false
+        }
 
-    let options: fs.RmOptions = {
-        force: data.force === true ? true : false,
-        recursive: data.recursive === true ? true : false
-    }
-
-    let status = 0
-
-    fs.promises.rm(filePathResolved.server, options).then(() => {
+        await fs.promises.rm(filePathResolved.server, options)
         let responseData: RemFile_Response = {
             message: FSErrorMsg.OK,
             parent: data.parent,
             file: data.fileName
         }
 
-        let statusCode = HttpStatusCode.OK
-        res.status(statusCode).send(responseData);
-    }).catch(next)
+        res.status(HttpStatusCode.OK).send(responseData);
+    }
+    catch (err) {
+        next(err)
+    }
 
 })
 

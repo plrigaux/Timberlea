@@ -4,37 +4,29 @@ import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/con
 import { FileServerError } from './common/fileServerCommon';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
 import { resolver } from './filePathResolver';
-import { fileServer } from "./fileServer";
+import { fileServer, isEntityExists } from "./fileServer";
 
-fileServer.put(endpoints.MV, (req: Request, res: Response, next: NextFunction) => {
+fileServer.put(endpoints.MV, async (req: Request, res: Response, next: NextFunction) => {
 
     const reqData: MvFile_Request = req.body
     console.log("MV", reqData)
+    try {
+        const oldPath = resolver.resolve(reqData.parent, reqData.fileName)
 
-    const oldPath = resolver.resolve(reqData.parent, reqData.fileName)
+        let newPath = resolver.resolve(reqData.newParent ?? reqData.parent, reqData.newFileName ?? reqData.fileName)
 
-    let newPath = resolver.resolve(reqData.newParent ?? reqData.parent, reqData.newFileName ?? reqData.fileName)
+        let targetExist = false
+        if (!reqData.overwrite) {
+            targetExist = await isEntityExists(newPath.server)
+        }
 
-
-    let fileExistCheck: Promise<boolean>
-
-    if (reqData.overwrite) {
-        fileExistCheck = Promise.resolve(false)
-    } else {
-        fileExistCheck = fs.promises.access(newPath.server).then(() => {
-            return true
-        }).catch(() => {
-            return false
-        })
-    }
-
-    fileExistCheck.then((targetExist) => {
         if (targetExist) {
             throw new FileServerError
                 ("file already exist ...", FSErrorCode.EEXIST)
         }
-        return fs.promises.rename(oldPath.server, newPath.server)
-    }).then(() => {
+
+        await fs.promises.rename(oldPath.server, newPath.server)
+
         let respData: MvFile_Response = {
             message: FSErrorMsg.OK,
             parent: newPath.dirnameNetwork,
@@ -47,7 +39,9 @@ fileServer.put(endpoints.MV, (req: Request, res: Response, next: NextFunction) =
         }
 
         res.status(HttpStatusCode.OK).send(respData);
-    }).catch(next)
-
+    }
+    catch (err) {
+        next(err)
+    }
 })
 

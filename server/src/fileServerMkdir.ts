@@ -7,25 +7,24 @@ import { MakeDirRequest, MakeDirResponse } from './common/interfaces';
 import { resolver } from './filePathResolver';
 import { fileServer } from "./fileServer";
 
-fileServer.post(endpoints.MKDIR, 
+fileServer.post(endpoints.MKDIR,
     body('parent').exists().isString(),
     body('dirName').exists().isString(),
-    (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
 
-    const data: MakeDirRequest = req.body
-    console.log("Mkdir", data)
+        const data: MakeDirRequest = req.body
+        console.log("Mkdir", data)
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                //console.error("Bad request", errors.array())
+                throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
+            }
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        //console.error("Bad request", errors.array())
-        throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
-    }
+            let dirPath = resolver.resolve(data.parent, data.dirName)
+            let options = { recursive: data.recursive === true ? true : false }
 
-    let dirPath = resolver.resolve(data.parent, data.dirName)
-    let options = { recursive: data.recursive === true ? true : false }
-
-    fs.promises.mkdir(dirPath.server, options)
-        .then(() => {
+            await fs.promises.mkdir(dirPath.server, options)
 
             let resp: MakeDirResponse = {
                 message: "OK",
@@ -34,8 +33,11 @@ fileServer.post(endpoints.MKDIR,
             }
 
             res.status(HttpStatusCode.CREATED).send(resp);
-        })
-        .catch(next)
-})
+
+        }
+        catch (err) {
+            next(err)
+        }
+    })
 
 

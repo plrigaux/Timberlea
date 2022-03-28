@@ -6,14 +6,16 @@ import archiver from "archiver";
 import fs from 'fs';
 import { FileServerError } from "./common/fileServerCommon";
 
-fileServer.get(endpoints.DOWNZIP + '/:path', (req: Request, res: Response, next: NextFunction) => {
-    let filePath = req.params.path
-    let filePathResolved = resolver.resolve(filePath)
+fileServer.get(endpoints.DOWNZIP + '/:path', async (req: Request, res: Response, next: NextFunction) => {
+    let arch: archiver.Archiver | null = null
+    try {
+        let filePath = req.params.path
+        let filePathResolved = resolver.resolve(filePath)
 
-    const arch : archiver.Archiver = archiver('zip')
-   
-    let filePathRes = filePathResolved.server
-    fs.promises.stat(filePathRes).then((stat) => {
+        arch = archiver('zip')
+
+        let filePathRes = filePathResolved.server
+        const stat = await fs.promises.stat(filePathRes)
 
         let fileName = ""
         if (stat.isDirectory()) {
@@ -33,8 +35,14 @@ fileServer.get(endpoints.DOWNZIP + '/:path', (req: Request, res: Response, next:
         });
         res.attachment(fileName).type('zip');
 
-    }).catch(next)
-    .finally(() => {
-        arch.finalize();
-    })
+
+    }
+    catch (err) {
+        next(err)
+    }
+    finally {
+        if (arch) {
+            (arch as archiver.Archiver).finalize();
+        }
+    }
 })

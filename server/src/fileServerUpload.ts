@@ -5,7 +5,7 @@ import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode, uploadFile } from '
 import { FileServerError } from './common/fileServerCommon';
 import { FileUpload_Response } from './common/interfaces';
 import { resolver } from './filePathResolver';
-import { fileServer } from "./fileServer";
+import { fileServer, isEntityExists } from "./fileServer";
 
 const storage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -50,7 +50,7 @@ const storage = multer.diskStorage({
         })
     },
 
-    filename: function (req: Request, file: Express.Multer.File, callback) {
+    filename: async function (req: Request, file: Express.Multer.File, callback) {
 
         let fnError: Error | null = null
         let newFileName: string
@@ -71,21 +71,12 @@ const storage = multer.diskStorage({
         let filePath = df.server
 
         console.log("filePath", filePath)
-        fs.promises.stat(filePath)
-            .then(stat => {
-                let errorFileName = new FileServerError(FSErrorMsg.FILE_ALREADY_EXIST, FSErrorCode.EEXIST)
-                fnError = errorFileName
-            }).catch(error => {
-                if (error) {
-                    if (error.code == FSErrorCode.ENOENT) {
-                        //File doesn't exist and it's OK because we are going to create it
-                    } else {
-                        fnError = error
-                    }
-                }
-            }).finally(() => {
-                callback(fnError, newFileName);
-            })
+        let targetExist = await isEntityExists(filePath)
+        if (targetExist) {
+            let errorFileName = new FileServerError(FSErrorMsg.FILE_ALREADY_EXIST, FSErrorCode.EEXIST)
+            fnError = errorFileName
+        }
+        callback(fnError, newFileName);
     }
 });
 const upload = multer({ storage: storage }).any();
