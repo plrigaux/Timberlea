@@ -53,11 +53,7 @@ export async function returnList(folder: ResolverPath): Promise<FileList_Respons
             resp.files?.push(fd)
         })
 
-        let ret: Promise<FileList_Response> = new Promise((resolve, reject) => {
-            resolve(resp)
-        });
-
-        return ret;
+        return resp;
     }
 
     let files: Dirent[] = await fs.promises.readdir(folder.server, { withFileTypes: true })
@@ -72,7 +68,6 @@ export async function returnList(folder: ResolverPath): Promise<FileList_Respons
 
     let promiseList: (Promise<void | FileDetails> | FileDetails)[] = []
     fileDetails.forEach((file: FileDetails) => {
-
         let prom = fs.promises.stat(path.join(folder.server, file.name))
             .then(stats => {
                 if (file.type === FileType.File) {
@@ -93,11 +88,13 @@ export async function returnList(folder: ResolverPath): Promise<FileList_Respons
         files: [],
         message: FSErrorMsg.OK
     }
+
     _files.forEach((f: void | FileDetails) => {
         if (f) {
             resp.files!.push(f)
         }
     })
+    
     return resp
 }
 
