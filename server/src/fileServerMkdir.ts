@@ -27,7 +27,7 @@ fileServer.post(endpoints.MKDIR,
             await fs.promises.mkdir(dirPath.server, options)
 
             let resp: MakeDirResponse = {
-                message: "OK",
+                message: FSErrorMsg.OK,
                 parent: dirPath.dirnameNetwork,
                 dirName: dirPath.basename
             }
