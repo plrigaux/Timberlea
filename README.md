@@ -27,7 +27,9 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 * Create directory
 * Set up locations
 * Bookmark
-* Download compressed file 
+* Download compressed file
+* Image viewer
+* Filter files
 
 ## Upcoming features
 
@@ -35,9 +37,7 @@ By design, it's not the fastest, but it tries to be convenient and to offer usef
 * Profile
   * File access per profile
   * Action per profile
-* Filter files
 * CLI client
-* Image viewer
 * Music streamer
 * Text editor
 * Open file

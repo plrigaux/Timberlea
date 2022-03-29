@@ -40,7 +40,7 @@ function updateVersions() {
 
       const packageFileData = JSON.parse(data);
       let key = packageFile[0]
-      console.log("version", key, packageFileData.version);
+      console.log("version", key, packageFileData.version, " --> ", version);
       packFile.version = packageFileData.version
 
       packageFileData.version = version
@@ -55,10 +55,18 @@ function updateVersions() {
   }
 }
 
-console.log("HELLO")
+
 console.log(packages)
 
-rl.question(`What's your name? `, (name: string) => {
-  console.log(`Hi ${name}!`)
+rl.question(`The version is ${version}. Update package version to this version? [y] `, (answer: string) => {
+
+  let yes = /y|(yes)/gi
+  if(answer.match(yes)) {
+    updateVersions()
+    console.log(`Package version updated to ${version}!`)
+  }
+
+  console.log(`Bye`)
   rl.close()
 })
+
