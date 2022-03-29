@@ -18,6 +18,11 @@ export async function isEntityExists(path: string): Promise<boolean> {
     return targetExist
 }
 
+export async function isDirectory(dirpath: ResolverPath): Promise<boolean> {
+    let stat: fs.Stats = await fs.promises.stat(dirpath.server)
+    return stat.isDirectory()
+}
+
 fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
     const notes = '.'
 
@@ -56,40 +61,37 @@ export async function returnList(folder: ResolverPath): Promise<FileList_Respons
         return resp;
     }
 
-    let files: Dirent[] = await fs.promises.readdir(folder.server, { withFileTypes: true })
-
-    let fileDetails = files.map((file: Dirent) => {
-        let fd: FileDetails = {
-            name: file.name,
-            type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
-        }
-        return fd
-    })
-
     let resp: FileList_Response = {
         parent: folder.network,
         files: [],
         message: FSErrorMsg.OK
     }
 
-    let promiseList: (Promise<void>)[] = []
-    fileDetails.forEach((file: FileDetails) => {
-        let prom = fs.promises.stat(path.join(folder.server, file.name))
-            .then(stats => {
-                if (file.type === FileType.File) {
-                    file.size = stats.size
+    let files: Dirent[] = await fs.promises.readdir(folder.server, { withFileTypes: true })
+
+    resp.files = await Promise.all(
+
+        files.map(async (file: Dirent) => {
+            let fileDescription: FileDetails = {
+                name: file.name,
+                type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
+            }
+
+            const p = path.join(folder.server, file.name)
+            try {
+                const stats = await fs.promises.stat(p)
+
+                if (fileDescription.type === FileType.File) {
+                    fileDescription.size = stats.size
                 }
-                file.mtime = stats.mtime.toISOString()
 
-                resp.files!.push(file)
-            }).catch((error) => {
-                console.log(error.code, error.message, file.name)
-            });
-            
-        promiseList.push(prom)
-    })
-
-    await Promise.all(promiseList)
+                fileDescription.mtime = stats.mtime.toISOString()
+            } catch (err) {
+                console.log("stats error", p, err)
+            }
+            return fileDescription
+        })
+    )
 
     return resp
 }

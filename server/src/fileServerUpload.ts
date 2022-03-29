@@ -86,33 +86,31 @@ fileServer.post(endpoints.UPLOAD, (req: Request, res: Response, next: NextFuncti
     upload(req, res, (error) => {
         console.log("Upload File !!!")
 
-        let statusCode = -1
         if (error) {
             next(error)
-        } else {
-            statusCode = HttpStatusCode.OK
-
-            let response: FileUpload_Response = {
-                parent: req.body[uploadFile.DESTINATION_FOLDER],
-                message: FSErrorMsg.OK,
-                files: []
-            }
-
-            if (req.file) {
-                let f = req.file
-                response.files.push({
-                    fileName: f.filename,
-                    size: f.size
-                })
-            } else if (req.files) {
-                for (const [id, file] of Object.entries(req.files)) {
-                    response.files.push({
-                        fileName: file.filename,
-                        size: file.size
-                    })
-                }
-            }
-            res.status(statusCode).send(response);
+            return
         }
+
+        let response: FileUpload_Response = {
+            parent: req.body[uploadFile.DESTINATION_FOLDER],
+            message: FSErrorMsg.OK,
+            files: []
+        }
+
+        if (req.file) {
+            let f = req.file
+            response.files.push({
+                fileName: f.filename,
+                size: f.size
+            })
+        } else if (req.files) {
+            for (const [id, file] of Object.entries(req.files)) {
+                response.files.push({
+                    fileName: file.filename,
+                    size: file.size
+                })
+            }
+        }
+        res.status(HttpStatusCode.OK).send(response);
     });
 });

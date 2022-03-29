@@ -1,17 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import fs from 'fs';
 import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { ChangeDir_Request, FileList_Response } from './common/interfaces';
-import { resolver, ResolverPath } from './filePathResolver';
-import { fileServer, returnList } from "./fileServer";
-
-
-export async function isDirectory(dirpath: ResolverPath): Promise<boolean> {
-    let stat: fs.Stats = await fs.promises.stat(dirpath.server)
-    return stat.isDirectory()
-}
+import { resolver } from './filePathResolver';
+import { fileServer, isDirectory, returnList } from "./fileServer";
 
 fileServer.put(endpoints.CD,
     body('remoteDirectory').exists().isString(),
