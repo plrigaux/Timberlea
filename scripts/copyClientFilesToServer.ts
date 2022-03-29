@@ -1,5 +1,5 @@
 import fsExtra from 'fs-extra'
-import chalk from 'chalk';
+import chalk from 'chalk'
 const source = "./client/dist/timberlea-client"
 const dest = "./server/client"
 

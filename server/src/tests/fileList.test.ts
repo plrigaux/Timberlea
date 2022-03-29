@@ -45,7 +45,6 @@ describe('File list - App root', () => {
 
         let dataresp: FileList_Response = resp.body
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.files).toBeDefined();
         expect(dataresp.files?.length).toBeDefined();
 
@@ -70,7 +69,6 @@ describe('File list - App root', () => {
 
         let dataresp: FileList_Response = resp.body
 
-        expect(dataresp.error).toBeTruthy();
     });
 
     test('Get file list - TEMP', async () => {
@@ -84,7 +82,6 @@ describe('File list - App root', () => {
 
         let dataresp: FileList_Response = resp.body
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.files).toBeDefined();
         expect(dataresp.files?.length).toBeDefined();
 
@@ -120,7 +117,6 @@ describe('File list - App root', () => {
         let dataresp: FileList_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.files?.length).toEqual(4)
         expect(dataresp.parent).toEqual(dirToSend.network)
 
@@ -164,7 +160,6 @@ describe('File list - App root', () => {
         let dataresp: FileList_Response = resp.body
         console.log(dataresp)
 
-        expect(dataresp.error).toBeTruthy();
     });
 
 })

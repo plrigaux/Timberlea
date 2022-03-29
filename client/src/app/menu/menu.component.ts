@@ -1,12 +1,12 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { ErrorStateMatcher } from '@angular/material/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { BehaviorService } from '../utils/behavior.service';
-import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
+import { FileServerService } from '../utils/file-server.service';
+import { DialogDirectoryCreate } from './dialog-directory-create';
+import { DialogFileCreate } from './dialog-file-create';
+import { FileNameContent } from './menuInt';
 
-import { DirtyErrorStateMatcher, forbiddenCharValidator } from '../utils/utils';
 
 @Component({
   selector: 'app-menu',
@@ -81,64 +81,8 @@ export class MenuComponent implements OnInit, OnDestroy {
   onOpenBookmarks() {
     this.behavior.openBookmaks(true)
   }
-}
 
-@Component({
-  selector: 'dialog-directory-create',
-  templateUrl: 'dialog-directory-create.html',
-  styleUrls: ['./menu.component.scss'],
-  providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher }]
-})
-export class DialogDirectoryCreate implements AfterViewInit {
-
-  newFileName: FormControl
-
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
-    this.newFileName = new FormControl("", { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change' });
+  onOpenHistory() {
+    this.behavior.openHistory(true)
   }
-
-  ngAfterViewInit(): void {
-
-  }
-}
-
-interface FileNameContent {
-  fileName: string
-  fileContent: string
-
-}
-
-@Component({
-  selector: 'dialog-file-create',
-  templateUrl: 'dialog-file-create.html',
-  styleUrls: ['./menu.component.scss'],
-  providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher }]
-})
-export class DialogFileCreate implements AfterViewInit {
-
-  newFileName: FormControl
-  fileContent: FormControl = new FormControl("")
-
-  constructor(private dialogRef: MatDialogRef<DialogFileCreate, FileNameContent>,) {
-    this.newFileName = new FormControl("", { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change' });
-  }
-
-  ngAfterViewInit(): void {
-
-  }
-
-  onCancelClick() {
-    this.dialogRef.close()
-  }
-
-  onOkClick() {
-    let output: FileNameContent = {
-      fileName: this.newFileName.value,
-      fileContent: this.fileContent.value
-    }
-    this.dialogRef.close(output)
-  }
-
-
 }

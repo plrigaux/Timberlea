@@ -56,7 +56,6 @@ describe('Delete file or directory', () => {
             let dataresp : RemFile_Response = resp.body
             console.log(dataresp)
 
-            expect(dataresp.error).toBeFalsy;
             expect(dataresp.file).toEqual(fileName)
     });
 
@@ -81,7 +80,6 @@ describe('Delete file or directory', () => {
             let dataresp : RemFile_Response = resp.body
             console.log(dataresp)
 
-            expect(dataresp.error).toBeFalsy();
             expect(dataresp.file).toEqual(fileName)
     });
 
@@ -104,8 +102,6 @@ describe('Delete file or directory', () => {
             let dataresp : RemFile_Response = resp.body
             console.log(dataresp)
 
-            expect(dataresp.error).toBeTruthy();
-            //expect(dataresp.file).toEqual(fileName)
     });
 
     test('Delete a single directory', async () => {
@@ -128,7 +124,6 @@ describe('Delete file or directory', () => {
             let dataresp : RemFile_Response = resp.body
             console.log(dataresp)
 
-            expect(dataresp.error).toBeFalsy();
             expect(dataresp.file).toEqual(fileName)
     });
 
@@ -150,7 +145,6 @@ describe('Delete file or directory', () => {
             .expect("Content-Type", /json/);
 
             let dataresp : RemFile_Response = resp.body
-            expect(dataresp.error).toBeTruthy();
     });
 
 })

@@ -1,25 +1,30 @@
 {
   "name": "timberlea",
   "version": "0.1.0",
+  "license": "MIT",
   "scripts": {
     "timberClient": "npm --prefix ./client/ start",
     "copyToServe": "cleandir server/client && copyfiles --flat --verbose dist/file-server/** server/client/",
     "build_client": "npm --prefix ./client/ run build",
     "build_server": "npm --prefix ./server/ run build",
-    "copyClientFiles": "node scripts/copyClientFilesToServer.js",
+    "copyClientFiles": "ts-node scripts/copyClientFilesToServer.ts",
     "build": "npm run build_client && npm run build_server && npm run copyClientFiles",
     "timberSrvDev": "npm --prefix ./server/ run timberDev",
     "timberDev": "concurrently \"npm:timberClient\" \"npm:timberSrvDev\"",
     "postinstall": "(cd server && npm install); (cd client && npm install)",
     "timber": "npm --prefix ./server/ run timber",
-    "versioning": "npx ts-node ./scripts/versioning.ts"
+    "versioning": "ts-node ./scripts/versioning.ts",
+    "tsc": "tsc"
   },
   "private": true,
-  "dependencies": {},
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
-    "fs-extra": "^10.0.0",
+    "@types/node": "^17.0.23",
     "chalk": "^5.0.1",
-    "concurrently": "^6.4.0"
-  }
+    "concurrently": "^6.4.0",
+    "fs-extra": "^10.0.0",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  },
+  "type": "module"
 }

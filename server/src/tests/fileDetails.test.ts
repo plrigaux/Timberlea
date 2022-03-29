@@ -54,7 +54,6 @@ describe('File details', () => {
 
         let dataresp: FileDetail_Response = resp.body
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.file).toBeDefined();
         expect(dataresp.file.name).toEqual(fileName);
         expect(dataresp.file.type).toEqual(FileType.File);
@@ -75,7 +74,6 @@ describe('File details', () => {
 
         let dataresp: FileDetail_Response = resp.body
 
-        expect(dataresp.error).toBeFalsy();
         expect(dataresp.file).toBeDefined();
         expect(dataresp.file.name).toEqual(dirToSend.basename);
         expect(dataresp.file.type).toEqual(FileType.Directory);
@@ -96,7 +94,6 @@ describe('File details', () => {
 
         let dataresp: FileDetail_Response = resp.body
 
-        expect(dataresp.error).toBeTruthy();
 
     });
 })

@@ -1,71 +1,47 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
-import { endpoints, FSErrorCode, HttpStatusCode } from './common/constants';
+import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/constants';
 import { FileServerError } from './common/fileServerCommon';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
 import { resolver } from './filePathResolver';
-import { fileServer } from "./fileServer";
+import { fileServer, isEntityExists } from "./fileServer";
 
-fileServer.put(endpoints.MV, (req: Request, res: Response) => {
+fileServer.put(endpoints.MV, async (req: Request, res: Response, next: NextFunction) => {
 
-    const data: MvFile_Request = req.body
-    console.log("MV", data)
+    const reqData: MvFile_Request = req.body
+    console.log("MV", reqData)
+    try {
+        const oldPath = resolver.resolve(reqData.parent, reqData.fileName)
 
-    const oldPath =  resolver.resolve(data.parent, data.fileName)
+        let newPath = resolver.resolve(reqData.newParent ?? reqData.parent, reqData.newFileName ?? reqData.fileName)
 
-    const newPath = resolver.resolve(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
+        let targetExist = false
+        if (!reqData.overwrite) {
+            targetExist = await isEntityExists(newPath.server)
+        }
 
-    let resp: MvFile_Response = {
-        error: true,
-        message: `Unkown error`,
-        parent: newPath.dirnameNetwork,
-        oldFileName: data.fileName,
-        newFileName: newPath.basename
-    }
-
-    let statusCode: number = HttpStatusCode.INTERNAL_SERVER
-
-    let fileExistCheck: Promise<boolean>
-
-    if (data.overwrite) {
-        fileExistCheck = Promise.resolve(false)
-    } else {
-        fileExistCheck = fs.promises.access(newPath.server).then(() => {
-            return true
-        }).catch(() => {
-            return false
-        })
-    }
-
-    fileExistCheck.then((targetExist) => {
         if (targetExist) {
             throw new FileServerError
                 ("file already exist ...", FSErrorCode.EEXIST)
         }
-        return fs.promises.rename(oldPath.server, newPath.server)
-    }).then(() => {
-        //console.warn("OK .. ")
-        resp.error = false
-        resp.message = "OK"
-        statusCode = HttpStatusCode.OK
-    }).catch((error) => {
-        //console.warn(error)
-        switch (error.code) {
-            case FSErrorCode.ENOENT: //TODO check invalid Char
-                resp.message = `Directory doesn't exist`
-                statusCode = HttpStatusCode.NOT_FOUND
-                break;
-            case FSErrorCode.EEXIST:
-                resp.message = "File already exists"
-                statusCode = HttpStatusCode.CONFLICT
-                break;
-            default:
-                console.error(error);
-                resp.message = `Unknown error`
-                statusCode = HttpStatusCode.INTERNAL_SERVER
+
+        await fs.promises.rename(oldPath.server, newPath.server)
+
+        let respData: MvFile_Response = {
+            message: FSErrorMsg.OK,
+            parent: newPath.dirnameNetwork,
+            oldFileName: reqData.fileName,
+            newFileName: newPath.basename,
         }
-    }).finally(() => {
-        res.status(statusCode).send(resp);
-    })
+
+        if (reqData.newParent) {
+            respData.oldParent = oldPath.dirnameNetwork
+        }
+
+        res.status(HttpStatusCode.OK).send(respData);
+    }
+    catch (err) {
+        next(err)
+    }
 })
 

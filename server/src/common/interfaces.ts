@@ -17,7 +17,6 @@ export interface FileDetailsEnhanced extends FileDetails {
 }
 
 export interface FS_Response {
-    error: boolean,
     message: string,
     suplemental?: string
 }
@@ -80,12 +79,14 @@ export interface MvFile_Request {
     fileName: string
     newFileName?: string
     overwrite?: boolean
+    autoNaming?: boolean
 }
 
 export interface MvFile_Response extends FS_Response {
     parent: string
     oldFileName: string
     newFileName: string
+    oldParent?: string
 }
 
 export interface FileUpload_Info {

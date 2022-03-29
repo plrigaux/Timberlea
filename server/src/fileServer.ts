@@ -1,13 +1,27 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
 import fs, { Dirent } from 'fs';
 import path from 'path';
-import { endpoints, FSErrorMsg, FSErrorCode, HttpStatusCode } from './common/constants';
-import { FileServerError } from './common/fileServerCommon';
-import { ChangeDir_Request, ChangeDir_Response, FileDetails, FileDetail_Response, FileList_Response, FileType, FS_Response } from './common/interfaces';
-import { HOME, HOME_ResolverPath,  resolver,  ResolverPath } from './filePathResolver';
+import { endpoints, FSErrorMsg, HttpStatusCode } from './common/constants';
+import { ChangeDir_Response, FileDetails, FileList_Response, FileType } from './common/interfaces';
+import { HOME, HOME_ResolverPath, resolver, ResolverPath } from './filePathResolver';
 
 export const fileServer = express.Router()
+
+export async function isEntityExists(path: string): Promise<boolean> {
+    let targetExist: boolean
+    try {
+        await fs.promises.access(path)
+        targetExist = true
+    } catch (err) {
+        targetExist = false
+    }
+    return targetExist
+}
+
+export async function isDirectory(dirpath: ResolverPath): Promise<boolean> {
+    let stat: fs.Stats = await fs.promises.stat(dirpath.server)
+    return stat.isDirectory()
+}
 
 fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
     const notes = '.'
@@ -20,19 +34,17 @@ fileServer.get(endpoints.PWD, (req: Request, res: Response) => {
 
     let newRemoteDirectory: ChangeDir_Response = {
         parent: HOME,
-        error: false,
         message: 'OK'
     }
     res.send(newRemoteDirectory)
 });
 
-export function returnList(folder: ResolverPath): Promise<FileList_Response> {
+export async function returnList(folder: ResolverPath): Promise<FileList_Response> {
     console.log(`folder ${folder}`)
 
     if (folder == HOME_ResolverPath) {
         let resp: FileList_Response = {
             parent: HOME_ResolverPath.network,
-            error: false,
             message: FSErrorMsg.OK,
             files: [],
         }
@@ -46,64 +58,54 @@ export function returnList(folder: ResolverPath): Promise<FileList_Response> {
             resp.files?.push(fd)
         })
 
-        let ret: Promise<FileList_Response> = new Promise((resolve, reject) => {
-            resolve(resp)
-        });
-
-        return ret;
+        return resp;
     }
 
-    return fs.promises.readdir(folder.server, { withFileTypes: true })
-        .then((files: Dirent[]) => {
-            return files.map((file: Dirent) => {
-                let fd: FileDetails = {
-                    name: file.name,
-                    type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
+    let resp: FileList_Response = {
+        parent: folder.network,
+        files: [],
+        message: FSErrorMsg.OK
+    }
+
+    let files: Dirent[] = await fs.promises.readdir(folder.server, { withFileTypes: true })
+
+    resp.files = await Promise.all(
+
+        files.map(async (file: Dirent) => {
+            let fileDescription: FileDetails = {
+                name: file.name,
+                type: file.isFile() ? FileType.File : file.isDirectory() ? FileType.Directory : FileType.Other,
+            }
+
+            const p = path.join(folder.server, file.name)
+            try {
+                const stats = await fs.promises.stat(p)
+
+                if (fileDescription.type === FileType.File) {
+                    fileDescription.size = stats.size
                 }
-                return fd
-            })
+
+                fileDescription.mtime = stats.mtime.toISOString()
+            } catch (err) {
+                console.log("stats error", p, err)
+            }
+            return fileDescription
         })
-        .then(fileDetails => {
-            let promiseList: (Promise<void | FileDetails> | FileDetails)[] = []
-            fileDetails.forEach((file: FileDetails) => {
+    )
 
-                let prom = fs.promises.stat(path.join(folder.server, file.name))
-                    .then(stats => {
-                        if (file.type === FileType.File) {
-                            file.size = stats.size
-                        }
-                        file.mtime = stats.mtime.toISOString()
-                        return file
-                    }).catch((error) => {
-                        console.log(error.code, error.message, file.name)
-                    });
-                promiseList.push(prom)
-            })
-
-            return Promise.all(promiseList).then(_files => {
-
-                let resp: FileList_Response = {
-                    parent: folder.network,
-                    files: [],
-                    error: false,
-                    message: FSErrorMsg.OK
-                }
-                _files.forEach((f: void | FileDetails) => {
-                    if (f) {
-                        resp.files!.push(f)
-                    }
-                })
-                return resp
-            })
-        })
+    return resp
 }
 
-function getList(req: Request, res: Response, next: NextFunction) {
-    let paramPath = req.params.path
-    let folder: ResolverPath = resolver.resolve(paramPath)
-    returnList(folder).then((resp: FileList_Response) => {
+async function getList(req: Request, res: Response, next: NextFunction) {
+    try {
+        let paramPath = req.params.path
+        let folder: ResolverPath = resolver.resolve(paramPath)
+        let resp = await returnList(folder)
         res.status(HttpStatusCode.OK).send(resp)
-    }).catch(next)
+    }
+    catch (err) {
+        next(err)
+    }
 }
 
 //List without path

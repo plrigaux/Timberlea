@@ -1,12 +1,17 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { TemplatePortal } from '@angular/cdk/portal';
+import { AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuTrigger } from '@angular/material/menu';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Subscription } from 'rxjs';
+import { filter, fromEvent, Subscription, take } from 'rxjs';
+import { endpoints } from '../../../../server/src/common/constants';
 import { FileDetails, FileType, MvFile_Response } from '../../../../server/src/common/interfaces';
 import { FileDialogBoxComponent } from '../file-dialog-box/file-dialog-box.component';
-import { FileServerService } from '../utils/file-server.service';
+import { ImageInfo, ImageViewerComponent } from '../image-viewer/image-viewer.component';
+import { FileDetailsPlus, FileServerService, SelectFileContext } from '../utils/file-server.service';
 
 @Component({
   selector: 'app-table-navigator',
@@ -29,7 +34,9 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   constructor(private fileServerService: FileServerService,
     private _liveAnnouncer: LiveAnnouncer,
-    private _dialog: MatDialog) {
+    private _dialog: MatDialog,
+    public overlay: Overlay,
+    public viewContainerRef: ViewContainerRef) {
 
     this.dataSource = new MatTableDataSource([] as FileDetails[]);
 
@@ -78,30 +85,17 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.subscriptions.push(this.fileServerService.subscribeModif({
       next: (data: MvFile_Response) => {
-        data.newFileName
-
-        let fdIndex = this.dataSource.data.findIndex(fd => fd.name === data.oldFileName)
-        if (fdIndex >= 0) {
-          let fd = this.dataSource.data[fdIndex]
-          fd.name = data.newFileName
-        } else {
-          let remoteFiles = this.dataSource.data
-          remoteFiles.push({ name: data.newFileName, type: FileType.File })
-
-          this.updateDataSource2(remoteFiles);
-        }
-
-        if (this.selectedRowIndex == data.oldFileName) {
-          this.selectedRowIndex = data.newFileName
-        }
-
-        if (this.selectedRowIndex2 == data.oldFileName) {
-          this.selectedRowIndex2 = data.newFileName
-        }
+        this.manageMoveOrCopy(data, endpoints.FS_MV)
       }
     }))
 
-    this.subscriptions.push(this.fileServerService.subscribeNewFileSubjet({
+    this.subscriptions.push(this.fileServerService.subscribeCopy({
+      next: (data: MvFile_Response) => {
+        this.manageMoveOrCopy(data, endpoints.FS_COPY)
+      }
+    }))
+
+    this.subscriptions.push(this.fileServerService.subscribeNewFile({
       next: (data: FileDetails) => {
         console.log("f upload", data)
 
@@ -146,7 +140,7 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   private updateDataSource(filelist: FileDetails[]) {
 
     let remoteFiles: FileDetails[]
-    if (this.fileServerService.getRemoteDirectory() != "") {
+    if (!this.fileServerService.isHome()) {
       remoteFiles = [{ name: '..', type: FileType.Directory }, ...filelist]
     } else {
       remoteFiles = filelist
@@ -229,7 +223,25 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   downloadFileName(fileName: string) {
-    const href = this.fileServerService.downloadFileName(fileName);
+  
+
+    if (fileName.match(ImageViewerComponent.imageRE)) {
+      console.log("is image", fileName)
+
+      let imageInfo: ImageInfo = {
+        fileName: fileName,
+        list: this.dataSource.data
+      }
+      
+      const dialog = this._dialog.open(ImageViewerComponent, {
+        width: '98%',
+        height: '98%',
+        disableClose: false,
+        data: imageInfo
+      });
+    } else {
+      this.fileServerService.downloadFileName(fileName);
+    }
   }
 
   displaySize(param: FileDetails): string {
@@ -296,10 +308,15 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
 
   onLongPressingRow(fileDetails: FileDetails) {
     console.log("onLongPressing", fileDetails)
-    if (this.selectedRowIndex != fileDetails.name) { //to limit the number of calls
-      this.selectedRowIndex = fileDetails.name
-      this.fileServerService.selectFile(fileDetails)
+
+    this.selectedRowIndex = fileDetails.name
+
+    let fileSelectContext: SelectFileContext = {
+      file: fileDetails as FileDetailsPlus,
+      controlID: "bottom"
     }
+    this.fileServerService.selectFile(fileSelectContext)
+
   }
 
   applyFilter(event: Event) {
@@ -307,5 +324,67 @@ export class TableNavigatorComponent implements OnInit, AfterViewInit, OnDestroy
     filterValue = filterValue.trim(); // Remove whitespace
     filterValue = filterValue.toLowerCase(); // MatTableDataSource defaults to lowercase matches
     this.dataSource.filter = filterValue
+  }
+
+  private manageMoveOrCopy(data: MvFile_Response, action: string) {
+
+    let fdIndex = -1
+    if (action === endpoints.FS_MV) {
+      fdIndex = this.dataSource.data.findIndex(fd => fd.name === data.oldFileName)
+    }
+
+    if (fdIndex >= 0) {
+      let fd = this.dataSource.data[fdIndex]
+      fd.name = data.newFileName
+    } else {
+      let remoteFiles = this.dataSource.data
+      remoteFiles.push({
+        name: data.newFileName,
+        type: FileType.File
+      })
+
+      this.updateDataSource2(remoteFiles);
+    }
+
+    if (this.selectedRowIndex == data.oldFileName) {
+      this.selectedRowIndex = data.newFileName
+    }
+
+    if (this.selectedRowIndex2 == data.oldFileName) {
+      this.selectedRowIndex2 = data.newFileName
+    }
+  }
+
+  contextMenuPosition = { x: '0px', y: '0px' };
+
+  onContextMenu(event: MouseEvent, fileDetails: FileDetails) {
+    event.preventDefault();
+    this.rightClickMenuPositionX = event.clientX;
+    this.rightClickMenuPositionY = event.clientY;
+
+    this.selectedRowIndex = fileDetails.name
+
+    // we open the menu 
+    this.matMenuTrigger.openMenu();
+
+    let fileSelectContext: SelectFileContext = {
+      file: fileDetails as FileDetailsPlus,
+      controlID: "context"
+    }
+
+    setTimeout(() => {
+      this.fileServerService.selectFile(fileSelectContext)
+    }, 100)
+  }
+
+  @ViewChild(MatMenuTrigger, { static: true }) matMenuTrigger!: MatMenuTrigger;
+  rightClickMenuPositionX = 0
+  rightClickMenuPositionY = 0
+
+  getRightClickMenuStyle(): object {
+    return {
+      left: `${this.rightClickMenuPositionX}px`,
+      top: `${this.rightClickMenuPositionY}px`
+    }
   }
 }

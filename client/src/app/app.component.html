@@ -14,7 +14,24 @@
   <main class="content">
     <mat-drawer-container class="sidenav-container" [hasBackdrop]="true">
       <mat-drawer #drawer [(opened)]="sidebar_open" class="sidenav-content" mode="side">
-        <app-bookmark></app-bookmark>
+        <mat-tab-group [selectedIndex]="tabSelectedIndex">
+          <mat-tab labelClass="navTabLabelClass">
+            <ng-template mat-tab-label>
+              <mat-icon class="example-tab-icon">bookmark</mat-icon>
+            </ng-template>
+            <ng-template matTabContent>
+              <app-bookmark></app-bookmark>
+            </ng-template>
+          </mat-tab>
+          <mat-tab labelClass="navTabLabelClass">
+            <ng-template mat-tab-label >
+              <mat-icon class="example-tab-icon">history</mat-icon>
+            </ng-template>
+            <ng-template matTabContent>
+              <app-history></app-history>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
       </mat-drawer>
       <mat-drawer-content>
         <app-table-navigator></app-table-navigator>
@@ -22,7 +39,7 @@
     </mat-drawer-container>
   </main>
   <footer class="footer">
-    <app-controls></app-controls>
+    <app-controls id="bottom"></app-controls>
   </footer>
 </div>
 

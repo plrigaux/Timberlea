@@ -49,7 +49,6 @@ describe('Create directory', () => {
 
             let response : MakeDirResponse = resp.body
             
-            expect(response.error).toBeFalsy()
             expect(response.dirName).toEqual(data.dirName)
             expect(response.parent).toEqual(data.parent)
     });
@@ -124,7 +123,6 @@ describe('Create directory', () => {
 
             let response : MakeDirResponse = resp.body
 
-            expect(response.error).toBeFalsy()
             expect(response.dirName).not.toEqual(data.dirName)
             expect(response.parent).not.toEqual(data.parent)
             expect(response.parent + "/" + response.dirName).toEqual(data.parent + "/" + data.dirName)
@@ -144,7 +142,6 @@ describe('Create directory', () => {
 
             let response : MakeDirResponse = resp.body
 
-            expect(response.error).toBeTruthy()
         
     });
 

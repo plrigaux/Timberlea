@@ -1,0 +1,42 @@
+.fit {
+    max-width: auto;
+    max-height: 100%;
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.imageContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 1;
+    flex-grow: 1;
+    padding: 3px 5px;
+    position: relative;
+    overflow-y: auto;
+}
+
+.header {
+    flex-shrink: 0;
+    flex-grow: 0;
+    padding: 3px 5px;
+}
+
+.content {
+    flex-shrink: 1;
+    flex-grow: 1;
+    padding: 3px 5px;
+    position: relative;
+    overflow-y: auto;
+}
+
+.footer {
+    flex-shrink: 0;
+    flex-grow: 0;
+    padding: 3px 15px;
+}

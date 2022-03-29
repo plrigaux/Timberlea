@@ -1,38 +1,45 @@
-<div *ngIf="showFileCommands()">
+<div *ngIf="showFileCommands()" [ngClass]="getClass()">
 
-    <button mat-button (click)="copy()">
+    <button mat-button (click)="copy()" [disabled]="isDisabled('copy')">
         <mat-icon>file_copy</mat-icon>
         Copy
     </button>
-    <button mat-button (click)="cut()">
+    <button mat-button (click)="cut()" [disabled]="isDisabled('cut')">
         <mat-icon>content_cut</mat-icon>
         Cut
     </button>
-    <button mat-button (click)="editName()">
+    <button mat-button (click)="editName()" [disabled]="isDisabled('editName')">
         <mat-icon>edit</mat-icon>
         Rename
     </button>
-    <button mat-button (click)="delete()">
-        <mat-icon>delete</mat-icon> Delete
+    <button mat-button (click)="delete()" [disabled]="isDisabled('delete')">
+        <mat-icon>delete</mat-icon>
+        Delete
     </button>
-
-    <button mat-button (click)="info()">
-        <mat-icon fontSet="material-icons-outlined">info</mat-icon> Info
+    <button mat-button (click)="info()" [disabled]="isDisabled('info')">
+        <mat-icon fontSet="material-icons-outlined">info</mat-icon>
+        Info
     </button>
-    <button mat-button (click)="bookmark()">
-        <mat-icon fontSet="material-icons-outlined">bookmark</mat-icon> Bookmark
+    <button mat-button (click)="bookmark()" [disabled]="isDisabled('bookmark')">
+        <mat-icon fontSet="material-icons-outlined">bookmark</mat-icon>
+        Bookmark
     </button>
-    <button mat-button (click)="downloadZip()">
-        <mat-icon fontSet="material-icons-outlined">archive</mat-icon> Get archive
+    <button mat-button (click)="download()" [disabled]="isDisabled('download')">
+        <mat-icon fontSet="material-icons-outlined">download</mat-icon>
+        Download
+    </button>
+    <button mat-button (click)="downloadZip()" [disabled]="isDisabled('downloadZip')">
+        <mat-icon fontSet="material-icons-outlined">archive</mat-icon>
+        Get archive
     </button>
 </div>
 
-<div *ngIf="cutCopyPaste">
-    <button mat-button (click)="cancelPaste()">
+<div *ngIf="cutCopyPaste" [ngClass]="getClass()">
+    <button mat-button (click)="cancelPaste()" >
         <mat-icon>close</mat-icon>
         Cancel
     </button>
-    <button mat-button (click)="paste()">
+    <button mat-button (click)="paste()" [disabled]="isDisabled('paste')">
         <mat-icon>content_paste</mat-icon>
         Paste
     </button>

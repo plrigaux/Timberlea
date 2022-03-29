@@ -1,6 +1,8 @@
 import path from 'path'
 import fsExtra from 'fs-extra'
-const readline = require('readline').createInterface({
+import readline from 'node:readline'
+
+const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 })
@@ -56,7 +58,7 @@ function updateVersions() {
 console.log("HELLO")
 console.log(packages)
 
-readline.question(`What's your name?`, (name : string) => {
+rl.question(`What's your name? `, (name: string) => {
   console.log(`Hi ${name}!`)
-  readline.close()
+  rl.close()
 })

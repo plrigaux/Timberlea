@@ -4,6 +4,7 @@ import { environment } from '../../../client/src/environments/environment';
 import { FileServerService } from './utils/file-server.service';
 import { BehaviorService } from './utils/behavior.service';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -17,6 +18,7 @@ export class AppComponent implements OnInit {
   //remoteFiles: FileDetails[] = []
   serverUrl: string
   sidebar_open = false
+  tabSelectedIndex = 0
 
   constructor(
     private fileServerService: FileServerService,
@@ -28,6 +30,12 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.behavior.bookMarkOpened.subscribe((open : boolean) => {
       this.sidebar_open = open
+      this.tabSelectedIndex = 0
+    }) 
+
+    this.behavior.historyOpened.subscribe((open : boolean) => {
+      this.sidebar_open = open
+      this.tabSelectedIndex = 1
     }) 
   }
 

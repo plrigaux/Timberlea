@@ -36,13 +36,19 @@ export class FileServerService {
   private newRemoteDirectory = new Subject<string>()
   private waitingSubject = new Subject<boolean>()
   private deleteSubject = new Subject<string>()
-  private selectFileSubject = new Subject<FileDetailsPlus | null>()
-  private modifSubject = new Subject<MvFile_Response>()
+  private selectFileSubject = new Subject<SelectFileContext | null>()
+  private moveSubject = new Subject<MvFile_Response>()
+  private copySubject = new Subject<MvFile_Response>()
   private newFileSubject = new Subject<FileDetails>()
   private newFolderSubject = new Subject<string>()
+  private downloadFileSubject = new Subject<DownloadFile>()
 
   constructor(private http: HttpClient, private _snackBar: MatSnackBar) {
     this.serverUrl = environment.serverUrl
+  }
+
+  subscribeDownloadFile(obs: Partial<Observer<DownloadFile>>): Subscription {
+    return this.downloadFileSubject.subscribe(obs)
   }
 
   subscribeFileList(obs: Partial<Observer<FileDetails[]>>): Subscription {
@@ -61,15 +67,20 @@ export class FileServerService {
     return this.deleteSubject.subscribe(obs)
   }
 
-  subscribeSelectFileSub(obs: Partial<Observer<FileDetailsPlus | null>>): Subscription {
+  subscribeSelectFileSub(obs: Partial<Observer<SelectFileContext | null>>): Subscription {
     return this.selectFileSubject.subscribe(obs)
   }
 
   subscribeModif(obs: Partial<Observer<MvFile_Response>>): Subscription {
-    return this.modifSubject.subscribe(obs)
+    return this.moveSubject.subscribe(obs)
   }
 
-  subscribeNewFileSubjet(obs: Partial<Observer<FileDetails>>): Subscription {
+
+  subscribeCopy(obs: Partial<Observer<MvFile_Response>>): Subscription {
+    return this.copySubject.subscribe(obs)
+  }
+
+  subscribeNewFile(obs: Partial<Observer<FileDetails>>): Subscription {
     return this.newFileSubject.subscribe(obs)
   }
 
@@ -151,15 +162,15 @@ export class FileServerService {
   }
 
   private setRemoteDirectory(data: ChangeDir_Response | null) {
-    if (data && !data.error) {
+    if (data && data.parent) {
       this.remoteDirectory = data.parent
       this.newRemoteDirectory.next(this.remoteDirectory)
     }
     this.waitingSubject.next(false)
   }
 
-  getRemoteDirectory(): string {
-    return this.remoteDirectory
+  isHome(): boolean {
+    return this.remoteDirectory === ""
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
@@ -182,22 +193,43 @@ export class FileServerService {
     return throwError(() => new Error(message))
   }
 
-  private getFileHref(fileName: string, archive = false): string {
+  private getFileHref(path: string, archive = false): string {
+    let endpoint = archive ? endpoints.FS_DOWNZIP : endpoints.FS_DOWNLOAD
+    const href = environment.serverUrl + endpoint + "/" + encodeURIComponent(path);
+    return href
+  }
+
+  getFileNameHref(fileName: string, archive = false): string {
     let endpoint = archive ? endpoints.FS_DOWNZIP : endpoints.FS_DOWNLOAD
     const href = environment.serverUrl + endpoint + "/" + encodeURIComponent(this.remoteDirectory + "/" + fileName);
     return href
   }
 
   downloadFileName(fileName: string, archive = false) {
-    const href = this.getFileHref(fileName, archive);
+    let filePath = this.remoteDirectory + "/" + fileName;
+    this.downloadFilePath(filePath, archive)
+  }
+
+  private getLast(filePath: string) {
+    let idx = filePath.lastIndexOf("/")
+    return filePath.substring(idx)
+  }
+
+  downloadFilePath(filePath: string, archive = false) {
+    const href = this.getFileHref(filePath, archive);
 
     const link = document.createElement('a');
     link.setAttribute('target', '_blank');
     link.setAttribute('href', href);
-    link.setAttribute('download', fileName);
+    link.setAttribute('download', this.getLast(filePath));
     document.body.appendChild(link);
     link.click();
     link.remove();
+
+    this.downloadFileSubject.next({
+      path: filePath,
+      archive: archive
+    })
   }
 
   delete(fileName: string | null | undefined) {
@@ -237,16 +269,22 @@ export class FileServerService {
       })
   }
 
-  selectFile(file: FileDetails | null) {
-    let fdp: FileDetailsPlus = file as FileDetailsPlus
-    if (file) {
-      fdp.directory = this.remoteDirectory
+  selectFile(fileContext: SelectFileContext | null) {
+    if (fileContext) {
+      fileContext.file.directory = this.remoteDirectory
     }
-    this.selectFileSubject.next(fdp)
+    this.selectFileSubject.next(fileContext)
   }
 
   copyPaste(copySelect: FileDetailsPlus) {
     console.log(`COPY ${copySelect.name} from ${copySelect.directory} to ${this.remoteDirectory}`)
+
+    let request: MvFile_Request = {
+      parent: copySelect.directory,
+      fileName: copySelect.name,
+      newParent: this.remoteDirectory
+    }
+    this.copy(request)
   }
 
 
@@ -286,7 +324,7 @@ export class FileServerService {
     ).subscribe(
       {
         next: (data: MvFile_Response) => {
-          this.modifSubject.next(data)
+          this.moveSubject.next(data)
         },
         error: e => {
 
@@ -294,6 +332,23 @@ export class FileServerService {
       })
   }
 
+  private copy(request: MvFile_Request) {
+
+    this.http.put<MvFile_Response>(this.serverUrl + endpoints.FS_COPY, request).pipe(
+      tap((data: MvFile_Response) => {
+        this.setRemoteDirectory(data)
+      }),
+      catchError((e) => this.handleError(e as HttpErrorResponse))
+    ).subscribe(
+      {
+        next: (data: MvFile_Response) => {
+          this.copySubject.next(data)
+        },
+        error: e => {
+
+        }
+      })
+  }
 
   newFolder(directoryName: string | null | undefined) {
     if (!directoryName) {
@@ -373,4 +428,14 @@ export class FileServerService {
 
 export interface FileDetailsPlus extends FileDetails {
   directory: string
+}
+
+export interface DownloadFile {
+  path: string
+  archive: boolean
+}
+
+export interface SelectFileContext {
+  file : FileDetailsPlus
+  controlID : string
 }

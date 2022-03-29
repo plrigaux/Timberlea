@@ -55,7 +55,6 @@ describe('Change Directory', () => {
         let response: ChangeDir_Response = resp.body
 
         let expectDir = directoryRes.add(newDir)?.network
-        expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(expectDir)
     });
 
@@ -78,7 +77,6 @@ describe('Change Directory', () => {
         let response: ChangeDir_Response = resp.body
 
         let expectDir = directoryRes.network
-        expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(expectDir)
     });
 
@@ -97,7 +95,6 @@ describe('Change Directory', () => {
 
         let response: ChangeDir_Response = resp.body
 
-        expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(tu.HOME_ROOT)
     });
 
@@ -116,7 +113,6 @@ describe('Change Directory', () => {
 
         let response: ChangeDir_Response = resp.body
 
-        expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(tu.TEMP)
     });
 
@@ -138,7 +134,6 @@ describe('Change Directory', () => {
         let dataresp: ChangeDir_Response = resp.body
 
         console.log(dataresp)
-        expect(dataresp.error).toBeTruthy;
         expect(dataresp.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_DOESNT_EXIST)
 
     });
@@ -162,7 +157,6 @@ describe('Change Directory', () => {
         let dataresp: ChangeDir_Response = resp.body
 
         console.log(dataresp)
-        expect(dataresp.error).toBeTruthy();
         expect(dataresp.message).toEqual(FSErrorMsg.DESTINATION_FOLDER_NOT_DIRECTORY)
 
     });
@@ -182,7 +176,6 @@ describe('Change Directory', () => {
 
         let dataresp: ChangeDir_Response = resp.body
 
-        expect(dataresp.error).toBeTruthy();
     });
 })
 
@@ -206,7 +199,6 @@ describe('Change Directory with files', () => {
         console.log(resp.body)
         let response: ChangeDir_Response = resp.body
 
-        expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(tu.TEMP)
         expect(response.files).toBeDefined()
 
@@ -234,7 +226,6 @@ describe('Change Directory with files', () => {
         console.log(resp.body)
         let response: ChangeDir_Response = resp.body
 
-        expect(response.error).toBeFalsy();
         expect(response.parent).toEqual(tu.HOME_ROOT)
         expect(response.files).toBeDefined()
 

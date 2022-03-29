@@ -5,41 +5,62 @@ import { endpoints, FSErrorCode, FSErrorMsg, HttpStatusCode } from './common/con
 import { FileServerError } from './common/fileServerCommon';
 import { MvFile_Request, MvFile_Response } from './common/interfaces';
 import { resolver } from './filePathResolver';
-import { fileServer } from "./fileServer";
+import { fileServer, isEntityExists } from "./fileServer";
 
 fileServer.put(endpoints.COPY, body('parent').exists().isString(),
     body('fileName').exists().isString(),
     body('newFileName').optional().isString(),
     body('newParent').optional().isString(),
-    (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const reqData: MvFile_Request = req.body
+            console.log("COPY", reqData)
 
-        const data: MvFile_Request = req.body
-        console.log("COPY", data)
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                //console.error("Bad request", errors.array())
+                throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
+            }
 
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            //console.error("Bad request", errors.array())
-            throw new FileServerError(FSErrorMsg.BAD_REQUEST, FSErrorCode.EBADR, JSON.stringify(errors.array()))
-        }
+            const oldPath = resolver.resolve(reqData.parent, reqData.fileName)
 
-        const oldPath = resolver.resolve(data.parent, data.fileName)
+            let newPath = resolver.resolve(reqData.newParent ?? reqData.parent, reqData.newFileName ?? reqData.fileName)
 
-        const newPath = resolver.resolve(data.newParent ?? data.parent, data.newFileName ?? data.fileName)
+            let mode = reqData.overwrite ? 0 : fs.constants.COPYFILE_EXCL
 
-        let mode = data.overwrite ? 0 : fs.constants.COPYFILE_EXCL
+            let targetExist = false
+            if (!reqData.overwrite) {
+                targetExist = await isEntityExists(newPath.server)
+            }
 
-        fs.promises.copyFile(oldPath.server, newPath.server, mode)
-            .then(() => {
-                let resp: MvFile_Response = {
-                    error: false,
-                    message: "OK",
-                    parent: newPath.dirnameNetwork,
-                    oldFileName: data.fileName,
-                    newFileName: newPath.basename
+            if (targetExist) {
+                if (reqData.autoNaming === true) {
+                    //Find an available fileName
+                    let [fileName, i] = newPath.basenameNoExtNoIndice
+                    let ext = newPath.ext
+                    let autoFileName
+                    do {
+                        autoFileName = `${fileName} (${++i}).${ext}`
+                        newPath = newPath.add("..", autoFileName)
+                    } while (fs.existsSync(newPath.server))
+                } else {
+                    throw new FileServerError
+                        ("file already exist ...", FSErrorCode.EEXIST)
                 }
+            }
+            await fs.promises.copyFile(oldPath.server, newPath.server, mode)
 
-                res.status(HttpStatusCode.OK).send(resp);
-            })
-            .catch(next)
+            let resp: MvFile_Response = {
+                message: FSErrorMsg.OK,
+                parent: newPath.dirnameNetwork,
+                oldFileName: reqData.fileName,
+                newFileName: newPath.basename
+            }
+
+            res.status(HttpStatusCode.OK).send(resp);
+
+        } catch (err) {
+            next(err)
+        }
     })
 

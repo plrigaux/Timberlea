@@ -50,7 +50,6 @@ describe('Create File', () => {
 
         let response: FileDetail_Response = resp.body
 
-        expect(response.error).toBeFalsy()
         expect(response.file).not.toBeUndefined()
         expect(response.file.name).toEqual(requestData.fileName)
 

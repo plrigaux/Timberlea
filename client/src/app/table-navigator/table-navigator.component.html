@@ -48,8 +48,19 @@
     (dblclick)="elementClick(row)" longPress2
     (onLongPress)="onLongPressRow(row)"
     (click)="onClickRow(row)"
+    (contextmenu)="onContextMenu($event, row)"
     [ngClass]="{'file-row-highlight': selectedRowIndex == row.name, 'file-row-pressing': selectedRowIndex2 == row.name}"
     (onLongPressing)="onLongPressingRow(row)" class="file-row">
     ></tr>
 
 </table>
+
+<!-- an hidden div is created to set the position of appearance of the menu--> 
+<div style="visibility: hidden; position: fixed;" 
+[ngStyle]="getRightClickMenuStyle()"
+[matMenuTriggerFor]="fileContextMenu"></div> 
+ 
+<!-- standard material menu --> 
+<mat-menu #fileContextMenu="matMenu"> 
+  <app-controls controlAligment='VERTICAL' id="context"></app-controls>
+</mat-menu>

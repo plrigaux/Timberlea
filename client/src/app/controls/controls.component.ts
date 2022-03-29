@@ -1,11 +1,11 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { ErrorStateMatcher } from '@angular/material/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { FileType } from '../../../../server/src/common/interfaces';
 import { BehaviorService } from '../utils/behavior.service';
-import { FileDetailsPlus, FileServerService } from '../utils/file-server.service';
-import { DirtyErrorStateMatcher, forbiddenCharValidator } from '../utils/utils';
+import { FileDetailsPlus, FileServerService, SelectFileContext } from '../utils/file-server.service';
+import { DialogFileInfo } from './dialog-file-info';
+import { DialogFileRename } from './dialog-file-rename';
 
 @Component({
   selector: 'app-controls',
@@ -14,11 +14,19 @@ import { DirtyErrorStateMatcher, forbiddenCharValidator } from '../utils/utils';
 })
 export class ControlsComponent implements OnInit, OnDestroy {
 
-  fileDetails: FileDetailsPlus | null = null
+  private fileDetails: FileDetailsPlus | null = null
   cutCopyPaste = false
   cutSelect: FileDetailsPlus | null = null
   copySelect: FileDetailsPlus | null = null
   private subscriptions: Subscription[] = []
+
+  @Input()
+  controlAligment: string = "HORIZONTAL"
+
+  @Input()
+  id: string = "bottom"
+
+  callerId: string | null = null
 
   constructor(private fileServerService: FileServerService,
     private _dialog: MatDialog,
@@ -27,8 +35,14 @@ export class ControlsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscriptions.push(
       this.fileServerService.subscribeSelectFileSub({
-        next: (fileDetail: FileDetailsPlus | null) => {
-          this.fileDetails = fileDetail
+        next: (fileContextDetail: SelectFileContext | null) => {
+          if (fileContextDetail) {
+            this.fileDetails = fileContextDetail.file
+            this.callerId = fileContextDetail.controlID
+          } else {
+            this.fileDetails = null
+            this.callerId = null
+          }
         }
       })
     )
@@ -39,8 +53,15 @@ export class ControlsComponent implements OnInit, OnDestroy {
     this.subscriptions = []
   }
 
+  getClass(): string {
+    if (this.controlAligment === "VERTICAL") {
+      return "buttonVertical"
+    }
+    return ""
+  }
+
   showFileCommands(): boolean {
-    return this.fileDetails != null && !this.cutCopyPaste
+    return (this.id === this.callerId) && (this.fileDetails != null && !this.cutCopyPaste)
   }
 
   delete() {
@@ -76,7 +97,6 @@ export class ControlsComponent implements OnInit, OnDestroy {
   }
 
   info() {
-    console.log('Info clicked');
     const dialog = this._dialog.open(DialogFileInfo, {
       width: '350px',
       // Can be closed only by clicking the close button
@@ -95,8 +115,6 @@ export class ControlsComponent implements OnInit, OnDestroy {
 
 
     dialog.afterClosed().subscribe(result => {
-      console.log('The dialog was closed', result);
-
       this.fileServerService.renameFile(this.fileDetails?.name, result)
     });
   }
@@ -113,45 +131,26 @@ export class ControlsComponent implements OnInit, OnDestroy {
       this.fileServerService.downloadFileName(filename, true)
     }
   }
-}
 
-@Component({
-  selector: 'dialog-file-info',
-  templateUrl: 'dialog-file-info.html',
-})
-export class DialogFileInfo {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) { }
-}
-
-@Component({
-  selector: 'dialog-file-rename',
-  templateUrl: 'dialog-file-rename.html',
-  providers: [{ provide: ErrorStateMatcher, useClass: DirtyErrorStateMatcher }]
-})
-export class DialogFileRename implements AfterViewInit {
-
-  newFileName: FormControl
-
-  @ViewChild('newFileInput', { static: true }) newFileInput!: ElementRef;
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: FileDetailsPlus) {
-    this.newFileName = new FormControl(data.name, { validators: [Validators.required, forbiddenCharValidator()], updateOn: 'change' });
+  download() {
+    let filename = this.fileDetails?.name
+    if (filename) {
+      this.fileServerService.downloadFileName(filename, false)
+    }
   }
 
+  isDisabled(button: string): boolean {
 
-  ngAfterViewInit(): void {
-    console.log(this.newFileInput)
+    if (this.fileServerService.isHome()) {
+      return true;
+    }
 
+    switch (button) {
+      case "download":
+        return this.fileDetails?.type === FileType.Directory
 
-    setTimeout(() => {
+    }
 
-      let fileName: string = this.newFileName.value
-
-      let lastPoint = fileName.lastIndexOf(".")
-      if (lastPoint > 0) {
-        this.newFileInput.nativeElement.setSelectionRange(0, lastPoint)
-      }
-      this.newFileInput.nativeElement.focus()
-    }, 0);
+    return false
   }
 }
